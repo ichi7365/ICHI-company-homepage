@@ -38,9 +38,9 @@ export default function Page() {
             <p className="auth-sub">파트너 · 임직원 전용 시스템입니다.<br />등록된 계정으로 로그인해 주세요.</p>
 
             <form className="auth-form" id="login-form" onSubmit={vars.onSubmit}>
-              <div className="fg" data-field="userid">
-                <label className="fl">ID <span className="ko">· 아이디</span></label>
-                <input type="text" className="fi" name="userid" placeholder="아이디를 입력해 주세요" autoComplete="username" />
+              <div className="fg" data-field="email">
+                <label className="fl">Email <span className="ko">· 이메일</span></label>
+                <input type="email" className="fi" name="email" placeholder="name@example.com" autoComplete="email" />
                 <div className="fg-alert"></div>
               </div>
               <div className="fg" data-field="password">
@@ -59,9 +59,9 @@ export default function Page() {
                 <label className="auth-check">
                   <input type="checkbox" name="remember" />
                   <span className="box"><svg viewBox="0 0 12 12"><polyline points="2,6.5 5,9 10,3.5"></polyline></svg></span>
-                  아이디 저장
+                  이메일 저장
                 </label>
-                <a href="/contact" className="auth-mini-link">아이디 찾기 <span className="sep"></span> 비밀번호 찾기</a>
+                <a href="/contact" className="auth-mini-link">비밀번호 찾기</a>
               </div>
 
               <button type="submit" className="btn-submit auth-submit" style={{ marginTop: "6px" }}>

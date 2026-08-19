@@ -11,9 +11,8 @@
 -- ---------------------------------------------------------------------
 create table if not exists public.profiles (
   id          uuid primary key references auth.users(id) on delete cascade,
-  user_id     text unique not null,              -- 화면의 '아이디'
   name        text not null,
-  email       text,
+  email       text unique not null,             -- 로그인 계정 (auth.users.email 과 동일)
   phone       text,
   birth       date,
   gender      text check (gender in ('남성', '여성')),
@@ -157,33 +156,6 @@ create policy posts_update_own on public.posts
 drop policy if exists posts_delete_own on public.posts;
 create policy posts_delete_own on public.posts
   for delete using (author_id = auth.uid() or public.is_admin());
-
-
--- =====================================================================
---  아이디 로그인 지원
---
---  시안이 '이메일'이 아니라 '아이디'로 로그인하므로,
---  Supabase Auth 에는 아이디로 만든 내부 주소를 씁니다.
---      아이디 gildong123  →  gildong123@users.ichi.kr
---  실제 연락용 이메일은 profiles.email 에 따로 보관합니다.
---
---  ※ 이 내부 주소로는 메일이 오가지 않으므로 Supabase 대시보드에서
---    Authentication → Sign In / Providers → Confirm email 을 꺼야 합니다.
--- =====================================================================
-
--- 회원가입 화면의 '중복 확인' 버튼이 호출합니다.
--- profiles 는 RLS 로 막혀 있어 비로그인 상태에서는 조회할 수 없으므로,
--- 사용 여부(true/false)만 알려주는 함수를 따로 둡니다.
-create or replace function public.is_user_id_taken(p_user_id text)
-returns boolean
-language sql
-security definer
-stable
-set search_path = public
-as 'select exists (select 1 from public.profiles where lower(user_id) = lower(p_user_id))';
-
-revoke all on function public.is_user_id_taken(text) from public;
-grant execute on function public.is_user_id_taken(text) to anon, authenticated;
 
 
 -- =====================================================================

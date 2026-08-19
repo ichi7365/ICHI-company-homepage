@@ -21,11 +21,49 @@ const ROUTES = {
 
 const indent = (s, n) => s.split('\n').map(l => (l.trim() ? ' '.repeat(n) + l : l)).join('\n');
 
+/* 로그인 방식을 '이메일 + 비밀번호'(A안)로 정하면서 시안 마크업을 손봅니다.
+   시안 원본(_design)은 그대로 두고 여기서 패치하므로, 시안을 다시 받아
+   재변환해도 이 수정이 유지됩니다. */
+function patchLoginMethod(route, body) {
+  if (route === 'login') {
+    return body
+      .replace(/data-field="userid"/g, 'data-field="email"')
+      .replace(
+        /<label className="fl">ID <span className="ko">· 아이디<\/span><\/label>/,
+        '<label className="fl">Email <span className="ko">· 이메일</span></label>'
+      )
+      .replace(
+        /<input type="text" className="fi" name="userid"[^/]*\/>/,
+        '<input type="email" className="fi" name="email" placeholder="name@example.com" autoComplete="email" />'
+      )
+      .replace(/아이디 저장/g, '이메일 저장')
+      .replace(/아이디 찾기 <span className="sep"><\/span> /, '');
+  }
+
+  if (route === 'signup') {
+    /* 아이디 입력칸과 중복 확인 버튼 제거 — 이메일이 곧 계정입니다 */
+    return body.replace(
+      /<div className="fg" data-field="userid">[\s\S]*?id-check-msg"><\/div>\s*<div className="fg-alert"><\/div>\s*<\/div>\s*/,
+      ''
+    );
+  }
+
+  if (route === 'mypage') {
+    /* '아이디' 행 제거 — 바로 아래 '이메일' 행과 같은 값이 됩니다 */
+    return body.replace(
+      /<div className="mp-info-row"><span className="mp-info-label">아이디 · ID<\/span>[\s\S]*?<\/div>\s*/,
+      ''
+    );
+  }
+
+  return body;
+}
+
 const log = [];
 
 for (const [file, route] of Object.entries(ROUTES)) {
   const dir = path.join(SRC, 'app', route);
-  const body = fs.readFileSync(path.join(dir, '_body.jsx.txt'), 'utf8');
+  const body = patchLoginMethod(route, fs.readFileSync(path.join(dir, '_body.jsx.txt'), 'utf8'));
   const src = fs.readFileSync(path.join(DESIGN, file), 'utf8');
 
   const title = (src.match(/<title>([^<]*)<\/title>/) || [])[1] || 'ICHI';

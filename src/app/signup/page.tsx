@@ -79,15 +79,6 @@ export default function Page() {
                 <div className="fg-alert"></div>
               </div>
 
-              <div className="fg" data-field="userid">
-                <label className="fl">ID <span className="ko">· 아이디</span></label>
-                <div className="id-check-row">
-                  <input type="text" className="fi" name="userid" placeholder="사용할 아이디를 입력해 주세요" autoComplete="username" />
-                  <button type="button" className="id-check-btn" onClick={vars.checkId}>중복 확인</button>
-                </div>
-                <div className="id-check-msg" id="id-check-msg"></div>
-                <div className="fg-alert"></div>
-              </div>
               <div className="fg-row">
                 <div className="fg" data-field="password">
                   <label className="fl">Password <span className="ko">· 비밀번호</span></label>

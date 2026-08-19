@@ -1,8 +1,8 @@
 'use client';
 
-/* 회원가입 — 필드 검증, 아이디 중복확인, 휴대폰 인증(데모), 약관 동의.
+/* 회원가입 — 필드 검증, 휴대폰 인증(데모), 약관 동의. 계정은 이메일 기준입니다.
    원본 시안의 DOM 조작 방식을 유지해 마크업/스타일 동작을 그대로 보존합니다.
-   TODO(백엔드1): checkId / sendCode / verifyCode / onSubmit 을 실제 API 로 교체 */
+   TODO(백엔드1): sendCode / verifyCode / onSubmit 을 repo/auth.ts 의 signUp() 과 실제 인증 API 로 교체 */
 
 import { useEffect, useRef, type FormEvent, type MouseEvent } from 'react';
 import { useRouter } from 'next/navigation';
@@ -10,8 +10,7 @@ import { AGREE_FIELD, TERMS, type TermsKey } from './terms-data';
 
 const FORM_ID = 'signup-form';
 const AGREES = ['agree1', 'agree2', 'agree3'] as const;
-const FIELDS = ['name', 'birth', 'phone', 'email', 'userid', 'password', 'password2'] as const;
-const TAKEN_IDS = ['admin', 'ichi', 'test', 'user', 'manager', 'root', 'guest'];
+const FIELDS = ['name', 'birth', 'phone', 'email', 'password', 'password2'] as const;
 const CODE_SECONDS = 180;
 
 const form = () => document.getElementById(FORM_ID) as HTMLFormElement | null;
@@ -40,7 +39,6 @@ const clearErr = (field: string) =>
 
 export function useVars() {
   const router = useRouter();
-  const checkedId = useRef<string | null>(null);
   const phoneVerified = useRef(false);
   const genCode = useRef<string | null>(null);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -65,10 +63,6 @@ export function useVars() {
       case 'email':
         if (!v) msg = '이메일을 입력해 주세요.';
         else if (!emailOk(v)) msg = '올바른 이메일 형식을 입력해주세요.';
-        break;
-      case 'userid':
-        if (!v) msg = '아이디를 입력해 주세요.';
-        else if (checkedId.current !== v) msg = '아이디 중복 확인을 해주세요.';
         break;
       case 'password':
         if (!v) msg = '비밀번호를 입력해 주세요.';
@@ -95,8 +89,6 @@ export function useVars() {
       phoneOk(val('phone')) &&
       phoneVerified.current &&
       emailOk(val('email')) &&
-      !!val('userid') &&
-      checkedId.current === val('userid') &&
       val('password').length >= 8 &&
       !!val('password2') &&
       val('password') === val('password2') &&
@@ -217,10 +209,6 @@ export function useVars() {
       }
       byId('signup-note')?.classList.remove('show');
       if (target.name === 'password') updatePwStrength(target.value);
-      if (target.name === 'userid') {
-        checkedId.current = null;
-        byId('id-check-msg')?.classList.remove('show', 'ok', 'taken');
-      }
       if (target.name === 'phone') resetVerification();
       if (target.name === 'gender') clearErr('gender');
       updateSubmitState();
@@ -280,39 +268,6 @@ export function useVars() {
       byId('agree-alert')?.classList.remove('show');
       byId('terms-modal')?.classList.remove('show');
       document.body.style.overflow = '';
-    },
-
-    checkId: () => {
-      const input = form()?.querySelector<HTMLInputElement>('[name="userid"]');
-      const msg = byId('id-check-msg');
-      const id = (input?.value || '').trim();
-      msg?.classList.remove('ok', 'taken');
-
-      if (!id) {
-        checkedId.current = null;
-        if (msg) {
-          msg.textContent = '아이디를 입력해 주세요.';
-          msg.classList.add('show', 'taken');
-        }
-        input?.focus({ preventScroll: true });
-        updateSubmitState();
-        return;
-      }
-      if (TAKEN_IDS.includes(id.toLowerCase())) {
-        checkedId.current = null;
-        if (msg) {
-          msg.textContent = '이미 사용 중인 아이디입니다.';
-          msg.classList.add('show', 'taken');
-        }
-      } else {
-        checkedId.current = id;
-        if (msg) {
-          msg.textContent = '사용 가능한 아이디입니다.';
-          msg.classList.add('show', 'ok');
-        }
-        clearErr('userid');
-      }
-      updateSubmitState();
     },
 
     sendCode: () => {
@@ -433,7 +388,6 @@ export function useVars() {
             gender: gender(),
             phone: val('phone'),
             email: val('email'),
-            id: val('userid'),
             joinDate: new Date().toISOString().slice(0, 10),
           })
         );

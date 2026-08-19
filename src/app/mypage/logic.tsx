@@ -22,7 +22,6 @@ const setText = (id: string, v?: string) => {
 function fill(u: User) {
   setText('mp-hello', u.name || '회원');
   setText('v-name', u.name);
-  setText('v-id', u.id);
   setText('v-email', u.email);
   setText('v-phone', u.phone);
   setText('v-birth', fmtDate(u.birth));

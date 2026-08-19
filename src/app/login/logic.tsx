@@ -1,12 +1,12 @@
 'use client';
 
-/* 로그인 — 폼 검증 후 인증 처리.
-   TODO(백엔드1): 아래 login() 호출을 실제 인증 API(POST /api/auth/login) 로 교체 */
+/* 로그인 — 이메일 + 비밀번호.
+   TODO(백엔드1): login() 을 repo/auth.ts 의 signIn() 으로 교체 */
 
 import { type FormEvent, type MouseEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, type User } from '@/lib/auth';
-import { fieldValue, runValidation, useClearErrorOnInput } from '@/lib/form';
+import { fieldValue, isEmail, runValidation, useClearErrorOnInput } from '@/lib/form';
 
 export function useVars() {
   const { login } = useAuth();
@@ -24,7 +24,8 @@ export function useVars() {
 
       const v = (n: string) => fieldValue(form, n);
       const ok = runValidation(form, [
-        ['userid', !v('userid'), '아이디를 입력해 주세요.'],
+        ['email', !v('email'), '이메일을 입력해 주세요.'],
+        ['email', !!v('email') && !isEmail(v('email')), '올바른 이메일 형식을 입력해 주세요.'],
         ['password', !v('password'), '비밀번호를 입력해 주세요.'],
       ]);
       if (!ok) return;
@@ -38,13 +39,12 @@ export function useVars() {
 
       login({
         name: '회원',
-        email: '',
         phone: '',
         birth: '',
         gender: '',
         joinDate: new Date().toISOString().slice(0, 10),
         ...profile,
-        id: v('userid'),
+        email: v('email'),
       });
 
       if (note) {

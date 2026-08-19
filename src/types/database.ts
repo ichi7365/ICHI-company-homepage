@@ -11,9 +11,8 @@ export type Gender = '남성' | '여성';
 
 export type Profile = {
   id: string;
-  user_id: string;
   name: string;
-  email: string | null;
+  email: string;
   phone: string | null;
   birth: string | null;
   gender: Gender | null;
@@ -102,8 +101,6 @@ export type Database = {
     Views: Record<string, never>;
     Functions: {
       is_admin: { Args: Record<string, never>; Returns: boolean };
-      /** 아이디 중복 확인 — 비로그인 상태에서도 호출 가능 */
-      is_user_id_taken: { Args: { p_user_id: string }; Returns: boolean };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;

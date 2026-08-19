@@ -25,7 +25,6 @@ export default function Page() {
             </div>
             <div className="mp-info-list">
               <div className="mp-info-row"><span className="mp-info-label">이름 · Name</span><span className="mp-info-value" id="v-name">—</span></div>
-              <div className="mp-info-row"><span className="mp-info-label">아이디 · ID</span><span className="mp-info-value" id="v-id">—</span></div>
               <div className="mp-info-row"><span className="mp-info-label">이메일 · Email</span><span className="mp-info-value" id="v-email">—</span></div>
               <div className="mp-info-row"><span className="mp-info-label">연락처 · Phone</span><span className="mp-info-value" id="v-phone">—</span></div>
               <div className="mp-info-row"><span className="mp-info-label">생년월일 · Birth</span><span className="mp-info-value" id="v-birth">—</span></div>
