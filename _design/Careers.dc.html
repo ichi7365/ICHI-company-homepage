@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style data-omelette-injected>html,body{background:transparent}</style><script data-omelette-injected>(()=>{{const n=new URLSearchParams(location.search).get("theme");if(n==="light"||n==="dark"){document.documentElement.dataset.theme=n}}{if(new URLSearchParams(location.search).get("_omthumb")==="1"){const n=(f)=>{const g=f.focus;if(!g)return;f.focus=function(h){g.call(this,{...h,preventScroll:true})}};n(HTMLElement.prototype);n(SVGElement.prototype);if(typeof MathMLElement!=="undefined"){n(MathMLElement.prototype)}const d=(f)=>{f.removeAttribute("autofocus");f.inert=true;if(!(f instanceof HTMLElement))f.removeAttribute("tabindex")};const p=(f)=>{if(f.hasAttribute("autofocus"))d(f);for(const g of f.querySelectorAll("[autofocus]")){d(g)}};p(document.documentElement);new MutationObserver((f)=>{for(const g of f){for(const h of g.addedNodes){if(h.nodeType===1)p(h)}}}).observe(document,{childList:true,subtree:true})}}{const n=()=>{try{if(document.querySelector('meta[name="color-scheme"]'))return;const d=getComputedStyle(document.documentElement).getPropertyValue("color-scheme").trim();if(d&&d!=="normal")return;const p=(y)=>{if(!y)return null;const m=getComputedStyle(y).backgroundColor.match(/^rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)(?:[,\s/]+([\d.]+%?))?\s*\)$/);if(!m)return null;const w=m[4]==null?1:parseFloat(m[4])/(m[4].endsWith("%")?100:1);if(w<0.99)return null;return[+m[1],+m[2],+m[3]]};const f=p(document.body)||p(document.documentElement);if(!f)return;const g=(y)=>{const m=y/255;return m<=0.04045?m/12.92:((m+0.055)/1.055)**2.4};const h=0.2126*g(f[0])+0.7152*g(f[1])+0.0722*g(f[2]);document.documentElement.style.setProperty("color-scheme",h<0.4?"dark":"light")}catch{}};if(document.readyState==="complete")n();else window.addEventListener("load",n)}var I=[];var B=false;var K=false;var C=()=>{};if(K===true){try{const n=setTimeout.bind(window);const d=1e4;const p=15;const f=1e4;const g=120000;const h=200;const y=(o)=>{try{let r;if(typeof o==="string")r=o;else if(o instanceof URL)r=o.href;else if(typeof Request!=="undefined"&&o instanceof Request)r=o.url;else return null;if(!r)return null;const l=document.baseURI;const i=new URL(r,l);if(i.protocol!=="http:"&&i.protocol!=="https:")return null;if(i.origin!==new URL(l).origin)return null;return i.origin+i.pathname}catch{return null}};const m=new Map;const w=(o)=>{let r=m.get(o);if(!r){if(m.size>=h){const l=m.keys().next().value;if(l!==undefined)m.delete(l)}r={fails:[],until:0,cooldown:f,hard:false};m.set(o,r)}return r};const R=(o)=>{const r=m.get(o);return r!==undefined&&r.until>Date.now()};const O=(o,r)=>{const l=Date.now();const i=w(o);if(r)i.hard=true;if(i.until>l)return;i.fails.push(l);while(i.fails.length>0&&i.fails[0]<=l-d)i.fails.shift();if(i.fails.length>=p){i.until=l+i.cooldown;if(i.hard)i.cooldown=Math.min(i.cooldown*2,g);i.fails.length=0;try{n(()=>{try{S(true)}catch{}},i.until-l+100)}catch{}console.warn("[omelette] asset circuit breaker: pausing requests to "+o+" for "+Math.round((i.until-l)/1000)+"s after "+p+" failures in "+d/1000+"s")}};const e=(o)=>{m.delete(o)};const t=100;const a=new WeakMap;const u=new Set;let s=null;const S=(o)=>{for(const r of Array.from(u)){try{const l=a.get(r);if(l===undefined){u.delete(r);continue}if(o){const i=y(l);if(i!==null&&R(i))continue}a.delete(r);u.delete(r);if(s!==null)s.call(r,l)}catch{}}};C=()=>{try{m.clear();S(false)}catch{}};document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")C()});const _=window.fetch;if(typeof _==="function"){const o=function(...r){let l=null;try{l=y(r[0])}catch{}if(l!==null&&R(l)){let c;try{if(r[1]&&r[1].signal!==undefined){c=r[1].signal||undefined}else if(typeof Request!=="undefined"&&r[0]instanceof Request){c=r[0].signal||undefined}}catch{c=undefined}return new Promise((k,b)=>{const E=()=>{try{return c.reason!==undefined?c.reason:new DOMException("The operation was aborted.","AbortError")}catch{return new DOMException("The operation was aborted.","AbortError")}};try{if(c&&c.aborted){b(E());return}}catch{}let T=false;const j=()=>{if(T)return;T=true;b(E())};try{if(c)c.addEventListener("abort",j,{once:true})}catch{}n(()=>{if(T)return;T=true;try{if(c)c.removeEventListener("abort",j)}catch{}let L;try{L=new Response(null,{status:429,statusText:"Too Many Requests",headers:{"Retry-After":"10"}})}catch{L={ok:false,status:429}}k(L)},250)})}const i=_.apply(window,r);if(l!==null){const c=l;i.then((k)=>{try{if(k.ok)e(c);else if(k.status===401||k.status===403||k.status===404||k.status===429){O(c,k.status!==404)}}catch{}},()=>{})}return i};window.fetch=o}const v=Object.getOwnPropertyDescriptor(HTMLImageElement.prototype,"src");if(v!==undefined&&v.set!==undefined&&v.get!==undefined){const o=v.set;s=o;Object.defineProperty(HTMLImageElement.prototype,"src",{configurable:true,enumerable:v.enumerable,get:v.get,set(r){const l=`${r}`;try{const i=y(l);if(i!==null&&R(i)){a.set(this,l);if(u.size<t)u.add(this);return}}catch{}try{a.delete(this);u.delete(this)}catch{}o.call(this,l)}})}try{const o=HTMLImageElement.prototype.setAttribute;HTMLImageElement.prototype.setAttribute=function(r,l){if(arguments.length<2){o.apply(this,arguments);return}if(typeof r==="string"&&r.toLowerCase()==="src"){const i=`${l}`;try{const c=y(i);if(c!==null&&R(c)){a.set(this,i);if(u.size<t)u.add(this);return}a.delete(this);u.delete(this)}catch{}o.call(this,r,i);return}o.call(this,r,l)}}catch{}window.addEventListener("error",(o)=>{try{const r=o.target;if(r instanceof HTMLImageElement){const l=y(r.currentSrc||r.src||"");if(l!==null)O(l,true)}}catch{}},true);window.addEventListener("load",(o)=>{try{const r=o.target;if(r instanceof HTMLImageElement){const l=y(r.currentSrc||r.src||"");if(l!==null)e(l);const i=a.get(r);if(i!==undefined){let c=false;try{c=new URL(i,document.baseURI).href===new URL(r.currentSrc||r.src||"",document.baseURI).href}catch{c=false}if(c){a.delete(r);u.delete(r)}}}}catch{}},true)}catch{}}var J=30000;var G=3000;document.addEventListener("DOMContentLoaded",()=>{const n=window.Babel;const d="om-src-id";if(n&&n.registerPlugin&&!(n.availablePlugins&&n.availablePlugins[d])){n.registerPlugin(d,({types:h})=>({visitor:{JSXOpeningElement(y,m){const w=y.node;if(w.name&&w.name.type==="JSXMemberExpression")return;for(let t=0;t<w.attributes.length;t++){const a=w.attributes[t];if(a.type==="JSXAttribute"&&a.name&&a.name.name==="data-om-id")return}const R=m.file&&m.file.opts&&m.file.opts.filename||"?";const O=w.loc&&w.loc.start;const e=`jsx:${R}:${w.start??0}:${O?O.line:0}:${O?O.column+1:0}`;w.attributes.push(h.jsxAttribute(h.jsxIdentifier("data-om-id"),h.stringLiteral(e)))}}}))}const p="om-text-extract";let f=false;if(B&&n&&n.registerPlugin&&!(n.availablePlugins&&n.availablePlugins[p])){const h=window.React;if(h&&h.useSyncExternalStore&&h.createElement){f=true;const y={};const m=new Set;let w=0;window.__omTextO=y;window.__omTextSet=(e)=>{for(const t in e){const a=e[t];if(a==null)delete y[t];else y[t]=a}w++;m.forEach((t)=>t())};const R=(e)=>{m.add(e);return()=>m.delete(e)};const O=()=>w;window.__OmT=function e(t){h.useSyncExternalStore(R,O,O);return h.createElement("span",{"data-om-text":t.i,className:"__om-t"},t.i in y?y[t.i]:t.children)};n.registerPlugin(p,({types:e})=>{const t={style:1,script:1,noscript:1,textarea:1,title:1,option:1,text:1,tspan:1,textPath:1};const a={placeholder:1,alt:1,title:1,label:1,"aria-label":1,"aria-description":1,"aria-placeholder":1};const u=(o,r)=>e.logicalExpression("??",e.memberExpression(e.logicalExpression("||",e.memberExpression(e.identifier("window"),e.identifier("__omTextO")),e.objectExpression([])),e.stringLiteral(o),true),r);const s=(o)=>o.file&&o.file.opts&&o.file.opts.filename||"?";const S=(o)=>o.file&&o.file.code||"";const _=(o,r)=>{const l=(c)=>c&&c.start!=null&&c.end!=null&&(c.type==="StringLiteral"||c.type==="TemplateLiteral"&&c.expressions.length===0)?[c.start,c.end]:null;const i=l(r);if(i)return i;if(r&&r.type==="Identifier"){const c=o.scope.getBinding(r.name);if(c&&c.constant&&c.path.node.type==="VariableDeclarator"){return l(c.path.node.init)}}return null};const v=(o,r,l)=>{const i=o.node;let c=false;const k=(E,T)=>{c=true;return e.jsxElement(e.jsxOpeningElement(e.jsxIdentifier("__OmT"),[e.jsxAttribute(e.jsxIdentifier("i"),e.stringLiteral(E))],false),e.jsxClosingElement(e.jsxIdentifier("__OmT")),[T],false)};const b=i.children.map((E)=>{if(E.type==="JSXText"){if(E.start==null||E.end==null)return E;const T=l.slice(E.start,E.end);const j=T.length-T.trimStart().length;const L=T.length-T.trimEnd().length;if(j+L>=T.length)return E;return k(`txt:${r}:${E.start+j}:${E.end-L}`,E)}if(E.type==="JSXExpressionContainer"){const T=_(o,E.expression);if(T)return k(`str:${r}:${T[0]}:${T[1]}`,E)}return E});if(c)i.children=b};return{visitor:{JSXOpeningElement(o,r){const l=o.node;const i=s(r);const c={};for(let k=0;k<l.attributes.length;k++){const b=l.attributes[k];if(b.type!=="JSXAttribute"||!b.name)continue;const E=b.name.name;if(!a[E])continue;if(!b.value||b.value.type!=="StringLiteral")continue;if(b.value.start==null||b.value.end==null)continue;const T=`txt:${i}:${b.value.start}:${b.value.end}`;c[E]=T;b.value=e.jsxExpressionContainer(u(T,e.stringLiteral(b.value.value)))}if(Object.keys(c).length){l.attributes.push(e.jsxAttribute(e.jsxIdentifier("data-om-text-attrs"),e.stringLiteral(JSON.stringify(c))))}},JSXElement(o,r){const l=o.node.openingElement;const i=l&&l.name&&l.name.name;if(i==="__OmT")return;if(typeof i==="string"&&t[i])return;v(o,s(r),S(r))},JSXFragment(o,r){v(o,s(r),S(r))}}}})}}const g=f?["transform-react-jsx-source",d,p]:["transform-react-jsx-source",d];document.querySelectorAll('script[type="text/babel"],script[type="text/jsx"]').forEach((h,y)=>{const m=h.getAttribute("data-plugins")||"";const w=g.filter((R)=>m.indexOf(R)<0);if(w.length){h.setAttribute("data-plugins",m?`${m},${w.join(",")}`:w.join(","))}if(!h.hasAttribute("data-filename")){h.setAttribute("data-filename",h.getAttribute("src")||`inline-${y}`)}})});var A=window.parent;var U="not editable here — open the project in the Claude Design editor to save";var W=()=>Promise.resolve({persisted:false,noHost:true,reason:U});var H=W;var M="data/storage.json";var z=()=>{try{const n=new URL(document.baseURI);const d=n.pathname.match(/\/projects\/([^/]+)\/serve\//);if(d)return d[1];return n.hostname.split(".")[0]||""}catch{return location.hostname.split(".")[0]||""}};var Z=()=>{try{const n=new URL(document.baseURI);const d=n.pathname.indexOf("/serve/");if(d>=0)return n.origin+n.pathname.slice(0,d+"/serve/".length)+M}catch{}return"./"+M};var x=null;var N=()=>{if(!x){x=fetch(Z(),{cache:"no-store"}).then((n)=>{if(n.ok)return n.text();return n.status===404?"":null}).catch(()=>null).then((n)=>{if(n===null){x=null;return null}const d=new Map;if(!n)return d;let p;try{p=JSON.parse(n)}catch{console.warn("[omelette.storage] "+M+" is not valid JSON; treating the store as unreadable so a save cannot overwrite the "+"hand-edited bytes. Fix the JSON (or delete the file) to re-enable persistence.");x=null;return null}if(p===null||typeof p!=="object"||Array.isArray(p)){console.warn("[omelette.storage] "+M+" doesn't hold a JSON object; treating the store as unreadable so a save cannot "+"overwrite the hand-edited bytes. Make the top level a JSON object to re-enable persistence.");x=null;return null}const f=p;if("data"in f){const g=f.data;if(g===null||typeof g!=="object"||Array.isArray(g)){console.warn("[omelette.storage] "+M+' has a "data" field that is not a JSON object; treating the store as unreadable so a '+'save cannot overwrite the hand-edited bytes. Make "data" a JSON object to re-enable persistence.');x=null;return null}const h=f._meta;const y=h!==null&&typeof h==="object"?h.project:undefined;if(typeof y==="string"&&y!==""&&y!==z())return d;for(const m of Object.keys(g))d.set(m,g[m]);return d}for(const g of Object.keys(f)){if(g!=="_meta")d.set(g,f[g])}return d})}return x};var F=(n)=>H(M,JSON.stringify({_meta:{project:z(),version:1},data:Object.fromEntries(n)},null,2));var D=Promise.resolve();var $=(n)=>{const d=D.then(n);D=d.then(()=>{return},()=>{return});return d};var V=/sk-(?:ant-)?[A-Za-z0-9_-]{16,}|AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9]{20,}|xox[a-z]-[A-Za-z0-9][A-Za-z0-9-]{9,}|AIza[0-9A-Za-z_-]{30,}|-----BEGIN [A-Z ]*PRIVATE KEY-----/;var Y=/password|passwd|secret|api[_-]?key|access[_-]?token|auth[_-]?token|credential/i;var Q=(n,d,p)=>{if(V.test(d)||Y.test(n)&&typeof p==="string"&&p.length>=8){console.warn('[omelette.storage] the value for "'+n+'" looks like a credential. The storage file is a plaintext project file — visible to '+"everyone with project access and copied when the project is duplicated. Do not store secrets here.")}};var q={persisted:false,reason:"could not load the existing store — not overwriting it"};var X={persisted:false,reason:"stored value changed since a failed read — re-read this key before saving"};var P=new Set;var ee={get:(n)=>{if(typeof n!=="string"){return Promise.reject(new TypeError("storage.get: key must be a string"))}return $(N).then((d)=>{if(d===null){P.add(n);return null}P.delete(n);if(!d.has(n))return null;const p=d.get(n);return p==null?null:JSON.parse(JSON.stringify(p))})},set:(n,d)=>{if(typeof n!=="string"){return Promise.reject(new TypeError("storage.set: key must be a string"))}let p;try{p=JSON.stringify(d)}catch(g){return Promise.reject(new TypeError("storage.set: value must be JSON-serializable ("+String(g)+")"))}if(p===undefined){return Promise.reject(new TypeError("storage.set: value must be JSON-serializable"))}Q(n,p,d);const f=JSON.parse(p);return $(()=>N().then((g)=>{if(g===null)return q;if(P.has(n)){if(g.has(n))return X;P.delete(n)}g.set(n,f);return F(g)}))},delete:(n)=>{if(typeof n!=="string"){return Promise.reject(new TypeError("storage.delete: key must be a string"))}return $(()=>N().then((d)=>{if(d===null)return q;if(P.has(n)){if(d.has(n))return X;P.delete(n)}d.delete(n);return F(d)}))},keys:()=>$(N).then((n)=>n===null?[]:Array.from(n.keys()))};window.omelette={writeFile:(n,d)=>H(n,d).then((p)=>{if(!p.persisted&&!p.noHost){throw new Error(p.reason||"write failed")}}),storage:ee};if(A&&A!==window){const n=(e,t)=>{try{A.postMessage({__omelette_log:true,type:e,data:t},"*")}catch{}};["log","warn","error"].forEach((e)=>{const t=console[e];console[e]=(...a)=>{const u=a.map((s)=>{try{return typeof s==="object"?JSON.stringify(s):String(s)}catch{try{return String(s)}catch{return"[unstringifiable]"}}}).join(" ");n(e,u);t.apply(console,a)}});window.addEventListener("error",(e)=>{const t=e.target;if(t&&t!==window&&t.tagName){const a=t.src||t.href||"";n("resource_error",`${t.tagName} failed to load: ${a}`)}else{n("error",`${e.message||"Unknown error"} at ${e.filename||"?"}:${e.lineno||0}:${e.colno||0}`)}},true);window.addEventListener("unhandledrejection",(e)=>{const t=e.reason;const a=t instanceof Error?`${t.message} ${t.stack}`:String(t);n("error",`Unhandled rejection: ${a}`)});window.addEventListener("click",(e)=>{if(e.defaultPrevented||e.button!==0)return;if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;const t=e.composedPath?e.composedPath():[];const a=["button","input","select","textarea","summary","label"];let u=null;for(const v of t){if(!(v instanceof Element))continue;if(v.localName==="a"){if(!(v instanceof HTMLAnchorElement))return;u=v;break}if(a.indexOf(v.localName)!==-1)return}if(!u)return;if(u.isContentEditable)return;const s=u.closest("[contenteditable]");if(s&&s.getAttribute("contenteditable")!=="false")return;const S=(u.getAttribute("target")||"_self").toLowerCase();if(S!=="_self"&&S!=="_top"&&S!=="_parent")return;let _;try{_=new URL(u.href)}catch{return}if(_.protocol!=="http:"&&_.protocol!=="https:")return;if(location.origin==="null")return;if(_.origin===location.origin)return;e.preventDefault();window.open(_.href,"_blank","noopener,noreferrer")});const d=()=>{try{A.postMessage({type:"omelette:height",height:document.documentElement.scrollHeight},"*")}catch{}};if(window.ResizeObserver)new ResizeObserver(d).observe(document.documentElement);const p=()=>{d();if(!document.querySelector('script[type="text/babel"],script[type="text/jsx"]'))return;const e=()=>document.getElementById("root")||document.querySelector("body > div[id]");const t=e()?.firstElementChild??null;let a=0;const u=()=>{const s=e();if(s&&s.firstElementChild!==t||++a>30){d();return}setTimeout(u,100)};setTimeout(u,100)};if(document.readyState==="complete")p();else window.addEventListener("load",p);const f={};let g=0;const h=(e)=>new Promise((t,a)=>{if(!I.length){a(new Error("claude.complete: no parent origin"));return}const u=`c${++g}`;const s=()=>setTimeout(()=>{delete f[u];a(new Error(`claude.complete: no data for ${J/1000}s`))},J);const S=s();f[u]={resolve:t,reject:a,text:"",t:S,arm:s};try{for(const _ of I){A.postMessage({__om_api:true,id:u,body:e},_)}}catch(_){clearTimeout(S);delete f[u];a(_)}});const y=8;const m=async(e,t)=>{if(!Array.isArray(e.messages)){throw new Error("claude.complete: tools require a messages array")}const a=e.messages.slice();const u={...e,tools:e.tools.map((_)=>{if(_===null||typeof _!=="object")return _;const v={};for(const o of Object.keys(_)){if(typeof _[o]!=="function")v[o]=_[o]}return v})};const s=u.tool_choice;const S=s!=null&&(s.type==="any"||s.type==="tool")?{...u,tool_choice:s.disable_parallel_tool_use!==undefined?{type:"auto",disable_parallel_tool_use:s.disable_parallel_tool_use}:{type:"auto"}}:u;for(let _=0;_<y;_++){const v=await h({..._===0?u:S,messages:a});const o=v.message;const r=o&&Array.isArray(o.content)?o.content:null;const l=r?r.filter((c)=>c?.type==="tool_use"):[];if(o?.stop_reason!=="tool_use"||l.length===0){return v.text}const i=[];for(const c of l){const k=t.get(c.name);if(!k){i.push({type:"tool_result",tool_use_id:c.id,content:`no handler for tool "${c.name}"`,is_error:true});continue}try{const b=await k(c.input);const E=typeof b==="string"?b:O(b)??"";i.push({type:"tool_result",tool_use_id:c.id,content:E})}catch(b){i.push({type:"tool_result",tool_use_id:c.id,content:String(b?.message??b??"tool handler failed"),is_error:true})}}a.push({role:"assistant",content:r},{role:"user",content:i})}throw new Error(`claude.complete: exceeded ${y} tool turns`)};window.claude={complete(e){const t=e;if(t!==null&&typeof t==="object"&&Array.isArray(t.tools)&&t.tools.some((a)=>a!==null&&typeof a==="object"&&typeof a.run==="function")){const a=new Map;for(const u of t.tools){if(u!==null&&typeof u==="object"&&typeof u.run==="function"){a.set(String(u.name),u.run)}}return m(t,a)}return h(e).then((a)=>a.text)}};const w={};let R=0;H=(e,t)=>new Promise((a)=>{if(!I.length){a({persisted:false,noHost:true,reason:U});return}const u=`f${++R}`;const s=setTimeout(()=>{delete w[u];a({persisted:false,noHost:true,reason:U})},G);w[u]={settle:a,t:s};try{for(const S of I){A.postMessage({__om_file:true,id:u,op:"write",path:e,content:t},S)}}catch{clearTimeout(s);delete w[u];a({persisted:false,noHost:true,reason:U})}});const O=(e)=>{try{return JSON.stringify(e)}catch{return JSON.stringify(String(e))}};window.addEventListener("message",(e)=>{if(I.indexOf(e.origin)<0)return;if(e.source!==A)return;const t=e.data;if(!t)return;if(t.type==="omelette-preview-refresh"){if(typeof t.token!=="string"||!/^[0-9a-f.-]+(\.(rc|pr-[0-9]+))?(\.[0-9]+\.[0-9a-f]{16})?$/.test(t.token))return;const s=Math.max(1,Math.floor((t.expiresAt||0)-Date.now()/1000));document.cookie="__Host-omelette-preview="+t.token+"; Path=/; Secure; SameSite=None; Partitioned; Max-Age="+s;C();return}if(t.__om_file_r){const s=w[t.id];if(!s)return;clearTimeout(s.t);delete w[t.id];s.settle(t.ok?{persisted:true}:{persisted:false,reason:t.error||"write failed"});return}if(t.__om_api_r){const s=f[t.id];if(!s)return;if(t.error!=null){clearTimeout(s.t);delete f[t.id];s.reject(new Error(t.error));return}if(t.chunk!=null){clearTimeout(s.t);s.t=s.arm();s.text+=t.chunk;return}if(t.done){clearTimeout(s.t);delete f[t.id];s.resolve({text:t.text!=null?t.text:s.text,message:t.message});return}return}if(!t.__om_eval)return;const a=t;const u=(s)=>{e.source.postMessage({...s,__om_eval_r:1,id:a.id},e.origin)};try{const s=(0,eval)(a.code);if(s&&typeof s.then==="function"){s.then((S)=>u({ok:1,v:O(S)}),(S)=>u({ok:0,e:String(S)}))}else{u({ok:1,v:O(s)})}}catch(s){u({ok:0,e:String(s)})}})}})();
+</script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>인재채용 | ICHI</title>
+<meta name="description" content="㈜이치와 함께 성장할 인재를 기다립니다. 채용 공고를 확인하세요.">
+<link rel="canonical" href="https://www.ichi.kr/Careers.dc.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="㈜이치 ICHI">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:title" content="인재채용 | ICHI">
+<meta property="og:description" content="㈜이치와 함께 성장할 인재를 기다립니다. 채용 공고를 확인하세요.">
+<meta property="og:url" content="https://www.ichi.kr/Careers.dc.html">
+<meta property="og:image" content="https://www.ichi.kr/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="인재채용 | ICHI">
+<meta name="twitter:description" content="㈜이치와 함께 성장할 인재를 기다립니다. 채용 공고를 확인하세요.">
+<meta name="twitter:image" content="https://www.ichi.kr/assets/og-image.png">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="crossorigin">
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="styles.css">
+<script src="./support.js"></script>
+<script src="./auth.js"></script>
+<script src="./common.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="crossorigin">
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="styles.css">
+<script src="./auth.js"></script>
+<script src="./common.js"></script>
+</helmet>
+<dc-import name="SiteNav" hint-size="100%,72px"></dc-import>
+<div class="nav-spacer"></div>
+
+<section class="pad" id="careers" data-screen-label="Careers">
+  <div class="reveal" style="max-width:760px">
+    <div class="section-eye">
+      <span class="eye-mono">Careers</span>
+      <div class="eye-dash"></div>
+    </div>
+    <h2 class="section-h2">회사와 함께 성장할<br><em>인재</em>를 기다립니다</h2>
+    <p class="section-p">반도체 물류자동화의 최전선에서 현장을 이끌어갈 엔지니어와<br>
+전문 인력을 상시 모집합니다. 채용 공고는 아래 게시판에서 확인하실 수 있습니다.</p>
+  </div>
+
+  <sc-if value="{{ showList }}" hint-placeholder-val="{{ true }}">
+    <div class="job-toolbar">
+      <button type="button" class="btn-write" onClick="{{ create }}">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="7" y1="2" x2="7" y2="12"></line><line x1="2" y1="7" x2="12" y2="7"></line></svg>
+        채용공고 작성
+      </button>
+    </div>
+    <div class="job-board">
+      <div class="jb-head">
+        <span>번호</span>
+        <span>제목</span>
+        <span>작성일</span>
+        <span>상태</span>
+        <span class="admin-col">관리</span>
+      </div>
+      <sc-for list="{{ jobs }}" as="job" hint-placeholder-count="4">
+        <div class="jb-row reveal {{ job.stateClass }}" onClick="{{ job.open }}">
+          <span class="jb-no">{{ job.no }}</span>
+          <span class="jb-title">
+            <span class="t">{{ job.title }}</span>
+            <span class="field">{{ job.field }}</span>
+          </span>
+          <span class="jb-date">{{ job.date }}</span>
+          <span class="job-status {{ job.statusClass }}">{{ job.statusLabel }}</span>
+          <span class="jb-admin">
+            <button type="button" class="jb-act" onClick="{{ job.edit }}">수정</button>
+            <button type="button" class="jb-act del" onClick="{{ job.del }}">삭제</button>
+          </span>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ showDetail }}" hint-placeholder-val="{{ false }}">
+    <div class="job-detail">
+      <button type="button" class="job-back" onClick="{{ back }}">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="8,2 3,7 8,12"></polyline><line x1="3" y1="7" x2="12" y2="7"></line></svg>
+        채용 목록으로
+      </button>
+      <sc-if value="{{ true }}" hint-placeholder-val="{{ true }}">
+        <div class="jd-adminbar">
+          <button type="button" class="jb-act" onClick="{{ detailEdit }}">수정</button>
+          <button type="button" class="jb-act del" onClick="{{ detailDel }}">삭제</button>
+        </div>
+      </sc-if>
+      <div class="jd-head">
+        <span class="jd-code">No.{{ job.no }} · {{ job.date }}</span>
+        <span class="job-status {{ job.statusClass }}">{{ job.statusLabel }}</span>
+        <h3 class="jd-title">{{ job.title }}</h3>
+      </div>
+
+      <div class="jd-metagrid">
+        <div class="jd-metacard"><div class="k">모집 분야</div><div class="v">{{ job.field }}</div></div>
+        <div class="jd-metacard"><div class="k">모집 인원</div><div class="v">{{ job.headcount }}</div></div>
+        <div class="jd-metacard"><div class="k">모집 기간</div><div class="v">{{ job.period }}</div></div>
+        <div class="jd-metacard"><div class="k">근무지</div><div class="v">{{ job.location }}</div></div>
+      </div>
+
+      <div class="jd-sec">
+        <h4>담당 업무</h4>
+        <ul class="jd-list">
+          <sc-for list="{{ job.duties }}" as="item" hint-placeholder-count="3"><li>{{ item }}</li></sc-for>
+        </ul>
+      </div>
+      <div class="jd-sec">
+        <h4>지원 자격</h4>
+        <ul class="jd-list">
+          <sc-for list="{{ job.qualifications }}" as="item" hint-placeholder-count="3"><li>{{ item }}</li></sc-for>
+        </ul>
+      </div>
+      <div class="jd-sec">
+        <h4>우대 사항</h4>
+        <ul class="jd-list">
+          <sc-for list="{{ job.preferred }}" as="item" hint-placeholder-count="3"><li>{{ item }}</li></sc-for>
+        </ul>
+      </div>
+      <div class="jd-sec">
+        <h4>근무 조건</h4>
+        <ul class="jd-list">
+          <sc-for list="{{ job.conditions }}" as="item" hint-placeholder-count="3"><li>{{ item }}</li></sc-for>
+        </ul>
+      </div>
+      <div class="jd-sec">
+        <h4>전형 절차</h4>
+        <div class="jd-steps">
+          <sc-for list="{{ job.process }}" as="item" hint-placeholder-count="4"><span class="jd-step"><span class="n">{{ item.n }}</span>{{ item.label }}</span></sc-for>
+        </div>
+      </div>
+
+      <div class="jd-apply">
+        <h4>지원 방법</h4>
+        <p>{{ job.apply }}</p>
+        <a href="Contact.dc.html" class="btn-submit">
+          지원 문의하기
+          <span class="arrow"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="6" x2="10" y2="6"></line><polyline points="6,2 10,6 6,10"></polyline></svg></span>
+        </a>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ showEdit }}" hint-placeholder-val="{{ false }}">
+    <div class="job-form">
+      <button type="button" class="job-back" onClick="{{ back }}">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="8,2 3,7 8,12"></polyline><line x1="3" y1="7" x2="12" y2="7"></line></svg>
+        채용 목록으로
+      </button>
+      <h3 class="jf-title">{{ formTitle }}</h3>
+
+      <div class="jf-grid">
+        <div class="jf-field full">
+          <label>제목</label>
+          <input type="text" class="jf-input" placeholder="예) 반도체 물류자동화 설비 엔지니어 모집" value="{{ f.draft.title }}" onInput="{{ f.setTitle }}">
+        </div>
+        <div class="jf-field">
+          <label>모집 분야</label>
+          <input type="text" class="jf-input" placeholder="예) 조정 (CLW · ZT · STK)" value="{{ f.draft.field }}" onInput="{{ f.setField }}">
+        </div>
+        <div class="jf-field">
+          <label>모집 인원</label>
+          <input type="text" class="jf-input" placeholder="예) 0명 / 00명" value="{{ f.draft.headcount }}" onInput="{{ f.setHead }}">
+        </div>
+        <div class="jf-field">
+          <label>모집 기간</label>
+          <input type="text" class="jf-input" placeholder="예) 2026.04.01 ~ 2026.05.31" value="{{ f.draft.period }}" onInput="{{ f.setPeriod }}">
+        </div>
+        <div class="jf-field">
+          <label>근무지</label>
+          <input type="text" class="jf-input" placeholder="예) 경기 평택 · 이천" value="{{ f.draft.location }}" onInput="{{ f.setLoc }}">
+        </div>
+        <div class="jf-field">
+          <label>모집 상태</label>
+          <select class="jf-select" value="{{ f.draft.status }}" onChange="{{ f.setStatus }}">
+            <option value="open">진행중</option>
+            <option value="closed">마감</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="jf-sec">
+        <h4>담당 업무</h4>
+        <div class="jf-rows">
+          <sc-for list="{{ f.duties }}" as="row" hint-placeholder-count="2">
+            <div class="jf-row">
+              <input type="text" class="jf-input" placeholder="담당 업무를 입력하세요" value="{{ row.val }}" onInput="{{ row.onInput }}">
+              <button type="button" class="jf-del" onClick="{{ row.onDel }}" aria-label="삭제">
+                <svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="3" y1="3" x2="11" y2="11"></line><line x1="11" y1="3" x2="3" y2="11"></line></svg>
+              </button>
+            </div>
+          </sc-for>
+        </div>
+        <button type="button" class="jf-add" onClick="{{ f.addDuty }}">+ 항목 추가</button>
+      </div>
+
+      <div class="jf-sec">
+        <h4>지원 자격</h4>
+        <div class="jf-rows">
+          <sc-for list="{{ f.quals }}" as="row" hint-placeholder-count="2">
+            <div class="jf-row">
+              <input type="text" class="jf-input" placeholder="지원 자격을 입력하세요" value="{{ row.val }}" onInput="{{ row.onInput }}">
+              <button type="button" class="jf-del" onClick="{{ row.onDel }}" aria-label="삭제">
+                <svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="3" y1="3" x2="11" y2="11"></line><line x1="11" y1="3" x2="3" y2="11"></line></svg>
+              </button>
+            </div>
+          </sc-for>
+        </div>
+        <button type="button" class="jf-add" onClick="{{ f.addQual }}">+ 항목 추가</button>
+      </div>
+
+      <div class="jf-sec">
+        <h4>우대 사항</h4>
+        <div class="jf-rows">
+          <sc-for list="{{ f.prefs }}" as="row" hint-placeholder-count="2">
+            <div class="jf-row">
+              <input type="text" class="jf-input" placeholder="우대 사항을 입력하세요" value="{{ row.val }}" onInput="{{ row.onInput }}">
+              <button type="button" class="jf-del" onClick="{{ row.onDel }}" aria-label="삭제">
+                <svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="3" y1="3" x2="11" y2="11"></line><line x1="11" y1="3" x2="3" y2="11"></line></svg>
+              </button>
+            </div>
+          </sc-for>
+        </div>
+        <button type="button" class="jf-add" onClick="{{ f.addPref }}">+ 항목 추가</button>
+      </div>
+
+      <div class="jf-sec">
+        <h4>근무 조건</h4>
+        <div class="jf-rows">
+          <sc-for list="{{ f.conds }}" as="row" hint-placeholder-count="2">
+            <div class="jf-row">
+              <input type="text" class="jf-input" placeholder="근무 조건을 입력하세요" value="{{ row.val }}" onInput="{{ row.onInput }}">
+              <button type="button" class="jf-del" onClick="{{ row.onDel }}" aria-label="삭제">
+                <svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="3" y1="3" x2="11" y2="11"></line><line x1="11" y1="3" x2="3" y2="11"></line></svg>
+              </button>
+            </div>
+          </sc-for>
+        </div>
+        <button type="button" class="jf-add" onClick="{{ f.addCond }}">+ 항목 추가</button>
+      </div>
+
+      <div class="jf-sec">
+        <h4>전형 절차</h4>
+        <div class="jf-rows">
+          <sc-for list="{{ f.procs }}" as="row" hint-placeholder-count="3">
+            <div class="jf-row">
+              <input type="text" class="jf-input" placeholder="예) 서류 전형 / 실무 면접" value="{{ row.val }}" onInput="{{ row.onInput }}">
+              <button type="button" class="jf-del" onClick="{{ row.onDel }}" aria-label="삭제">
+                <svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="3" y1="3" x2="11" y2="11"></line><line x1="11" y1="3" x2="3" y2="11"></line></svg>
+              </button>
+            </div>
+          </sc-for>
+        </div>
+        <button type="button" class="jf-add" onClick="{{ f.addProc }}">+ 단계 추가</button>
+      </div>
+
+      <div class="jf-sec">
+        <h4>지원 방법</h4>
+        <textarea class="jf-textarea" placeholder="지원 방법 및 안내 문구를 입력하세요" value="{{ f.draft.apply }}" onInput="{{ f.setApply }}"></textarea>
+      </div>
+
+      <div class="jf-actions">
+        <button type="button" class="jf-cancel" onClick="{{ back }}">취소</button>
+        <button type="button" class="jf-save" onClick="{{ save }}">{{ saveLabel }}</button>
+      </div>
+    </div>
+  </sc-if>
+</section>
+
+<dc-import name="SiteFooter" hint-size="100%,320px"></dc-import>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { view: 'list', selId: null, editingId: null, draft: null, isAdmin: false, jobs: null };
+
+  _seed = [
+    {
+      id: 'seed-1', date: '2026.04.01', title: '반도체 물류자동화 설비 엔지니어 모집',
+      field: '조정 (CLW · ZT · STK)', headcount: '0명', period: '2026.04.01 ~ 2026.05.31',
+      location: '경기 평택 · 이천 / 충북 청주', status: 'open',
+      duties: [
+        'OHT · Stocker · Clean Way 등 반도체 물류자동화 설비의 조정 및 시운전',
+        '설비 성능 최적화와 운영 안정화 업무 수행',
+        '고객사 FAB 현장에서의 설비 점검 및 이슈 대응',
+      ],
+      qualifications: ['학력 무관 (관련 전공자 우대)', '반도체 · 자동화 · 전기전자 분야에 대한 이해와 관심', '현장 근무 및 교대 근무 가능자'],
+      preferred: ['반도체 FAB 현장 근무 경험 보유자', 'OHT · Stocker 등 물류자동화 설비 운영 경험', '기초 영어 또는 중국어 커뮤니케이션 가능자'],
+      conditions: ['고용형태 : 정규직 (수습 3개월)', '근무형태 : 프로젝트 현장 배치 / 교대 근무', '급여 : 회사 내규에 따름 (경력·역량별 협의)'],
+      process: ['서류 전형', '실무 면접', '임원 면접', '처우 협의 · 입사'],
+      apply: '문의하기 페이지를 통해 지원 의사를 남겨주시면 담당자가 개별 안내드립니다. 이력서는 채용 담당 이메일(ichi@ichi.kr)로 접수해 주세요.',
+    },
+    {
+      id: 'seed-2', date: '2026.04.01', title: '설비 시공 엔지니어 모집',
+      field: '시공 (설치 · 배선)', headcount: '0명', period: '2026.04.01 ~ 2026.05.31',
+      location: '전국 반도체 FAB 현장', status: 'open',
+      duties: ['반도체 자동화설비의 설치 및 배선 작업 수행', '현장 환경에 최적화된 시공 품질 관리', '시공 일정 관리 및 안전 관리 준수'],
+      qualifications: ['학력 무관', '전기 · 설비 · 기계 분야 기초 지식 보유자', '전국 현장 출장 및 근무 가능자'],
+      preferred: ['설비 시공 · 전기 배선 경험자', '관련 자격증 (전기기능사 등) 보유자', '반도체 현장 근무 경험자'],
+      conditions: ['고용형태 : 정규직 (수습 3개월)', '근무형태 : 프로젝트 현장 배치', '급여 : 회사 내규에 따름 (경력별 협의)'],
+      process: ['서류 전형', '실무 면접', '임원 면접', '처우 협의 · 입사'],
+      apply: '문의하기 페이지를 통해 지원 의사를 남겨주시면 담당자가 개별 안내드립니다. 이력서는 채용 담당 이메일(ichi@ichi.kr)로 접수해 주세요.',
+    },
+    {
+      id: 'seed-3', date: '2026.01.06', title: '테크니컬 통역 (한 ↔ 중) 모집',
+      field: '통역 · 번역', headcount: '0명', period: '2026.01.06 ~ 2026.02.28',
+      location: '경기 평택 / 해외 출장', status: 'closed',
+      duties: ['글로벌 프로젝트 현장에서 엔지니어 간 기술 통역', '설비 매뉴얼 · 기술 문서 번역', '고객사 및 협력사와의 커뮤니케이션 지원'],
+      qualifications: ['중국어 통역 가능자 (HSK 5급 이상 또는 동등 수준)', '해외 출장 가능자', '반도체 · 기계 분야 용어에 대한 학습 의지'],
+      preferred: ['기술 통역 경험자', '영어 커뮤니케이션 가능자', '반도체 현장 경험 보유자'],
+      conditions: ['고용형태 : 정규직 / 계약직 협의', '근무형태 : 프로젝트 현장 배치', '급여 : 회사 내규에 따름'],
+      process: ['서류 전형', '어학 · 실무 면접', '임원 면접', '처우 협의 · 입사'],
+      apply: '해당 공고는 모집이 마감되었습니다. 다음 공고를 통해 지원해 주세요.',
+    },
+    {
+      id: 'seed-4', date: '2025.10.01', title: '경영지원 담당 모집',
+      field: '경영기획 (인사 · 재무)', headcount: '0명', period: '2025.10.01 ~ 2025.11.30',
+      location: '본사 (경기 평택)', status: 'closed',
+      duties: ['인사 · 총무 · 재무 등 경영지원 업무 수행', '협력업체 관리 및 영업 지원', '현장 운영을 위한 행정 지원'],
+      qualifications: ['학력 무관 (관련 전공자 우대)', '문서 작성 및 오피스 활용 능숙자', '성실하고 책임감 있는 자'],
+      preferred: ['경영지원 · 인사 · 재무 실무 경험자', '반도체 · 제조업 근무 경험자'],
+      conditions: ['고용형태 : 정규직 (수습 3개월)', '근무형태 : 본사 상근', '급여 : 회사 내규에 따름'],
+      process: ['서류 전형', '실무 면접', '임원 면접', '처우 협의 · 입사'],
+      apply: '해당 공고는 모집이 마감되었습니다. 다음 공고를 통해 지원해 주세요.',
+    },
+  ];
+
+  componentDidMount() {
+    this._loadJobs();
+    var self = this;
+    var checkAdmin = function () {
+      var a = self._admin();
+      if (a !== self.state.isAdmin) self.setState({ isAdmin: a });
+      return a;
+    };
+    // This runtime only commits a re-render from user events or 'storage'
+    // events — not from async setState in a timer. So we poll until auth.js
+    // is ready, then fire a storage event to drive a real re-render.
+    this._onStorage = function () { checkAdmin(); };
+    window.addEventListener('storage', this._onStorage);
+    var tries = 0;
+    this._iv = setInterval(function () {
+      var ready = !!(window.ICHIAuth && window.ICHIAuth.isAdmin);
+      if (ready && self._admin() !== self.state.isAdmin) {
+        window.dispatchEvent(new StorageEvent('storage', { key: 'ichi_auth' }));
+      }
+      if ((ready && tries > 2) || tries > 25) clearInterval(self._iv);
+      tries++;
+    }, 100);
+  }
+  componentWillUnmount() { clearInterval(this._iv); window.removeEventListener('storage', this._onStorage); }
+
+  _admin() { return !!(window.ICHIAuth && window.ICHIAuth.isAdmin && window.ICHIAuth.isAdmin()); }
+  _deny() {
+    var msg = '관리자 계정만 이용 가능한 기능입니다.';
+    if (window.ICHIAuth && window.ICHIAuth.toast) window.ICHIAuth.toast(msg); else window.alert(msg);
+  }
+  _loadJobs() {
+    var arr = null;
+    try { arr = JSON.parse(localStorage.getItem('ichi_jobs') || 'null'); } catch (e) {}
+    if (!Array.isArray(arr) || !arr.length) {
+      arr = JSON.parse(JSON.stringify(this._seed));
+      try { localStorage.setItem('ichi_jobs', JSON.stringify(arr)); } catch (e) {}
+    }
+    this.setState({ jobs: arr });
+  }
+  _persist(arr) {
+    try { localStorage.setItem('ichi_jobs', JSON.stringify(arr)); } catch (e) {}
+    this.setState({ jobs: arr });
+  }
+  _view(j) {
+    return Object.assign({}, j, {
+      statusLabel: j.status === 'open' ? '진행중' : '마감',
+      statusClass: j.status === 'open' ? 'status-open' : 'status-closed',
+      stateClass: j.status === 'open' ? '' : 'closed',
+    });
+  }
+  _empty() {
+    return {
+      id: 'job-' + Date.now(),
+      date: new Date().toISOString().slice(0, 10).replace(/-/g, '.'),
+      title: '', field: '', headcount: '', period: '', location: '', status: 'open',
+      duties: [''], qualifications: [''], preferred: [''], conditions: [''], process: [''], apply: '',
+    };
+  }
+
+  create() {
+    if (!this._admin()) { this._deny(); return; }
+    this.setState({ view: 'edit', editingId: null, draft: this._empty() });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  startEdit(id) {
+    if (!this._admin()) { this._deny(); return; }
+    var j = (this.state.jobs || []).find(function (x) { return x.id === id; });
+    if (!j) return;
+    var d = JSON.parse(JSON.stringify(j));
+    ['duties', 'qualifications', 'preferred', 'conditions', 'process'].forEach(function (k) {
+      if (!Array.isArray(d[k]) || !d[k].length) d[k] = [''];
+    });
+    this.setState({ view: 'edit', editingId: id, draft: d });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  removeJob(id) {
+    if (!this._admin()) { this._deny(); return; }
+    var self = this;
+    var doDel = function () {
+      var arr = (self.state.jobs || []).filter(function (x) { return x.id !== id; });
+      self._persist(arr);
+      if (window.ICHIAuth && window.ICHIAuth.toast) window.ICHIAuth.toast('채용공고가 삭제되었습니다.');
+      self.setState({ view: 'list', selId: null });
+    };
+    if (window.ICHIAuth && window.ICHIAuth.confirm) {
+      window.ICHIAuth.confirm({ title: '채용공고 삭제', body: '이 채용공고를 삭제하시겠습니까?\n삭제된 공고는 복구할 수 없습니다.', confirmText: '삭제', danger: true, onConfirm: doDel });
+    } else if (window.confirm('이 채용공고를 삭제하시겠습니까?')) { doDel(); }
+  }
+
+  _dset(k, v) { this.setState({ draft: Object.assign({}, this.state.draft, { [k]: v }) }); }
+  _dlist(k, i, v) {
+    var d = Object.assign({}, this.state.draft);
+    var a = d[k].slice(); a[i] = v; d[k] = a;
+    this.setState({ draft: d });
+  }
+  _dadd(k) {
+    var d = Object.assign({}, this.state.draft);
+    d[k] = d[k].concat(['']);
+    this.setState({ draft: d });
+  }
+  _ddel(k, i) {
+    var d = Object.assign({}, this.state.draft);
+    var a = d[k].slice(); a.splice(i, 1); if (!a.length) a.push('');
+    d[k] = a;
+    this.setState({ draft: d });
+  }
+  save() {
+    if (!this._admin()) { this._deny(); return; }
+    var d = this.state.draft; if (!d) return;
+    if (!(d.title || '').trim()) { window.alert('제목을 입력해 주세요.'); return; }
+    var clean = function (a) { return (a || []).map(function (s) { return (s || '').trim(); }).filter(Boolean); };
+    var rec = Object.assign({}, d, {
+      title: d.title.trim(), field: (d.field || '').trim(), headcount: (d.headcount || '').trim(),
+      period: (d.period || '').trim(), location: (d.location || '').trim(),
+      duties: clean(d.duties), qualifications: clean(d.qualifications), preferred: clean(d.preferred),
+      conditions: clean(d.conditions), process: clean(d.process), apply: (d.apply || '').trim(),
+    });
+    var arr = (this.state.jobs || []).slice();
+    var idx = arr.findIndex(function (x) { return x.id === rec.id; });
+    if (idx >= 0) arr[idx] = rec; else arr.unshift(rec);
+    this._persist(arr);
+    if (window.ICHIAuth && window.ICHIAuth.toast) window.ICHIAuth.toast(this.state.editingId ? '채용공고가 수정되었습니다.' : '채용공고가 등록되었습니다.');
+    this.setState({ view: 'list', selId: null, editingId: null, draft: null });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  renderVals() {
+    var self = this;
+    var admin = this._admin();
+    var list = this.state.jobs || [];
+    var jobs = list.map(function (j, i) {
+      var v = self._view(j);
+      v.no = String(i + 1).padStart(2, '0');
+      v.open = function () { self.setState({ view: 'detail', selId: j.id }); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+      v.edit = function (e) { if (e && e.stopPropagation) e.stopPropagation(); self.startEdit(j.id); };
+      v.del = function (e) { if (e && e.stopPropagation) e.stopPropagation(); self.removeJob(j.id); };
+      return v;
+    });
+
+    var selIdx = list.findIndex(function (x) { return x.id === self.state.selId; });
+    var job = null;
+    if (selIdx >= 0) {
+      job = this._view(list[selIdx]);
+      job.no = String(selIdx + 1).padStart(2, '0');
+      job.process = (list[selIdx].process || []).map(function (p, i) { return { n: String(i + 1).padStart(2, '0'), label: p }; });
+    }
+
+    var d = this.state.draft;
+    var f = null;
+    if (d) {
+      var mkRows = function (k) {
+        return d[k].map(function (val, i) {
+          return {
+            val: val,
+            onInput: function (e) { self._dlist(k, i, e.target.value); },
+            onDel: function () { self._ddel(k, i); },
+          };
+        });
+      };
+      f = {
+        draft: d,
+        setTitle: function (e) { self._dset('title', e.target.value); },
+        setField: function (e) { self._dset('field', e.target.value); },
+        setHead: function (e) { self._dset('headcount', e.target.value); },
+        setPeriod: function (e) { self._dset('period', e.target.value); },
+        setLoc: function (e) { self._dset('location', e.target.value); },
+        setStatus: function (e) { self._dset('status', e.target.value); },
+        setApply: function (e) { self._dset('apply', e.target.value); },
+        duties: mkRows('duties'), addDuty: function () { self._dadd('duties'); },
+        quals: mkRows('qualifications'), addQual: function () { self._dadd('qualifications'); },
+        prefs: mkRows('preferred'), addPref: function () { self._dadd('preferred'); },
+        conds: mkRows('conditions'), addCond: function () { self._dadd('conditions'); },
+        procs: mkRows('process'), addProc: function () { self._dadd('process'); },
+      };
+    }
+
+    return {
+      admin: admin,
+      boardClass: admin ? 'admin' : '',
+      jobs: jobs,
+      job: job,
+      f: f,
+      showList: this.state.view === 'list',
+      showDetail: this.state.view === 'detail' && !!job,
+      showEdit: this.state.view === 'edit' && !!f,
+      formTitle: this.state.editingId ? '채용공고 수정' : '채용공고 작성',
+      saveLabel: this.state.editingId ? '수정 완료' : '등록하기',
+      create: function () { self.create(); },
+      save: function () { self.save(); },
+      detailEdit: function () { if (self.state.selId) self.startEdit(self.state.selId); },
+      detailDel: function () { if (self.state.selId) self.removeJob(self.state.selId); },
+      back: function () { self.setState({ view: 'list', selId: null, editingId: null, draft: null }); },
+    };
+  }
+}
+</script>
+</body>
+</html>

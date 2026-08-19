@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style data-omelette-injected>html,body{background:transparent}</style><script data-omelette-injected>(()=>{{const n=new URLSearchParams(location.search).get("theme");if(n==="light"||n==="dark"){document.documentElement.dataset.theme=n}}{if(new URLSearchParams(location.search).get("_omthumb")==="1"){const n=(f)=>{const g=f.focus;if(!g)return;f.focus=function(h){g.call(this,{...h,preventScroll:true})}};n(HTMLElement.prototype);n(SVGElement.prototype);if(typeof MathMLElement!=="undefined"){n(MathMLElement.prototype)}const d=(f)=>{f.removeAttribute("autofocus");f.inert=true;if(!(f instanceof HTMLElement))f.removeAttribute("tabindex")};const p=(f)=>{if(f.hasAttribute("autofocus"))d(f);for(const g of f.querySelectorAll("[autofocus]")){d(g)}};p(document.documentElement);new MutationObserver((f)=>{for(const g of f){for(const h of g.addedNodes){if(h.nodeType===1)p(h)}}}).observe(document,{childList:true,subtree:true})}}{const n=()=>{try{if(document.querySelector('meta[name="color-scheme"]'))return;const d=getComputedStyle(document.documentElement).getPropertyValue("color-scheme").trim();if(d&&d!=="normal")return;const p=(y)=>{if(!y)return null;const m=getComputedStyle(y).backgroundColor.match(/^rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)(?:[,\s/]+([\d.]+%?))?\s*\)$/);if(!m)return null;const w=m[4]==null?1:parseFloat(m[4])/(m[4].endsWith("%")?100:1);if(w<0.99)return null;return[+m[1],+m[2],+m[3]]};const f=p(document.body)||p(document.documentElement);if(!f)return;const g=(y)=>{const m=y/255;return m<=0.04045?m/12.92:((m+0.055)/1.055)**2.4};const h=0.2126*g(f[0])+0.7152*g(f[1])+0.0722*g(f[2]);document.documentElement.style.setProperty("color-scheme",h<0.4?"dark":"light")}catch{}};if(document.readyState==="complete")n();else window.addEventListener("load",n)}var I=[];var B=false;var K=false;var C=()=>{};if(K===true){try{const n=setTimeout.bind(window);const d=1e4;const p=15;const f=1e4;const g=120000;const h=200;const y=(o)=>{try{let r;if(typeof o==="string")r=o;else if(o instanceof URL)r=o.href;else if(typeof Request!=="undefined"&&o instanceof Request)r=o.url;else return null;if(!r)return null;const l=document.baseURI;const i=new URL(r,l);if(i.protocol!=="http:"&&i.protocol!=="https:")return null;if(i.origin!==new URL(l).origin)return null;return i.origin+i.pathname}catch{return null}};const m=new Map;const w=(o)=>{let r=m.get(o);if(!r){if(m.size>=h){const l=m.keys().next().value;if(l!==undefined)m.delete(l)}r={fails:[],until:0,cooldown:f,hard:false};m.set(o,r)}return r};const R=(o)=>{const r=m.get(o);return r!==undefined&&r.until>Date.now()};const O=(o,r)=>{const l=Date.now();const i=w(o);if(r)i.hard=true;if(i.until>l)return;i.fails.push(l);while(i.fails.length>0&&i.fails[0]<=l-d)i.fails.shift();if(i.fails.length>=p){i.until=l+i.cooldown;if(i.hard)i.cooldown=Math.min(i.cooldown*2,g);i.fails.length=0;try{n(()=>{try{S(true)}catch{}},i.until-l+100)}catch{}console.warn("[omelette] asset circuit breaker: pausing requests to "+o+" for "+Math.round((i.until-l)/1000)+"s after "+p+" failures in "+d/1000+"s")}};const e=(o)=>{m.delete(o)};const t=100;const a=new WeakMap;const u=new Set;let s=null;const S=(o)=>{for(const r of Array.from(u)){try{const l=a.get(r);if(l===undefined){u.delete(r);continue}if(o){const i=y(l);if(i!==null&&R(i))continue}a.delete(r);u.delete(r);if(s!==null)s.call(r,l)}catch{}}};C=()=>{try{m.clear();S(false)}catch{}};document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")C()});const _=window.fetch;if(typeof _==="function"){const o=function(...r){let l=null;try{l=y(r[0])}catch{}if(l!==null&&R(l)){let c;try{if(r[1]&&r[1].signal!==undefined){c=r[1].signal||undefined}else if(typeof Request!=="undefined"&&r[0]instanceof Request){c=r[0].signal||undefined}}catch{c=undefined}return new Promise((k,b)=>{const E=()=>{try{return c.reason!==undefined?c.reason:new DOMException("The operation was aborted.","AbortError")}catch{return new DOMException("The operation was aborted.","AbortError")}};try{if(c&&c.aborted){b(E());return}}catch{}let T=false;const j=()=>{if(T)return;T=true;b(E())};try{if(c)c.addEventListener("abort",j,{once:true})}catch{}n(()=>{if(T)return;T=true;try{if(c)c.removeEventListener("abort",j)}catch{}let L;try{L=new Response(null,{status:429,statusText:"Too Many Requests",headers:{"Retry-After":"10"}})}catch{L={ok:false,status:429}}k(L)},250)})}const i=_.apply(window,r);if(l!==null){const c=l;i.then((k)=>{try{if(k.ok)e(c);else if(k.status===401||k.status===403||k.status===404||k.status===429){O(c,k.status!==404)}}catch{}},()=>{})}return i};window.fetch=o}const v=Object.getOwnPropertyDescriptor(HTMLImageElement.prototype,"src");if(v!==undefined&&v.set!==undefined&&v.get!==undefined){const o=v.set;s=o;Object.defineProperty(HTMLImageElement.prototype,"src",{configurable:true,enumerable:v.enumerable,get:v.get,set(r){const l=`${r}`;try{const i=y(l);if(i!==null&&R(i)){a.set(this,l);if(u.size<t)u.add(this);return}}catch{}try{a.delete(this);u.delete(this)}catch{}o.call(this,l)}})}try{const o=HTMLImageElement.prototype.setAttribute;HTMLImageElement.prototype.setAttribute=function(r,l){if(arguments.length<2){o.apply(this,arguments);return}if(typeof r==="string"&&r.toLowerCase()==="src"){const i=`${l}`;try{const c=y(i);if(c!==null&&R(c)){a.set(this,i);if(u.size<t)u.add(this);return}a.delete(this);u.delete(this)}catch{}o.call(this,r,i);return}o.call(this,r,l)}}catch{}window.addEventListener("error",(o)=>{try{const r=o.target;if(r instanceof HTMLImageElement){const l=y(r.currentSrc||r.src||"");if(l!==null)O(l,true)}}catch{}},true);window.addEventListener("load",(o)=>{try{const r=o.target;if(r instanceof HTMLImageElement){const l=y(r.currentSrc||r.src||"");if(l!==null)e(l);const i=a.get(r);if(i!==undefined){let c=false;try{c=new URL(i,document.baseURI).href===new URL(r.currentSrc||r.src||"",document.baseURI).href}catch{c=false}if(c){a.delete(r);u.delete(r)}}}}catch{}},true)}catch{}}var J=30000;var G=3000;document.addEventListener("DOMContentLoaded",()=>{const n=window.Babel;const d="om-src-id";if(n&&n.registerPlugin&&!(n.availablePlugins&&n.availablePlugins[d])){n.registerPlugin(d,({types:h})=>({visitor:{JSXOpeningElement(y,m){const w=y.node;if(w.name&&w.name.type==="JSXMemberExpression")return;for(let t=0;t<w.attributes.length;t++){const a=w.attributes[t];if(a.type==="JSXAttribute"&&a.name&&a.name.name==="data-om-id")return}const R=m.file&&m.file.opts&&m.file.opts.filename||"?";const O=w.loc&&w.loc.start;const e=`jsx:${R}:${w.start??0}:${O?O.line:0}:${O?O.column+1:0}`;w.attributes.push(h.jsxAttribute(h.jsxIdentifier("data-om-id"),h.stringLiteral(e)))}}}))}const p="om-text-extract";let f=false;if(B&&n&&n.registerPlugin&&!(n.availablePlugins&&n.availablePlugins[p])){const h=window.React;if(h&&h.useSyncExternalStore&&h.createElement){f=true;const y={};const m=new Set;let w=0;window.__omTextO=y;window.__omTextSet=(e)=>{for(const t in e){const a=e[t];if(a==null)delete y[t];else y[t]=a}w++;m.forEach((t)=>t())};const R=(e)=>{m.add(e);return()=>m.delete(e)};const O=()=>w;window.__OmT=function e(t){h.useSyncExternalStore(R,O,O);return h.createElement("span",{"data-om-text":t.i,className:"__om-t"},t.i in y?y[t.i]:t.children)};n.registerPlugin(p,({types:e})=>{const t={style:1,script:1,noscript:1,textarea:1,title:1,option:1,text:1,tspan:1,textPath:1};const a={placeholder:1,alt:1,title:1,label:1,"aria-label":1,"aria-description":1,"aria-placeholder":1};const u=(o,r)=>e.logicalExpression("??",e.memberExpression(e.logicalExpression("||",e.memberExpression(e.identifier("window"),e.identifier("__omTextO")),e.objectExpression([])),e.stringLiteral(o),true),r);const s=(o)=>o.file&&o.file.opts&&o.file.opts.filename||"?";const S=(o)=>o.file&&o.file.code||"";const _=(o,r)=>{const l=(c)=>c&&c.start!=null&&c.end!=null&&(c.type==="StringLiteral"||c.type==="TemplateLiteral"&&c.expressions.length===0)?[c.start,c.end]:null;const i=l(r);if(i)return i;if(r&&r.type==="Identifier"){const c=o.scope.getBinding(r.name);if(c&&c.constant&&c.path.node.type==="VariableDeclarator"){return l(c.path.node.init)}}return null};const v=(o,r,l)=>{const i=o.node;let c=false;const k=(E,T)=>{c=true;return e.jsxElement(e.jsxOpeningElement(e.jsxIdentifier("__OmT"),[e.jsxAttribute(e.jsxIdentifier("i"),e.stringLiteral(E))],false),e.jsxClosingElement(e.jsxIdentifier("__OmT")),[T],false)};const b=i.children.map((E)=>{if(E.type==="JSXText"){if(E.start==null||E.end==null)return E;const T=l.slice(E.start,E.end);const j=T.length-T.trimStart().length;const L=T.length-T.trimEnd().length;if(j+L>=T.length)return E;return k(`txt:${r}:${E.start+j}:${E.end-L}`,E)}if(E.type==="JSXExpressionContainer"){const T=_(o,E.expression);if(T)return k(`str:${r}:${T[0]}:${T[1]}`,E)}return E});if(c)i.children=b};return{visitor:{JSXOpeningElement(o,r){const l=o.node;const i=s(r);const c={};for(let k=0;k<l.attributes.length;k++){const b=l.attributes[k];if(b.type!=="JSXAttribute"||!b.name)continue;const E=b.name.name;if(!a[E])continue;if(!b.value||b.value.type!=="StringLiteral")continue;if(b.value.start==null||b.value.end==null)continue;const T=`txt:${i}:${b.value.start}:${b.value.end}`;c[E]=T;b.value=e.jsxExpressionContainer(u(T,e.stringLiteral(b.value.value)))}if(Object.keys(c).length){l.attributes.push(e.jsxAttribute(e.jsxIdentifier("data-om-text-attrs"),e.stringLiteral(JSON.stringify(c))))}},JSXElement(o,r){const l=o.node.openingElement;const i=l&&l.name&&l.name.name;if(i==="__OmT")return;if(typeof i==="string"&&t[i])return;v(o,s(r),S(r))},JSXFragment(o,r){v(o,s(r),S(r))}}}})}}const g=f?["transform-react-jsx-source",d,p]:["transform-react-jsx-source",d];document.querySelectorAll('script[type="text/babel"],script[type="text/jsx"]').forEach((h,y)=>{const m=h.getAttribute("data-plugins")||"";const w=g.filter((R)=>m.indexOf(R)<0);if(w.length){h.setAttribute("data-plugins",m?`${m},${w.join(",")}`:w.join(","))}if(!h.hasAttribute("data-filename")){h.setAttribute("data-filename",h.getAttribute("src")||`inline-${y}`)}})});var A=window.parent;var U="not editable here — open the project in the Claude Design editor to save";var W=()=>Promise.resolve({persisted:false,noHost:true,reason:U});var H=W;var M="data/storage.json";var z=()=>{try{const n=new URL(document.baseURI);const d=n.pathname.match(/\/projects\/([^/]+)\/serve\//);if(d)return d[1];return n.hostname.split(".")[0]||""}catch{return location.hostname.split(".")[0]||""}};var Z=()=>{try{const n=new URL(document.baseURI);const d=n.pathname.indexOf("/serve/");if(d>=0)return n.origin+n.pathname.slice(0,d+"/serve/".length)+M}catch{}return"./"+M};var x=null;var N=()=>{if(!x){x=fetch(Z(),{cache:"no-store"}).then((n)=>{if(n.ok)return n.text();return n.status===404?"":null}).catch(()=>null).then((n)=>{if(n===null){x=null;return null}const d=new Map;if(!n)return d;let p;try{p=JSON.parse(n)}catch{console.warn("[omelette.storage] "+M+" is not valid JSON; treating the store as unreadable so a save cannot overwrite the "+"hand-edited bytes. Fix the JSON (or delete the file) to re-enable persistence.");x=null;return null}if(p===null||typeof p!=="object"||Array.isArray(p)){console.warn("[omelette.storage] "+M+" doesn't hold a JSON object; treating the store as unreadable so a save cannot "+"overwrite the hand-edited bytes. Make the top level a JSON object to re-enable persistence.");x=null;return null}const f=p;if("data"in f){const g=f.data;if(g===null||typeof g!=="object"||Array.isArray(g)){console.warn("[omelette.storage] "+M+' has a "data" field that is not a JSON object; treating the store as unreadable so a '+'save cannot overwrite the hand-edited bytes. Make "data" a JSON object to re-enable persistence.');x=null;return null}const h=f._meta;const y=h!==null&&typeof h==="object"?h.project:undefined;if(typeof y==="string"&&y!==""&&y!==z())return d;for(const m of Object.keys(g))d.set(m,g[m]);return d}for(const g of Object.keys(f)){if(g!=="_meta")d.set(g,f[g])}return d})}return x};var F=(n)=>H(M,JSON.stringify({_meta:{project:z(),version:1},data:Object.fromEntries(n)},null,2));var D=Promise.resolve();var $=(n)=>{const d=D.then(n);D=d.then(()=>{return},()=>{return});return d};var V=/sk-(?:ant-)?[A-Za-z0-9_-]{16,}|AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9]{20,}|xox[a-z]-[A-Za-z0-9][A-Za-z0-9-]{9,}|AIza[0-9A-Za-z_-]{30,}|-----BEGIN [A-Z ]*PRIVATE KEY-----/;var Y=/password|passwd|secret|api[_-]?key|access[_-]?token|auth[_-]?token|credential/i;var Q=(n,d,p)=>{if(V.test(d)||Y.test(n)&&typeof p==="string"&&p.length>=8){console.warn('[omelette.storage] the value for "'+n+'" looks like a credential. The storage file is a plaintext project file — visible to '+"everyone with project access and copied when the project is duplicated. Do not store secrets here.")}};var q={persisted:false,reason:"could not load the existing store — not overwriting it"};var X={persisted:false,reason:"stored value changed since a failed read — re-read this key before saving"};var P=new Set;var ee={get:(n)=>{if(typeof n!=="string"){return Promise.reject(new TypeError("storage.get: key must be a string"))}return $(N).then((d)=>{if(d===null){P.add(n);return null}P.delete(n);if(!d.has(n))return null;const p=d.get(n);return p==null?null:JSON.parse(JSON.stringify(p))})},set:(n,d)=>{if(typeof n!=="string"){return Promise.reject(new TypeError("storage.set: key must be a string"))}let p;try{p=JSON.stringify(d)}catch(g){return Promise.reject(new TypeError("storage.set: value must be JSON-serializable ("+String(g)+")"))}if(p===undefined){return Promise.reject(new TypeError("storage.set: value must be JSON-serializable"))}Q(n,p,d);const f=JSON.parse(p);return $(()=>N().then((g)=>{if(g===null)return q;if(P.has(n)){if(g.has(n))return X;P.delete(n)}g.set(n,f);return F(g)}))},delete:(n)=>{if(typeof n!=="string"){return Promise.reject(new TypeError("storage.delete: key must be a string"))}return $(()=>N().then((d)=>{if(d===null)return q;if(P.has(n)){if(d.has(n))return X;P.delete(n)}d.delete(n);return F(d)}))},keys:()=>$(N).then((n)=>n===null?[]:Array.from(n.keys()))};window.omelette={writeFile:(n,d)=>H(n,d).then((p)=>{if(!p.persisted&&!p.noHost){throw new Error(p.reason||"write failed")}}),storage:ee};if(A&&A!==window){const n=(e,t)=>{try{A.postMessage({__omelette_log:true,type:e,data:t},"*")}catch{}};["log","warn","error"].forEach((e)=>{const t=console[e];console[e]=(...a)=>{const u=a.map((s)=>{try{return typeof s==="object"?JSON.stringify(s):String(s)}catch{try{return String(s)}catch{return"[unstringifiable]"}}}).join(" ");n(e,u);t.apply(console,a)}});window.addEventListener("error",(e)=>{const t=e.target;if(t&&t!==window&&t.tagName){const a=t.src||t.href||"";n("resource_error",`${t.tagName} failed to load: ${a}`)}else{n("error",`${e.message||"Unknown error"} at ${e.filename||"?"}:${e.lineno||0}:${e.colno||0}`)}},true);window.addEventListener("unhandledrejection",(e)=>{const t=e.reason;const a=t instanceof Error?`${t.message} ${t.stack}`:String(t);n("error",`Unhandled rejection: ${a}`)});window.addEventListener("click",(e)=>{if(e.defaultPrevented||e.button!==0)return;if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;const t=e.composedPath?e.composedPath():[];const a=["button","input","select","textarea","summary","label"];let u=null;for(const v of t){if(!(v instanceof Element))continue;if(v.localName==="a"){if(!(v instanceof HTMLAnchorElement))return;u=v;break}if(a.indexOf(v.localName)!==-1)return}if(!u)return;if(u.isContentEditable)return;const s=u.closest("[contenteditable]");if(s&&s.getAttribute("contenteditable")!=="false")return;const S=(u.getAttribute("target")||"_self").toLowerCase();if(S!=="_self"&&S!=="_top"&&S!=="_parent")return;let _;try{_=new URL(u.href)}catch{return}if(_.protocol!=="http:"&&_.protocol!=="https:")return;if(location.origin==="null")return;if(_.origin===location.origin)return;e.preventDefault();window.open(_.href,"_blank","noopener,noreferrer")});const d=()=>{try{A.postMessage({type:"omelette:height",height:document.documentElement.scrollHeight},"*")}catch{}};if(window.ResizeObserver)new ResizeObserver(d).observe(document.documentElement);const p=()=>{d();if(!document.querySelector('script[type="text/babel"],script[type="text/jsx"]'))return;const e=()=>document.getElementById("root")||document.querySelector("body > div[id]");const t=e()?.firstElementChild??null;let a=0;const u=()=>{const s=e();if(s&&s.firstElementChild!==t||++a>30){d();return}setTimeout(u,100)};setTimeout(u,100)};if(document.readyState==="complete")p();else window.addEventListener("load",p);const f={};let g=0;const h=(e)=>new Promise((t,a)=>{if(!I.length){a(new Error("claude.complete: no parent origin"));return}const u=`c${++g}`;const s=()=>setTimeout(()=>{delete f[u];a(new Error(`claude.complete: no data for ${J/1000}s`))},J);const S=s();f[u]={resolve:t,reject:a,text:"",t:S,arm:s};try{for(const _ of I){A.postMessage({__om_api:true,id:u,body:e},_)}}catch(_){clearTimeout(S);delete f[u];a(_)}});const y=8;const m=async(e,t)=>{if(!Array.isArray(e.messages)){throw new Error("claude.complete: tools require a messages array")}const a=e.messages.slice();const u={...e,tools:e.tools.map((_)=>{if(_===null||typeof _!=="object")return _;const v={};for(const o of Object.keys(_)){if(typeof _[o]!=="function")v[o]=_[o]}return v})};const s=u.tool_choice;const S=s!=null&&(s.type==="any"||s.type==="tool")?{...u,tool_choice:s.disable_parallel_tool_use!==undefined?{type:"auto",disable_parallel_tool_use:s.disable_parallel_tool_use}:{type:"auto"}}:u;for(let _=0;_<y;_++){const v=await h({..._===0?u:S,messages:a});const o=v.message;const r=o&&Array.isArray(o.content)?o.content:null;const l=r?r.filter((c)=>c?.type==="tool_use"):[];if(o?.stop_reason!=="tool_use"||l.length===0){return v.text}const i=[];for(const c of l){const k=t.get(c.name);if(!k){i.push({type:"tool_result",tool_use_id:c.id,content:`no handler for tool "${c.name}"`,is_error:true});continue}try{const b=await k(c.input);const E=typeof b==="string"?b:O(b)??"";i.push({type:"tool_result",tool_use_id:c.id,content:E})}catch(b){i.push({type:"tool_result",tool_use_id:c.id,content:String(b?.message??b??"tool handler failed"),is_error:true})}}a.push({role:"assistant",content:r},{role:"user",content:i})}throw new Error(`claude.complete: exceeded ${y} tool turns`)};window.claude={complete(e){const t=e;if(t!==null&&typeof t==="object"&&Array.isArray(t.tools)&&t.tools.some((a)=>a!==null&&typeof a==="object"&&typeof a.run==="function")){const a=new Map;for(const u of t.tools){if(u!==null&&typeof u==="object"&&typeof u.run==="function"){a.set(String(u.name),u.run)}}return m(t,a)}return h(e).then((a)=>a.text)}};const w={};let R=0;H=(e,t)=>new Promise((a)=>{if(!I.length){a({persisted:false,noHost:true,reason:U});return}const u=`f${++R}`;const s=setTimeout(()=>{delete w[u];a({persisted:false,noHost:true,reason:U})},G);w[u]={settle:a,t:s};try{for(const S of I){A.postMessage({__om_file:true,id:u,op:"write",path:e,content:t},S)}}catch{clearTimeout(s);delete w[u];a({persisted:false,noHost:true,reason:U})}});const O=(e)=>{try{return JSON.stringify(e)}catch{return JSON.stringify(String(e))}};window.addEventListener("message",(e)=>{if(I.indexOf(e.origin)<0)return;if(e.source!==A)return;const t=e.data;if(!t)return;if(t.type==="omelette-preview-refresh"){if(typeof t.token!=="string"||!/^[0-9a-f.-]+(\.(rc|pr-[0-9]+))?(\.[0-9]+\.[0-9a-f]{16})?$/.test(t.token))return;const s=Math.max(1,Math.floor((t.expiresAt||0)-Date.now()/1000));document.cookie="__Host-omelette-preview="+t.token+"; Path=/; Secure; SameSite=None; Partitioned; Max-Age="+s;C();return}if(t.__om_file_r){const s=w[t.id];if(!s)return;clearTimeout(s.t);delete w[t.id];s.settle(t.ok?{persisted:true}:{persisted:false,reason:t.error||"write failed"});return}if(t.__om_api_r){const s=f[t.id];if(!s)return;if(t.error!=null){clearTimeout(s.t);delete f[t.id];s.reject(new Error(t.error));return}if(t.chunk!=null){clearTimeout(s.t);s.t=s.arm();s.text+=t.chunk;return}if(t.done){clearTimeout(s.t);delete f[t.id];s.resolve({text:t.text!=null?t.text:s.text,message:t.message});return}return}if(!t.__om_eval)return;const a=t;const u=(s)=>{e.source.postMessage({...s,__om_eval_r:1,id:a.id},e.origin)};try{const s=(0,eval)(a.code);if(s&&typeof s.then==="function"){s.then((S)=>u({ok:1,v:O(S)}),(S)=>u({ok:0,e:String(S)}))}else{u({ok:1,v:O(s)})}}catch(s){u({ok:0,e:String(s)})}})}})();
+</script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>회원가입 | ICHI</title>
+<meta name="description" content="㈜이치 회원가입 페이지입니다.">
+<link rel="canonical" href="https://www.ichi.kr/signup.dc.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="㈜이치 ICHI">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:title" content="회원가입 | ICHI">
+<meta property="og:description" content="㈜이치 회원가입 페이지입니다.">
+<meta property="og:url" content="https://www.ichi.kr/signup.dc.html">
+<meta property="og:image" content="https://www.ichi.kr/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="회원가입 | ICHI">
+<meta name="twitter:description" content="㈜이치 회원가입 페이지입니다.">
+<meta name="twitter:image" content="https://www.ichi.kr/assets/og-image.png">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="crossorigin">
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="styles.css">
+<script src="./support.js"></script>
+<script src="./auth.js"></script>
+<script src="./common.js"></script>
+</head>
+<body class="subpage">
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="crossorigin">
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="styles.css">
+<script>document.documentElement.classList.add('js-reveal');</script>
+</helmet>
+<dc-import name="SiteNav" hint-size="100%,72px"></dc-import>
+
+<section class="auth-split" data-screen-label="Signup">
+  
+
+  <div class="auth-panel">
+    <span class="blob" aria-hidden="true"></span>
+    <div class="auth-col">
+    
+
+    <div class="auth-card accent wide">
+      <div class="auth-eye">
+        <span class="eye-mono">Create Account</span>
+        <div class="eye-dash"></div>
+      </div>
+      <h1 class="auth-h1" style="font-weight:700;color:var(--blue)">회원가입</h1>
+      <p class="auth-sub">파트너 · 임직원 계정을 생성합니다. 정확한 정보를 입력해 주세요.</p>
+
+      <form class="auth-form" id="signup-form" onSubmit="{{ onSubmit }}">
+        <div class="fg-row">
+          <div class="fg" data-field="name">
+            <label class="fl">Name <span class="ko">· 이름</span></label>
+            <input type="text" class="fi" name="name" placeholder="이름">
+            <div class="fg-alert"></div>
+          </div>
+          <div class="fg" data-field="birth">
+            <label class="fl">Birth <span class="ko">· 생년월일</span></label>
+            <input type="date" class="fi" name="birth">
+            <div class="fg-alert"></div>
+          </div>
+        </div>
+
+        <div class="fg" data-field="gender">
+          <label class="fl">Gender <span class="ko">· 성별</span></label>
+          <div class="gender-opts">
+            <label class="gender-opt"><input type="radio" name="gender" value="남성"><span>남성</span></label>
+            <label class="gender-opt"><input type="radio" name="gender" value="여성"><span>여성</span></label>
+          </div>
+          <div class="fg-alert"></div>
+        </div>
+
+        <div class="fg" data-field="phone">
+          <label class="fl">Phone <span class="ko">· 연락처</span></label>
+          <div class="id-check-row">
+            <input type="tel" class="fi" name="phone" placeholder="010-1234-5678" autoComplete="tel">
+            <button type="button" class="id-check-btn" id="send-code-btn" onClick="{{ sendCode }}">인증번호 받기</button>
+          </div>
+          <div class="fg-alert"></div>
+        </div>
+
+        <div class="fg verify-row" data-field="code" id="verify-block">
+          <div class="id-check-row">
+            <input type="text" class="fi" name="code" placeholder="인증번호 6자리" maxLength="6" inputMode="numeric" autoComplete="one-time-code">
+            <button type="button" class="id-check-btn" id="verify-btn" onClick="{{ verifyCode }}">인증하기</button>
+          </div>
+          <div class="verify-meta">
+            <span class="verify-timer" id="verify-timer"></span>
+            <span class="verify-hint" id="verify-hint"></span>
+          </div>
+          <div class="fg-alert"></div>
+        </div>
+
+        <div class="verify-done" id="verify-done" role="status" aria-live="polite">
+          <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"></path></svg>
+          <span>인증이 완료되었습니다.</span>
+        </div>
+
+        <div class="fg" data-field="email">
+          <label class="fl">Email <span class="ko">· 이메일</span></label>
+          <input type="email" class="fi" name="email" placeholder="name@example.com" autoComplete="email">
+          <div class="fg-alert"></div>
+        </div>
+
+        <div class="fg" data-field="userid">
+          <label class="fl">ID <span class="ko">· 아이디</span></label>
+          <div class="id-check-row">
+            <input type="text" class="fi" name="userid" placeholder="사용할 아이디를 입력해 주세요" autoComplete="username">
+            <button type="button" class="id-check-btn" onClick="{{ checkId }}">중복 확인</button>
+          </div>
+          <div class="id-check-msg" id="id-check-msg"></div>
+          <div class="fg-alert"></div>
+        </div>
+        <div class="fg-row">
+          <div class="fg" data-field="password">
+            <label class="fl">Password <span class="ko">· 비밀번호</span></label>
+            <input type="password" class="fi" name="password" placeholder="비밀번호" autoComplete="new-password">
+            <div class="pw-strength" id="pw-strength" aria-hidden="true">
+              <div class="pw-bars"><span></span><span></span><span></span></div>
+              <span class="pw-label"></span>
+            </div>
+            <div class="fg-alert"></div>
+          </div>
+          <div class="fg" data-field="password2">
+            <label class="fl">Confirm <span class="ko">· 비밀번호 확인</span></label>
+            <input type="password" class="fi" name="password2" placeholder="비밀번호 재입력" autoComplete="new-password">
+            <div class="fg-alert"></div>
+          </div>
+        </div>
+
+        <div class="terms-group">
+          <label class="auth-check terms terms-all">
+            <input type="checkbox" name="agreeAll">
+            <span class="box"><svg viewBox="0 0 12 12"><polyline points="2,6.5 5,9 10,3.5"></polyline></svg></span>
+            <span>전체 동의</span>
+          </label>
+          <div class="terms-divider"></div>
+          <div class="terms-item">
+            <label class="auth-check terms">
+              <input type="checkbox" name="agree1">
+              <span class="box"><svg viewBox="0 0 12 12"><polyline points="2,6.5 5,9 10,3.5"></polyline></svg></span>
+              <span><span class="req">(필수)</span> 이용약관 동의</span>
+            </label>
+            <button type="button" class="terms-view" data-term="service" onClick="{{ openTerms }}">전문보기</button>
+          </div>
+          <div class="terms-item">
+            <label class="auth-check terms">
+              <input type="checkbox" name="agree2">
+              <span class="box"><svg viewBox="0 0 12 12"><polyline points="2,6.5 5,9 10,3.5"></polyline></svg></span>
+              <span><span class="req">(필수)</span> 개인정보 수집·이용 동의</span>
+            </label>
+            <button type="button" class="terms-view" data-term="collect" onClick="{{ openTerms }}">전문보기</button>
+          </div>
+          <div class="terms-item">
+            <label class="auth-check terms">
+              <input type="checkbox" name="agree3">
+              <span class="box"><svg viewBox="0 0 12 12"><polyline points="2,6.5 5,9 10,3.5"></polyline></svg></span>
+              <span><span class="req">(필수)</span> 개인정보 제3자 제공 동의</span>
+            </label>
+            <button type="button" class="terms-view" data-term="thirdparty" onClick="{{ openTerms }}">전문보기</button>
+          </div>
+        </div>
+        <div class="terms-alert" id="agree-alert">필수 약관에 모두 동의해 주세요.</div>
+
+        <button type="submit" class="btn-submit auth-submit" id="signup-btn" style="margin-top:6px">
+          회원가입
+          <span class="arrow">
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="6" x2="10" y2="6"></line><polyline points="6,2 10,6 6,10"></polyline></svg>
+          </span>
+        </button>
+        <div class="auth-helper" id="signup-helper">모든 항목을 입력하고 연락처 인증을 완료해 주세요.</div>
+      </form>
+
+      <div class="auth-note" id="signup-note" role="status" aria-live="polite">
+        <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"></path></svg>
+        <span></span>
+      </div>
+
+      <div class="auth-alt">
+        이미 계정이 있으신가요?
+        <a href="login.dc.html">로그인</a>
+      </div>
+    </div><a href="ICHI Site.dc.html" class="auth-home">
+      <svg viewBox="0 0 14 14"><polyline points="8.5,2.5 4,7 8.5,11.5"></polyline></svg>
+      홈으로 돌아가기
+    </a>
+    </div>
+  </div>
+
+  <div class="terms-modal" id="terms-modal" role="dialog" aria-modal="true" aria-labelledby="terms-modal-title">
+    <div class="terms-modal-backdrop" onClick="{{ closeTerms }}"></div>
+    <div class="terms-modal-card">
+      <div class="terms-modal-head">
+        <div>
+          <span class="terms-modal-eye">Terms & Policy</span>
+          <h3 id="terms-modal-title"></h3>
+        </div>
+        <button type="button" class="terms-modal-close" onClick="{{ closeTerms }}" aria-label="닫기">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="3" y1="3" x2="15" y2="15"></line><line x1="15" y1="3" x2="3" y2="15"></line></svg>
+        </button>
+      </div>
+      <div class="terms-modal-body" id="terms-modal-body"></div>
+      <div class="terms-modal-foot">
+        <button type="button" class="terms-modal-cancel" onClick="{{ closeTerms }}">닫기</button>
+        <button type="button" class="terms-agree-btn" onClick="{{ agreeFromModal }}">동의하고 닫기</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<dc-import name="SiteFooter" hint-size="100%,320px"></dc-import>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { menuOpen: false };
+  componentDidMount() {
+    this._checkedId = null;
+    this._phoneVerified = false;
+    this._genCode = null;
+    this._timer = null;
+    const form = document.getElementById('signup-form');
+    if (form) {
+      this._onInput = (e) => {
+        const fg = e.target.closest && e.target.closest('.fg');
+        if (fg) fg.classList.remove('has-error');
+        if (['agree1', 'agree2', 'agree3'].includes(e.target.name)) { this._syncAgreeAll(); const ta = document.getElementById('agree-alert'); if (ta) ta.classList.remove('show'); }
+        if (e.target.name === 'agreeAll') { this._applyAgreeAll(e.target.checked); const ta = document.getElementById('agree-alert'); if (ta) ta.classList.remove('show'); }
+        const note = document.getElementById('signup-note'); if (note) note.classList.remove('show');
+        if (e.target.name === 'password') this._updatePwStrength(e.target.value);
+        if (e.target.name === 'userid') {
+          this._checkedId = null;
+          const m = document.getElementById('id-check-msg'); if (m) m.classList.remove('show', 'ok', 'taken');
+        }
+        if (e.target.name === 'phone') this._resetVerification();
+        if (e.target.name === 'gender') this._clearFieldErr('gender');
+        this._updateSubmitState();
+      };
+      this._onBlur = (e) => {
+        const fields = ['name', 'birth', 'phone', 'email', 'userid', 'password', 'password2'];
+        if (e.target && fields.includes(e.target.name)) this._validateField(e.target.name);
+      };
+      form.addEventListener('input', this._onInput);
+      form.addEventListener('change', this._onInput);
+      form.addEventListener('focusout', this._onBlur);
+    }
+    this._updateSubmitState();
+  }
+  componentWillUnmount() {
+    if (this._timer) clearInterval(this._timer);
+  }
+  _val(n) { const f = document.getElementById('signup-form'); const el = f && f.querySelector('[name="' + n + '"]'); return ((el || {}).value || '').trim(); }
+  _gender() { const f = document.getElementById('signup-form'); const el = f && f.querySelector('[name="gender"]:checked'); return (el || {}).value || ''; }
+  _emailOk(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+  _phoneOk(v) { return /^01[0-9]{8,9}$/.test(v.replace(/\D/g, '')); }
+  _setErr(field, msg) { const f = document.getElementById('signup-form'); const fg = f && f.querySelector('.fg[data-field="' + field + '"]'); if (!fg) return; fg.classList.add('has-error'); const a = fg.querySelector('.fg-alert'); if (a && msg) a.textContent = msg; }
+  _clearFieldErr(field) { const f = document.getElementById('signup-form'); const fg = f && f.querySelector('.fg[data-field="' + field + '"]'); if (fg) fg.classList.remove('has-error'); }
+  _validateField(name) {
+    let msg = '';
+    const v = this._val(name);
+    switch (name) {
+      case 'name': if (!v) msg = '이름을 입력해 주세요.'; break;
+      case 'birth': if (!v) msg = '생년월일을 입력해 주세요.'; break;
+      case 'phone':
+        if (!v) msg = '연락처를 입력해 주세요.';
+        else if (!this._phoneOk(v)) msg = '올바른 연락처 형식을 입력해 주세요. (예: 010-1234-5678)';
+        break;
+      case 'email':
+        if (!v) msg = '이메일을 입력해 주세요.';
+        else if (!this._emailOk(v)) msg = '올바른 이메일 형식을 입력해주세요.';
+        break;
+      case 'userid':
+        if (!v) msg = '아이디를 입력해 주세요.';
+        else if (this._checkedId !== v) msg = '아이디 중복 확인을 해주세요.';
+        break;
+      case 'password':
+        if (!v) msg = '비밀번호를 입력해 주세요.';
+        else if (v.length < 8) msg = '비밀번호는 8자 이상 입력해 주세요.';
+        break;
+      case 'password2':
+        if (!v) msg = '비밀번호를 다시 입력해 주세요.';
+        else if (this._val('password') !== v) msg = '비밀번호가 일치하지 않습니다.';
+        break;
+    }
+    if (msg) this._setErr(name, msg); else this._clearFieldErr(name);
+    return msg;
+  }
+  _updatePwStrength(pw) {
+    const el = document.getElementById('pw-strength');
+    if (!el) return;
+    el.classList.remove('show', 'lv1', 'lv2', 'lv3');
+    if (!pw) return;
+    let s = 0;
+    if (pw.length >= 8) s++;
+    if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) s++;
+    if (/\d/.test(pw) && /[^A-Za-z0-9]/.test(pw)) s++;
+    const level = Math.min(3, Math.max(1, s));
+    const labels = { 1: '약함', 2: '보통', 3: '강함' };
+    el.classList.add('show', 'lv' + level);
+    const lbl = el.querySelector('.pw-label');
+    if (lbl) lbl.textContent = '비밀번호 강도 · ' + labels[level];
+  }
+  _resetVerification() {
+    this._phoneVerified = false;
+    this._genCode = null;
+    if (this._timer) { clearInterval(this._timer); this._timer = null; }
+    const block = document.getElementById('verify-block'); if (block) block.classList.remove('show');
+    const done = document.getElementById('verify-done'); if (done) done.classList.remove('show');
+    const btn = document.getElementById('send-code-btn'); if (btn) { btn.textContent = '인증번호 받기'; btn.disabled = false; }
+    const vbtn = document.getElementById('verify-btn'); if (vbtn) vbtn.disabled = false;
+    const ci = document.querySelector('[name="code"]'); if (ci) { ci.value = ''; ci.disabled = false; }
+    const phoneEl = document.querySelector('[name="phone"]'); if (phoneEl) phoneEl.readOnly = false;
+  }
+  _startTimer() {
+    if (this._timer) clearInterval(this._timer);
+    let remaining = 180;
+    const tEl = document.getElementById('verify-timer');
+    const render = () => {
+      const m = String(Math.floor(remaining / 60)).padStart(2, '0');
+      const s = String(remaining % 60).padStart(2, '0');
+      if (tEl) { tEl.textContent = '남은 시간 ' + m + ':' + s; tEl.classList.remove('expired'); }
+    };
+    render();
+    this._timer = setInterval(() => {
+      remaining--;
+      if (remaining <= 0) {
+        clearInterval(this._timer); this._timer = null;
+        if (tEl) { tEl.textContent = '인증시간이 만료되었습니다. 재전송해 주세요.'; tEl.classList.add('expired'); }
+        const vbtn = document.getElementById('verify-btn'); if (vbtn) vbtn.disabled = true;
+        this._genCode = null;
+        return;
+      }
+      render();
+    }, 1000);
+  }
+  _syncAgreeAll() {
+    const f = document.getElementById('signup-form'); if (!f) return;
+    const boxes = ['agree1', 'agree2', 'agree3'].map((n) => f.querySelector('[name="' + n + '"]'));
+    const all = f.querySelector('[name="agreeAll"]');
+    if (all) all.checked = boxes.every((b) => b && b.checked);
+    this._updateSubmitState();
+  }
+  _applyAgreeAll(v) {
+    const f = document.getElementById('signup-form'); if (!f) return;
+    ['agree1', 'agree2', 'agree3'].forEach((n) => { const b = f.querySelector('[name="' + n + '"]'); if (b) b.checked = v; });
+    this._updateSubmitState();
+  }
+  _termsData(key) {
+    const data = {
+      service: {
+        title: '이용약관',
+        html: '<h4>제1조 (목적)</h4><p>이 약관은 ㈜이치(이하 "회사")가 제공하는 웹사이트 및 관련 제반 서비스(이하 "서비스")의 이용과 관련하여 회사와 회원 간의 권리·의무 및 책임사항, 이용조건 및 절차 등 기본적인 사항을 규정함을 목적으로 합니다.</p>'
+          + '<h4>제2조 (정의)</h4><p>1. "회원"이란 이 약관에 동의하고 회사와 이용계약을 체결하여 서비스를 이용하는 자를 말합니다.<br>2. "아이디(ID)"란 회원의 식별과 서비스 이용을 위하여 회원이 정하고 회사가 승인하는 문자와 숫자의 조합을 말합니다.<br>3. "비밀번호"란 회원의 정보보호를 위하여 회원 자신이 설정한 문자와 숫자의 조합을 말합니다.</p>'
+          + '<h4>제3조 (약관의 게시와 개정)</h4><p>1. 회사는 이 약관의 내용을 회원이 쉽게 알 수 있도록 서비스 초기 화면에 게시합니다.<br>2. 회사는 관련 법령을 위배하지 않는 범위에서 이 약관을 개정할 수 있으며, 개정 시 적용일자 및 개정사유를 명시하여 최소 7일 전부터 공지합니다.</p>'
+          + '<h4>제4조 (서비스의 제공 및 변경)</h4><p>1. 회사는 회원에게 회사가 정한 서비스를 제공합니다.<br>2. 회사는 서비스의 내용, 운영상·기술상의 필요에 따라 제공하는 서비스의 전부 또는 일부를 변경할 수 있으며, 변경 시 사전에 공지합니다.</p>'
+          + '<h4>제5조 (회원의 의무)</h4><p>회원은 관계 법령, 이 약관의 규정, 이용안내 및 서비스와 관련하여 공지한 주의사항을 준수하여야 하며, 회사의 업무를 방해하는 행위를 하여서는 안 됩니다.</p>'
+          + '<p class="terms-note">본 약관은 공정거래위원회 표준약관을 참고하여 작성되었으며, 실제 서비스 적용 시 회사 정책에 따라 변경될 수 있습니다.</p>',
+      },
+      collect: {
+        title: '개인정보 수집·이용 동의',
+        html: '<p>㈜이치는 회원가입 및 서비스 제공을 위하여 아래와 같이 개인정보를 수집·이용합니다.</p>'
+          + '<h4>1. 수집 항목</h4><p>필수항목: 이름, 생년월일, 성별, 연락처(휴대전화번호), 이메일 주소, 아이디, 비밀번호<br>자동수집항목: 접속 IP, 서비스 이용기록, 접속 로그</p>'
+          + '<h4>2. 수집·이용 목적</h4><p>회원 식별, 서비스 제공, 고객 문의 응대, 채용 및 현장 운영 관리, 현장 출입 및 배치 업무 지원을 위해 개인정보를 수집·이용합니다.</p>'
+          + '<h4>3. 보유 및 이용 기간</h4><p>회원 탈퇴 시까지 보유·이용하며, 탈퇴 시 지체 없이 파기합니다. 다만 관계 법령에 따라 보존할 필요가 있는 경우 해당 기간 동안 보관합니다.</p>'
+          + '<h4>4. 동의를 거부할 권리</h4><p>귀하는 개인정보 수집·이용에 대한 동의를 거부할 권리가 있습니다. 다만 필수항목에 대한 동의를 거부하실 경우 회원가입 및 서비스 이용이 제한될 수 있습니다.</p>'
+          + '<p class="terms-note">본 동의서는 개인정보보호위원회 표준 서식을 참고하여 작성되었습니다.</p>',
+      },
+      thirdparty: {
+        title: '개인정보 제3자 제공 동의',
+        html: '<p>㈜이치는 원활한 서비스 제공을 위하여 아래와 같이 개인정보를 제3자에게 제공합니다.</p>'
+          + '<h4>1. 제공받는 자</h4><p>업무 제휴사 및 서비스 운영 협력업체(계약 체결 시 별도 고지)</p>'
+          + '<h4>2. 제공 목적</h4><p>서비스 제공 및 운영, 고객 상담·응대, 제휴 서비스 안내 및 이행</p>'
+          + '<h4>3. 제공 항목</h4><p>이름, 연락처(휴대전화번호), 이메일 주소</p>'
+          + '<h4>4. 보유 및 이용 기간</h4><p>제공 목적 달성 시 또는 회원 탈퇴 시까지 보유하며, 목적 달성 후 지체 없이 파기합니다.</p>'
+          + '<h4>5. 동의를 거부할 권리</h4><p>귀하는 개인정보 제3자 제공에 대한 동의를 거부할 권리가 있습니다. 다만 동의를 거부하실 경우 일부 서비스 이용이 제한될 수 있습니다.</p>'
+          + '<p class="terms-note">본 동의서는 개인정보보호위원회 표준 서식을 참고하여 작성되었습니다.</p>',
+      },
+    };
+    return data[key];
+  }
+  _updateSubmitState() {
+    const btn = document.getElementById('signup-btn'); if (!btn) return;
+    const f = document.getElementById('signup-form');
+    const c1 = !!((f && f.querySelector('[name="agree1"]')) || {}).checked;
+    const c2 = !!((f && f.querySelector('[name="agree2"]')) || {}).checked;
+    const c3 = !!((f && f.querySelector('[name="agree3"]')) || {}).checked;
+    const agreed = c1 && c2 && c3;
+    const complete = !!this._val('name') && !!this._val('birth') && !!this._gender() &&
+      this._phoneOk(this._val('phone')) && this._phoneVerified &&
+      this._emailOk(this._val('email')) &&
+      !!this._val('userid') && this._checkedId === this._val('userid') &&
+      this._val('password').length >= 8 &&
+      !!this._val('password2') && this._val('password') === this._val('password2') &&
+      agreed;
+    btn.disabled = !complete;
+    btn.classList.toggle('is-disabled', !complete);
+    const helper = document.getElementById('signup-helper'); if (helper) helper.style.display = complete ? 'none' : '';
+  }
+  renderVals() {
+    return {
+      openTerms: (e) => {
+        const btn = e.currentTarget;
+        const key = btn && btn.dataset ? btn.dataset.term : null;
+        const data = this._termsData(key);
+        if (!data) return;
+        this._modalTerm = key;
+        const modal = document.getElementById('terms-modal');
+        const title = document.getElementById('terms-modal-title');
+        const body = document.getElementById('terms-modal-body');
+        if (title) title.textContent = data.title;
+        if (body) { body.innerHTML = data.html; body.scrollTop = 0; }
+        if (modal) modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+      },
+      closeTerms: () => {
+        const modal = document.getElementById('terms-modal');
+        if (modal) modal.classList.remove('show');
+        document.body.style.overflow = '';
+      },
+      agreeFromModal: () => {
+        const map = { service: 'agree1', collect: 'agree2', thirdparty: 'agree3' };
+        const name = map[this._modalTerm];
+        const f = document.getElementById('signup-form');
+        if (name && f) { const b = f.querySelector('[name="' + name + '"]'); if (b) b.checked = true; }
+        this._syncAgreeAll();
+        const ta = document.getElementById('agree-alert'); if (ta) ta.classList.remove('show');
+        const modal = document.getElementById('terms-modal');
+        if (modal) modal.classList.remove('show');
+        document.body.style.overflow = '';
+      },
+      checkId: () => {
+        const form = document.getElementById('signup-form');
+        if (!form) return;
+        const input = form.querySelector('[name="userid"]');
+        const msg = document.getElementById('id-check-msg');
+        const id = ((input || {}).value || '').trim();
+        if (msg) msg.classList.remove('ok', 'taken');
+        const taken = ['admin', 'ichi', 'test', 'user', 'manager', 'root', 'guest'];
+        if (!id) {
+          this._checkedId = null;
+          if (msg) { msg.textContent = '아이디를 입력해 주세요.'; msg.classList.add('show', 'taken'); }
+          if (input) input.focus({ preventScroll: true });
+          this._updateSubmitState();
+          return;
+        }
+        if (taken.includes(id.toLowerCase())) {
+          this._checkedId = null;
+          if (msg) { msg.textContent = '이미 사용 중인 아이디입니다.'; msg.classList.add('show', 'taken'); }
+        } else {
+          this._checkedId = id;
+          if (msg) { msg.textContent = '사용 가능한 아이디입니다.'; msg.classList.add('show', 'ok'); }
+          this._clearFieldErr('userid');
+        }
+        this._updateSubmitState();
+      },
+      sendCode: () => {
+        const phone = this._val('phone');
+        if (!phone) { this._setErr('phone', '연락처를 입력해 주세요.'); const el = document.querySelector('[name="phone"]'); if (el) el.focus({ preventScroll: true }); return; }
+        if (!this._phoneOk(phone)) { this._setErr('phone', '올바른 연락처 형식을 입력해 주세요. (예: 010-1234-5678)'); return; }
+        this._clearFieldErr('phone');
+        this._phoneVerified = false;
+        const done = document.getElementById('verify-done'); if (done) done.classList.remove('show');
+        this._genCode = String(Math.floor(100000 + Math.random() * 900000));
+        const block = document.getElementById('verify-block'); if (block) block.classList.add('show');
+        const btn = document.getElementById('send-code-btn'); if (btn) btn.textContent = '재전송';
+        const vbtn = document.getElementById('verify-btn'); if (vbtn) vbtn.disabled = false;
+        const ci = document.querySelector('[name="code"]'); if (ci) { ci.value = ''; ci.disabled = false; ci.focus({ preventScroll: true }); }
+        const hint = document.getElementById('verify-hint'); if (hint) hint.textContent = '데모 인증번호 · ' + this._genCode;
+        this._clearFieldErr('code');
+        this._startTimer();
+        this._updateSubmitState();
+      },
+      verifyCode: () => {
+        const block = document.getElementById('verify-block');
+        if (!block || !block.classList.contains('show')) return;
+        if (!this._genCode) { this._setErr('code', '인증시간이 만료되었습니다. 재전송해 주세요.'); return; }
+        const code = this._val('code');
+        if (!code) { this._setErr('code', '인증번호를 입력해 주세요.'); return; }
+        if (code !== this._genCode) { this._setErr('code', '인증번호가 일치하지 않습니다.'); return; }
+        this._clearFieldErr('code');
+        this._phoneVerified = true;
+        if (this._timer) { clearInterval(this._timer); this._timer = null; }
+        const done = document.getElementById('verify-done'); if (done) done.classList.add('show');
+        const vbtn = document.getElementById('verify-btn'); if (vbtn) vbtn.disabled = true;
+        const ci = document.querySelector('[name="code"]'); if (ci) ci.disabled = true;
+        const sbtn = document.getElementById('send-code-btn'); if (sbtn) sbtn.disabled = true;
+        const phoneEl = document.querySelector('[name="phone"]'); if (phoneEl) phoneEl.readOnly = true;
+        const tEl = document.getElementById('verify-timer'); if (tEl) { tEl.textContent = ''; tEl.classList.remove('expired'); }
+        const hint = document.getElementById('verify-hint'); if (hint) hint.textContent = '';
+        this._updateSubmitState();
+      },
+      onSubmit: (e) => {
+        e.preventDefault();
+        const form = document.getElementById('signup-form');
+        if (!form) return;
+        const fields = ['name', 'birth', 'phone', 'email', 'userid', 'password', 'password2'];
+        let firstBad = null;
+        fields.forEach((n) => { const m = this._validateField(n); if (m && !firstBad) firstBad = form.querySelector('.fg[data-field="' + n + '"] .fi'); });
+        if (!this._gender()) { this._setErr('gender', '성별을 선택해 주세요.'); if (!firstBad) firstBad = form.querySelector('[name="gender"]'); } else { this._clearFieldErr('gender'); }
+        if (this._phoneOk(this._val('phone')) && !this._phoneVerified) {
+          this._setErr('phone', '연락처 인증을 완료해 주세요.');
+          if (!firstBad) firstBad = form.querySelector('[name="phone"]');
+        }
+        const termsAlert = document.getElementById('agree-alert');
+        if (termsAlert) termsAlert.classList.remove('show');
+        const c1 = !!((form.querySelector('[name="agree1"]')) || {}).checked;
+        const c2 = !!((form.querySelector('[name="agree2"]')) || {}).checked;
+        const c3 = !!((form.querySelector('[name="agree3"]')) || {}).checked;
+        if (!c1 || !c2 || !c3) { if (termsAlert) termsAlert.classList.add('show'); if (!firstBad) firstBad = form.querySelector(!c1 ? '[name="agree1"]' : (!c2 ? '[name="agree2"]' : '[name="agree3"]')); }
+        if (firstBad) { firstBad.focus({ preventScroll: true }); return; }
+        const note = document.getElementById('signup-note');
+        try {
+          localStorage.setItem('ichi_profile', JSON.stringify({
+            name: this._val('name'), birth: this._val('birth'), gender: this._gender(), phone: this._val('phone'),
+            email: this._val('email'), id: this._val('userid'),
+            joinDate: new Date().toISOString().slice(0, 10)
+          }));
+        } catch (err) {}
+        if (note) { note.querySelector('span').textContent = '회원가입이 완료되었습니다. 로그인 페이지로 이동합니다…'; note.classList.add('show'); }
+        setTimeout(() => { window.location.href = 'login.dc.html'; }, 1500);
+      },
+    };
+  }
+}
+</script>
+</body>
+</html>
