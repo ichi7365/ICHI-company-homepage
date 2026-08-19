@@ -60,10 +60,12 @@ create table if not exists public.inquiries (
   service     text not null,                     -- 문의 유형
   message     text not null,
   status      text not null default 'new' check (status in ('new', 'in_progress', 'done')),
+  ip          text,                              -- 도배 차단용 (개인정보처리방침의 '접속 IP' 항목)
   created_at  timestamptz not null default now()
 );
 
 create index if not exists inquiries_status_idx on public.inquiries (status, created_at desc);
+create index if not exists inquiries_ip_idx on public.inquiries (ip, created_at desc);
 
 -- ---------------------------------------------------------------------
 -- 4. posts — 게시판
@@ -127,10 +129,11 @@ drop policy if exists jobs_admin_write on public.jobs;
 create policy jobs_admin_write on public.jobs
   for all using (public.is_admin()) with check (public.is_admin());
 
--- inquiries: 누구나 접수 가능, 조회·처리는 관리자만
+-- inquiries: 브라우저에서 직접 넣지 못하게 막습니다.
+--   접수는 notify-inquiry Edge Function 이 service_role 로 처리합니다.
+--   (service_role 은 RLS 를 통과하므로 별도 정책이 필요 없습니다)
+--   이렇게 해야 봇이 폼을 우회해 DB 로 직접 밀어넣는 것을 막을 수 있습니다.
 drop policy if exists inquiries_insert_any on public.inquiries;
-create policy inquiries_insert_any on public.inquiries
-  for insert with check (true);
 
 drop policy if exists inquiries_admin_read on public.inquiries;
 create policy inquiries_admin_read on public.inquiries

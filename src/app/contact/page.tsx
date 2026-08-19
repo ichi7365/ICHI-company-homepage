@@ -89,7 +89,8 @@ export default function Page() {
               <textarea className="fi fi-ta" name="message" placeholder="프로젝트나 문의 내용을 자유롭게 작성해 주세요"></textarea>
               <div className="fg-alert"></div>
             </div>
-            <button type="submit" className="btn-submit" style={{ marginTop: "8px" }}>
+            <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: "absolute", left: "-9999px", width: "1px", height: "1px", opacity: 0 }} />
+      <button type="submit" className="btn-submit" style={{ marginTop: "8px" }}>
               Send Message
               <span className="arrow">
                 <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><line x1="2" y1="6" x2="10" y2="6"></line><polyline points="6,2 10,6 6,10"></polyline></svg>

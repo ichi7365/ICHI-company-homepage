@@ -48,6 +48,18 @@ function patchLoginMethod(route, body) {
     );
   }
 
+  if (route === 'contact') {
+    /* 허니팟 — 사람에게는 보이지 않고 봇만 채우는 칸.
+       값이 들어오면 Edge Function 이 스팸으로 판단합니다. */
+    const honeypot =
+      '<input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" ' +
+      'style={{ position: "absolute", left: "-9999px", width: "1px", height: "1px", opacity: 0 }} />';
+    return body.replace(
+      /(<button type="submit" className="btn-submit")/,
+      honeypot + '\n$1'
+    );
+  }
+
   if (route === 'mypage') {
     /* '아이디' 행 제거 — 바로 아래 '이메일' 행과 같은 값이 됩니다 */
     return body.replace(
