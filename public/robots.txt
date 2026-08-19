@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# 회원 전용 · 관리 화면은 색인 제외
+Disallow: /mypage.dc.html
+Disallow: /login.dc.html
+Disallow: /signup.dc.html
+
+Sitemap: https://www.ichi.kr/sitemap.xml

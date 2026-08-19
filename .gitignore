@@ -34,3 +34,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# 변환 중간 산출물 (page.tsx 로 병합되므로 추적 불필요)
+src/**/_body.jsx.txt

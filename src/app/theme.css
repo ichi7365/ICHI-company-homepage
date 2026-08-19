@@ -1,0 +1,65 @@
+﻿/* ==========================================================================
+   ICHI DESIGN SYSTEM — theme.css
+   Single source of truth for the visual language. Edit a token here and it
+   cascades to every page (all pages load theme.css before styles.css).
+
+   COMPONENT INDEX — canonical class lives in styles.css, tokens live here:
+     1. Color .............. --blue* / --navy* / --gray-* / --orange* (below)
+     2. Button ............. .btn-main  .btn-line  .btn-submit  .nav-cta
+     3. Card ............... .biz-card  .team-card  .g-card  .pr-card
+                             .proc-card  .client-card  .pt-namecard
+     4. Tag ................ .t-tag  (+ .tag-tip tooltip)
+     5. Form ............... .fi (input/textarea)  .auth-check (checkbox)
+     6. Modal .............. .auth-modal / .terms-modal
+     7. Toast .............. .ichi-toast
+     8. Tooltip ............ .tag-tip
+     9. Section header ..... .section-eye  .eye-mono  .section-h2  .section-p
+    10. Container/Spacing .. --rail-x  section.pad / .pad-sm
+   ========================================================================== */
+
+:root{
+  /* ---- Color ---- */
+  --blue:#4FA0D7;
+  --blue-deep:#1E5BB8;
+  --blue-hover:#3D8CC4;
+  --blue-light:#CCE4F4;
+  --blue-faint:#EAF4FB;
+  --blue-bg:#F1F7FC;
+  --orange:#E07822;            /* brand accent — diamond on the i */
+  --orange-soft:#FBEBD9;
+  --orange-deep:#B85F12;
+  --accent:#FF6B3D;            /* warm accent for CTA inflection */
+  --navy:#0F172A;
+  --navy-mid:#1E293B;
+  --ink:#111827;
+  --gray-50:#F9FAFB;
+  --gray-100:#F3F4F6;
+  --gray-150:#CBD3DD;
+  --gray-200:#BAC3D0;
+  --gray-300:#D1D5DB;
+  --gray-400:#9CA3AF;
+  --gray-500:#6B7280;
+  --gray-600:#525F74;
+  --gray-700:#374151;
+  --white:#FFFFFF;
+  --danger:#EF4444;
+
+  /* ---- Radius scale ---- */
+  --rad:8px;                   /* legacy alias */
+  --r-sm:8px;                  /* chips, icon boxes, small buttons */
+  --r-md:12px;                 /* name cards, form fields, regions */
+  --r-card:14px;               /* primary content cards */
+  --r-lg:20px;                 /* nav pill, feature panels, auth card */
+  --r-pill:999px;              /* buttons, badges */
+
+  /* ---- Spacing ---- */
+  --rail-x:72px;               /* page side rails / container gutter */
+  --sp-section:140px;          /* section.pad vertical rhythm */
+  --sp-section-sm:100px;       /* section.pad-sm vertical rhythm */
+
+  /* ---- Elevation ---- */
+  --shadow-nav:0 8px 30px rgba(15,23,42,.12);
+  --shadow-card:0 16px 48px -16px rgba(79,160,215,.22);
+  --shadow-btn:0 8px 24px -10px rgba(0,0,0,.45);
+  --shadow-modal:0 24px 60px -20px rgba(15,23,42,.4);
+}
