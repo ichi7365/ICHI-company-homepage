@@ -78,7 +78,20 @@ export async function signUp(input: SignUpInput): Promise<Profile> {
     return localProfile(email);
   }
 
-  const { data, error } = await supabase.auth.signUp({ email, password: input.password });
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password: input.password,
+    /* 이메일 확인이 켜져 있으면 이 시점에 profiles 행을 만들 수 없습니다.
+       확인 링크를 누른 뒤 첫 로그인 때 복원할 수 있도록 메타데이터에 담아둡니다. */
+    options: {
+      data: {
+        name: input.name,
+        phone: input.phone ?? null,
+        birth: input.birth || null,
+        gender: input.gender ?? null,
+      },
+    },
+  });
   if (error) {
     if (/already/i.test(error.message)) throw new Error('이미 가입된 이메일입니다.');
     throw new Error('회원가입에 실패했습니다: ' + error.message);
@@ -87,8 +100,8 @@ export async function signUp(input: SignUpInput): Promise<Profile> {
   const user = data.user;
   if (!user) throw new Error('회원가입에 실패했습니다: 계정 정보를 받지 못했습니다.');
 
-  /* 이메일 확인이 켜져 있으면 세션이 없어 profiles 를 만들 수 없습니다.
-     이 경우 확인 메일의 링크를 누른 뒤 첫 로그인 시 생성됩니다. */
+  /* 이메일 확인이 켜져 있으면 세션이 없어 지금은 profiles 를 만들 수 없습니다.
+     확인 링크를 누르고 로그인하면 getCurrentProfile() 이 메타데이터로 만들어 줍니다. */
   if (!data.session) return localProfile(email);
 
   const { data: profile, error: profileError } = await supabase
@@ -159,16 +172,38 @@ export async function getCurrentProfile(): Promise<Profile | null> {
   }
 
   const { data: session } = await supabase.auth.getUser();
-  if (!session.user) return null;
+  const user = session.user;
+  if (!user) return null;
 
   const { data, error } = await supabase
     .from('profiles')
     .select('*')
-    .eq('id', session.user.id)
+    .eq('id', user.id)
     .maybeSingle();
 
   if (error) throw new Error('회원정보를 불러오지 못했습니다: ' + error.message);
-  return data;
+  if (data) return data;
+
+  /* 행이 없는 경우 — 이메일 확인을 거친 뒤 첫 로그인이거나,
+     가입 도중 중단된 계정입니다. 가입 시 저장한 메타데이터로 복원합니다. */
+  const meta = (user.user_metadata ?? {}) as Record<string, unknown>;
+  const { data: created, error: createError } = await supabase
+    .from('profiles')
+    .insert({
+      id: user.id,
+      email: user.email ?? '',
+      name: (meta.name as string) || '회원',
+      phone: (meta.phone as string) ?? null,
+      birth: (meta.birth as string) ?? null,
+      gender: (meta.gender as Gender) ?? null,
+    })
+    .select()
+    .single();
+
+  if (createError) {
+    throw new Error('회원정보 생성에 실패했습니다: ' + createError.message);
+  }
+  return created;
 }
 
 /** 회원정보 수정 (마이페이지) */

@@ -1,21 +1,23 @@
 'use client';
 
-/* 로그인 — 이메일 + 비밀번호.
-   TODO(백엔드1): login() 을 repo/auth.ts 의 signIn() 으로 교체 */
+/* 로그인 — 이메일 + 비밀번호. Supabase Auth 로 인증합니다. */
 
-import { type FormEvent, type MouseEvent } from 'react';
+import { useState, type FormEvent, type MouseEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth, type User } from '@/lib/auth';
+import { useAuth } from '@/lib/auth';
 import { fieldValue, isEmail, runValidation, useClearErrorOnInput } from '@/lib/form';
 
 export function useVars() {
-  const { login } = useAuth();
+  const { signIn } = useAuth();
   const router = useRouter();
+  const [busy, setBusy] = useState(false);
   useClearErrorOnInput('login-form', 'login-note');
 
   return {
-    onSubmit: (e: FormEvent) => {
+    onSubmit: async (e: FormEvent) => {
       e.preventDefault();
+      if (busy) return;
+
       const form = document.getElementById('login-form') as HTMLFormElement | null;
       if (!form) return;
 
@@ -30,29 +32,28 @@ export function useVars() {
       ]);
       if (!ok) return;
 
-      let profile: Partial<User> = {};
+      setBusy(true);
       try {
-        profile = JSON.parse(localStorage.getItem('ichi_profile') || 'null') || {};
-      } catch {
-        /* 저장된 프로필 없음 */
-      }
+        await signIn(v('email'), v('password'));
 
-      login({
-        name: '회원',
-        phone: '',
-        birth: '',
-        gender: '',
-        joinDate: new Date().toISOString().slice(0, 10),
-        ...profile,
-        email: v('email'),
-      });
-
-      if (note) {
-        const span = note.querySelector('span');
-        if (span) span.textContent = '로그인 정보가 확인되었습니다. 홈으로 이동합니다…';
-        note.classList.add('show');
+        if (note) {
+          const span = note.querySelector('span');
+          if (span) span.textContent = '로그인 정보가 확인되었습니다. 홈으로 이동합니다…';
+          note.classList.add('show');
+        }
+        setTimeout(() => router.push('/'), 1200);
+      } catch (err) {
+        /* 실패 사유는 아이디/비밀번호를 구분하지 않습니다 (계정 추측 방지) */
+        const fg = form.querySelector('.fg[data-field="password"]');
+        fg?.classList.add('has-error');
+        const alert = fg?.querySelector('.fg-alert');
+        if (alert) {
+          alert.textContent =
+            err instanceof Error ? err.message : '이메일 또는 비밀번호가 올바르지 않습니다.';
+        }
+      } finally {
+        setBusy(false);
       }
-      setTimeout(() => router.push('/'), 1500);
     },
 
     togglePw: (e: MouseEvent<HTMLElement>) => {

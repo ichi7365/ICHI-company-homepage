@@ -11,7 +11,7 @@ import { useAuth } from '@/lib/auth';
 
 export function useVars() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { user, toastAfterNav, logout, confirm } = useAuth();
+  const { user, toastAfterNav, signOut, confirm } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -34,8 +34,8 @@ export function useVars() {
         title: '로그아웃',
         body: '로그아웃하시겠습니까?',
         confirmText: '로그아웃',
-        onConfirm: () => {
-          logout();
+        onConfirm: async () => {
+          await signOut();
           toastAfterNav('로그아웃되었습니다.');
           router.push('/');
         },

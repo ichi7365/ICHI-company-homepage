@@ -1,38 +1,41 @@
 'use client';
 
 /* 마이페이지 — 인증 가드, 회원정보 조회/수정, 비밀번호 변경, 회원탈퇴.
-   TODO(백엔드1): update()/비밀번호 변경/탈퇴를 실제 API 호출로 교체 */
+   저장은 lib/repo/auth.ts 를 통해 Supabase 로 갑니다. */
 
 import { useEffect, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth, type User } from '@/lib/auth';
+import { useAuth } from '@/lib/auth';
+import { changePassword } from '@/lib/repo/auth';
 import { fieldValue, isStrongPw, runValidation, useClearErrorOnInput } from '@/lib/form';
+import type { Gender, Profile } from '@/types/database';
 
-const fmtDate = (s?: string) => {
+const fmtDate = (s?: string | null) => {
   if (!s) return '—';
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s);
   return m ? `${m[1]}.${m[2]}.${m[3]}` : s;
 };
 
-const setText = (id: string, v?: string) => {
+const setText = (id: string, v?: string | null) => {
   const el = document.getElementById(id);
   if (el) el.textContent = v || '—';
 };
 
-function fill(u: User) {
+function fill(u: Profile) {
   setText('mp-hello', u.name || '회원');
   setText('v-name', u.name);
   setText('v-email', u.email);
   setText('v-phone', u.phone);
   setText('v-birth', fmtDate(u.birth));
   setText('v-gender', u.gender);
-  setText('v-joined', fmtDate(u.joinDate));
+  setText('v-joined', fmtDate(u.join_date));
 }
 
 export function useVars() {
-  const { ready, user, update, logout, toast, toastAfterNav, confirm } = useAuth();
+  const { ready, user, updateProfile, signOut, withdraw, toast, toastAfterNav, confirm } = useAuth();
   const router = useRouter();
   const [editing, setEditing] = useState(false);
+  const [busy, setBusy] = useState(false);
 
   useClearErrorOnInput('pw-form');
 
@@ -49,17 +52,18 @@ export function useVars() {
   }, [user, editing]);
 
   return {
-    toggleEdit: () => {
-      if (!user) return;
+    toggleEdit: async () => {
+      if (!user || busy) return;
       const btn = document.getElementById('mp-edit-btn');
 
+      /* 수정 모드로 진입 — 표시 영역을 입력칸으로 바꿉니다 */
       if (!editing) {
         const emailCell = document.getElementById('v-email');
         const phoneCell = document.getElementById('v-phone');
         const genderCell = document.getElementById('v-gender');
-        if (emailCell) {
-          emailCell.innerHTML = `<input type="email" class="fi" id="e-email" value="${user.email || ''}" placeholder="name@example.com">`;
-        }
+
+        /* 이메일은 로그인 계정이라 여기서 바꾸지 않습니다 */
+        if (emailCell) emailCell.textContent = user.email;
         if (phoneCell) {
           phoneCell.innerHTML = `<input type="tel" class="fi" id="e-phone" value="${user.phone || ''}" placeholder="010-1234-5678">`;
         }
@@ -76,37 +80,32 @@ export function useVars() {
         return;
       }
 
-      const email = (document.getElementById('e-email') as HTMLInputElement | null)?.value || '';
+      /* 저장 */
       const phone = (document.getElementById('e-phone') as HTMLInputElement | null)?.value || '';
-      const gender =
-        document.querySelector<HTMLInputElement>('input[name="mp-gender"]:checked')?.value ||
-        user.gender ||
-        '';
+      const gender = (document.querySelector<HTMLInputElement>('input[name="mp-gender"]:checked')
+        ?.value || user.gender || '') as Gender | '';
 
-      const updated = update({ email: email.trim(), phone: phone.trim(), gender });
+      setBusy(true);
       try {
-        const prev = JSON.parse(localStorage.getItem('ichi_profile') || '{}');
-        localStorage.setItem(
-          'ichi_profile',
-          JSON.stringify({
-            ...prev,
-            email: updated.email,
-            phone: updated.phone,
-            gender: updated.gender,
-          })
-        );
-      } catch {
-        /* 저장 실패 무시 */
+        const updated = await updateProfile({
+          phone: phone.trim() || null,
+          gender: gender || null,
+        });
+        fill(updated);
+        if (btn) btn.textContent = '회원정보 수정';
+        setEditing(false);
+        toast('회원정보가 수정되었습니다.');
+      } catch (err) {
+        toast(err instanceof Error ? err.message : '회원정보 수정에 실패했습니다.');
+      } finally {
+        setBusy(false);
       }
-
-      fill(updated);
-      if (btn) btn.textContent = '회원정보 수정';
-      setEditing(false);
-      toast('회원정보가 수정되었습니다.');
     },
 
-    onChangePw: (e: FormEvent) => {
+    onChangePw: async (e: FormEvent) => {
       e.preventDefault();
+      if (busy) return;
+
       const form = document.getElementById('pw-form') as HTMLFormElement | null;
       if (!form) return;
 
@@ -120,8 +119,23 @@ export function useVars() {
       ]);
       if (!ok) return;
 
-      form.reset();
-      toast('비밀번호가 변경되었습니다.');
+      setBusy(true);
+      try {
+        await changePassword(v('cur'), v('new'));
+        form.reset();
+        toast('비밀번호가 변경되었습니다.');
+      } catch (err) {
+        /* 대개 '현재 비밀번호가 올바르지 않습니다' */
+        const fg = form.querySelector('.fg[data-field="cur"]');
+        fg?.classList.add('has-error');
+        const alert = fg?.querySelector('.fg-alert');
+        if (alert) {
+          alert.textContent =
+            err instanceof Error ? err.message : '비밀번호 변경에 실패했습니다.';
+        }
+      } finally {
+        setBusy(false);
+      }
     },
 
     onWithdraw: () =>
@@ -130,16 +144,20 @@ export function useVars() {
         body: '계정을 삭제하면 모든 회원정보를 복구할 수 없습니다.\n정말 탈퇴하시겠습니까?',
         confirmText: '회원탈퇴',
         danger: true,
-        onConfirm: () => {
-          logout();
+        onConfirm: async () => {
           try {
-            localStorage.removeItem('ichi_profile');
-          } catch {
-            /* 무시 */
+            await withdraw();
+            toastAfterNav('회원탈퇴가 완료되었습니다.');
+            router.push('/');
+          } catch (err) {
+            toast(err instanceof Error ? err.message : '회원탈퇴에 실패했습니다.');
           }
-          toastAfterNav('회원탈퇴가 완료되었습니다.');
-          router.push('/');
         },
       }),
+
+    onLogout: async () => {
+      await signOut();
+      router.push('/');
+    },
   };
 }

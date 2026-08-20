@@ -1,8 +1,10 @@
 'use client';
 
-/* ICHI 인증 — 현재는 LocalStorage 기반 목(mock) 구현.
-   백엔드1이 실제 세션/JWT API 로 교체할 때, 아래 STORAGE 접근부만 바꾸면 되고
-   useAuth() 가 노출하는 공개 API 는 그대로 유지하면 됩니다. */
+/* 로그인 상태 · 확인모달 · 토스트를 화면 전체에 제공합니다.
+ *
+ * 실제 인증/저장은 lib/repo/auth.ts 가 담당합니다.
+ * Supabase 환경변수가 없으면 repo 쪽이 자동으로 localStorage 로 동작하므로,
+ * 이 파일은 어느 쪽이든 신경 쓰지 않습니다. */
 
 import {
   createContext,
@@ -14,38 +16,9 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-
-const KEY = 'ichi_auth';
-/* 관리자 계정 (목). 추후 인증 API 의 role 클레임으로 대체 */
-const ADMIN_IDS = ['admin'];
-
-export type User = {
-  id?: string;
-  name?: string;
-  email?: string;
-  phone?: string;
-  birth?: string;
-  gender?: string;
-  joinDate?: string;
-  role?: string;
-  loggedIn?: boolean;
-  at?: number;
-};
-
-export function roleFor(user: User | null): string {
-  if (!user) return 'user';
-  if (user.role) return user.role;
-  return ADMIN_IDS.indexOf(user.id ?? '') !== -1 ? 'admin' : 'user';
-}
-
-function read(): User | null {
-  if (typeof window === 'undefined') return null;
-  try {
-    return JSON.parse(localStorage.getItem(KEY) || 'null');
-  } catch {
-    return null;
-  }
-}
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import * as auth from '@/lib/repo/auth';
+import type { Profile } from '@/types/database';
 
 export type ConfirmOptions = {
   title?: string;
@@ -57,14 +30,22 @@ export type ConfirmOptions = {
 };
 
 type AuthValue = {
-  /** localStorage 를 한 번 읽은 뒤 true. 인증 가드는 이 값이 true 일 때만 판단해야 합니다. */
+  /** 로그인 상태를 한 번 확인한 뒤 true. 인증 가드는 이 값이 true 일 때만 판단해야 합니다. */
   ready: boolean;
-  user: User | null;
+  user: Profile | null;
   isLoggedIn: boolean;
   isAdmin: boolean;
-  login: (user: User) => User;
-  update: (patch: Partial<User>) => User;
-  logout: () => void;
+  /** 로그인 — 실패 시 예외를 던집니다 */
+  signIn: (email: string, password: string) => Promise<Profile>;
+  /** 회원가입 — 실패 시 예외를 던집니다 */
+  signUp: (input: auth.SignUpInput) => Promise<Profile>;
+  signOut: () => Promise<void>;
+  /** 회원정보 수정 */
+  updateProfile: (patch: auth.ProfilePatch) => Promise<Profile>;
+  /** 회원탈퇴 */
+  withdraw: () => Promise<void>;
+  /** 저장된 정보를 다시 읽어옵니다 */
+  refresh: () => Promise<void>;
   toast: (msg: string) => void;
   toastAfterNav: (msg: string) => void;
   confirm: (opts: ConfirmOptions) => void;
@@ -73,23 +54,53 @@ type AuthValue = {
 const AuthContext = createContext<AuthValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<Profile | null>(null);
   const [ready, setReady] = useState(false);
   const [toastMsg, setToastMsg] = useState('');
   const [toastOn, setToastOn] = useState(false);
   const [modal, setModal] = useState<ConfirmOptions | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  /* 초기 로드 + 다른 탭과 동기화 */
+  const refresh = useCallback(async () => {
+    try {
+      setUser(await auth.getCurrentProfile());
+    } catch (e) {
+      console.error('[auth] 회원정보 조회 실패', e);
+      setUser(null);
+    }
+  }, []);
+
+  /* 최초 1회 확인 + 세션 변화 감지 */
   useEffect(() => {
-    setUser(read());
-    setReady(true);
+    let alive = true;
+
+    (async () => {
+      await refresh();
+      if (alive) setReady(true);
+    })();
+
+    /* Supabase 사용 시: 로그인/로그아웃/토큰갱신에 반응 */
+    if (isSupabaseConfigured) {
+      const { data } = supabase.auth.onAuthStateChange((event) => {
+        if (event === 'SIGNED_OUT') setUser(null);
+        else void refresh();
+      });
+      return () => {
+        alive = false;
+        data.subscription.unsubscribe();
+      };
+    }
+
+    /* 폴백 사용 시: 다른 탭에서의 변경 감지 */
     const onStorage = (e: StorageEvent) => {
-      if (e.key === KEY) setUser(read());
+      if (e.key === 'ichi_auth') void refresh();
     };
     window.addEventListener('storage', onStorage);
-    return () => window.removeEventListener('storage', onStorage);
-  }, []);
+    return () => {
+      alive = false;
+      window.removeEventListener('storage', onStorage);
+    };
+  }, [refresh]);
 
   const toast = useCallback((msg: string) => {
     setToastMsg(msg);
@@ -112,11 +123,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [toast]);
 
-  /* body 클래스 — styles.css 가 .is-authed / .is-admin 으로 네비 상태를 제어 */
+  /* body 클래스 — styles.css 가 .is-authed / .is-admin 으로 네비 표시를 제어 */
   useEffect(() => {
-    const loggedIn = !!user;
-    document.body.classList.toggle('is-authed', loggedIn);
-    document.body.classList.toggle('is-admin', loggedIn && roleFor(user) === 'admin');
+    document.body.classList.toggle('is-authed', !!user);
+    document.body.classList.toggle('is-admin', user?.role === 'admin');
   }, [user]);
 
   /* Esc 로 모달 닫기 */
@@ -129,36 +139,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => document.removeEventListener('keydown', onKey);
   }, [modal]);
 
-  const login = useCallback((next: User) => {
-    const prev = read() || {};
-    const data: User = { loggedIn: true, at: Date.now(), ...prev, ...next };
-    data.role = roleFor(data);
-    localStorage.setItem(KEY, JSON.stringify(data));
-    setUser(data);
-    return data;
-  }, []);
-
-  const update = useCallback((patch: Partial<User>) => {
-    const data: User = { ...(read() || {}), ...patch };
-    localStorage.setItem(KEY, JSON.stringify(data));
-    setUser(data);
-    return data;
-  }, []);
-
-  const logout = useCallback(() => {
-    localStorage.removeItem(KEY);
-    setUser(null);
-  }, []);
-
   const value = useMemo<AuthValue>(
     () => ({
       ready,
       user,
       isLoggedIn: !!user,
-      isAdmin: !!user && roleFor(user) === 'admin',
-      login,
-      update,
-      logout,
+      isAdmin: user?.role === 'admin',
+
+      signIn: async (email, password) => {
+        const profile = await auth.signIn(email, password);
+        setUser(profile);
+        return profile;
+      },
+
+      signUp: async (input) => {
+        const profile = await auth.signUp(input);
+        setUser(profile);
+        return profile;
+      },
+
+      signOut: async () => {
+        await auth.signOut();
+        setUser(null);
+      },
+
+      updateProfile: async (patch) => {
+        const profile = await auth.updateProfile(patch);
+        setUser(profile);
+        return profile;
+      },
+
+      withdraw: async () => {
+        await auth.withdraw();
+        setUser(null);
+      },
+
+      refresh,
       toast,
       toastAfterNav: (msg: string) => {
         try {
@@ -169,7 +185,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
       confirm: (opts: ConfirmOptions) => setModal(opts),
     }),
-    [ready, user, login, update, logout, toast]
+    [ready, user, refresh, toast]
   );
 
   const closeModal = () => setModal(null);

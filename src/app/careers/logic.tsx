@@ -1,14 +1,13 @@
 ﻿'use client';
 
 /* 인재채용 — 공고 목록/상세 + 관리자 전용 등록·수정·삭제.
-   현재 저장소는 localStorage('ichi_jobs').
-   TODO(백엔드1): loadJobs/persist 를 /api/jobs CRUD 로 교체하면 화면 코드는 그대로 사용 가능 */
+   저장은 lib/repo/jobs.ts 를 통해 Supabase 로 갑니다. */
 
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { useAuth } from '@/lib/auth';
-import { SEED_JOBS, type Job } from './seed';
+import { listJobs, createJob, updateJob, deleteJob } from '@/lib/repo/jobs';
+import type { Job } from './seed';
 
-const STORE_KEY = 'ichi_jobs';
 const LIST_FIELDS = ['duties', 'qualifications', 'preferred', 'conditions', 'process'] as const;
 type ListField = (typeof LIST_FIELDS)[number];
 
@@ -46,33 +45,19 @@ export function useVars() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Job | null>(null);
 
-  /* 최초 로드 — 저장된 공고가 없으면 시드 데이터로 초기화 */
-  useEffect(() => {
-    let stored: Job[] | null = null;
+  /* 최초 로드 */
+  const reload = useCallback(async () => {
     try {
-      stored = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
-    } catch {
-      /* 손상된 데이터 무시 */
+      setJobs(await listJobs());
+    } catch (e) {
+      console.error('[careers] 목록 조회 실패', e);
+      toast(e instanceof Error ? e.message : '채용공고를 불러오지 못했습니다.');
     }
-    if (!Array.isArray(stored) || !stored.length) {
-      stored = JSON.parse(JSON.stringify(SEED_JOBS));
-      try {
-        localStorage.setItem(STORE_KEY, JSON.stringify(stored));
-      } catch {
-        /* 저장 실패 무시 */
-      }
-    }
-    setJobs(stored as Job[]);
-  }, []);
+  }, [toast]);
 
-  const persist = useCallback((next: Job[]) => {
-    try {
-      localStorage.setItem(STORE_KEY, JSON.stringify(next));
-    } catch {
-      /* 저장 실패 무시 */
-    }
-    setJobs(next);
-  }, []);
+  useEffect(() => {
+    void reload();
+  }, [reload]);
 
   const deny = useCallback(() => toast('관리자 계정만 이용 가능한 기능입니다.'), [toast]);
   const toTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -106,11 +91,16 @@ export function useVars() {
       body: '이 채용공고를 삭제하시겠습니까?\n삭제된 공고는 복구할 수 없습니다.',
       confirmText: '삭제',
       danger: true,
-      onConfirm: () => {
-        persist(jobs.filter((x) => x.id !== id));
-        toast('채용공고가 삭제되었습니다.');
-        setSelId(null);
-        setView('list');
+      onConfirm: async () => {
+        try {
+          await deleteJob(id);
+          await reload();
+          toast('채용공고가 삭제되었습니다.');
+          setSelId(null);
+          setView('list');
+        } catch (err) {
+          toast(err instanceof Error ? err.message : '삭제에 실패했습니다.');
+        }
       },
     });
   };
@@ -142,7 +132,7 @@ export function useVars() {
       return { ...d, [k]: arr };
     });
 
-  const save = () => {
+  const save = async () => {
     if (!isAdmin) return deny();
     if (!draft) return;
     if (!draft.title.trim()) {
@@ -164,12 +154,15 @@ export function useVars() {
       process: clean(draft.process),
       apply: draft.apply.trim(),
     };
-    const next = jobs.slice();
-    const idx = next.findIndex((x) => x.id === rec.id);
-    if (idx >= 0) next[idx] = rec;
-    else next.unshift(rec);
+    try {
+      if (editingId) await updateJob(rec);
+      else await createJob(rec);
+      await reload();
+    } catch (err) {
+      toast(err instanceof Error ? err.message : '저장에 실패했습니다.');
+      return;
+    }
 
-    persist(next);
     toast(editingId ? '채용공고가 수정되었습니다.' : '채용공고가 등록되었습니다.');
     setView('list');
     setSelId(null);
@@ -252,7 +245,7 @@ export function useVars() {
     formTitle: editingId ? '채용공고 수정' : '채용공고 작성',
     saveLabel: editingId ? '수정 완료' : '등록하기',
     create: startCreate,
-    save,
+    save: () => { void save(); },
     detailEdit: () => selId && startEdit(selId),
     detailDel: () => selId && removeJob(selId),
     back: () => {

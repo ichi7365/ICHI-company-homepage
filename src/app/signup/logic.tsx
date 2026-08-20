@@ -2,10 +2,13 @@
 
 /* 회원가입 — 필드 검증, 휴대폰 인증(데모), 약관 동의. 계정은 이메일 기준입니다.
    원본 시안의 DOM 조작 방식을 유지해 마크업/스타일 동작을 그대로 보존합니다.
-   TODO(백엔드1): sendCode / verifyCode / onSubmit 을 repo/auth.ts 의 signUp() 과 실제 인증 API 로 교체 */
+   가입은 lib/repo/auth.ts 의 signUp() 으로 처리합니다.
+   TODO(백엔드2): 휴대폰 인증(sendCode/verifyCode)은 아직 데모입니다. */
 
-import { useEffect, useRef, type FormEvent, type MouseEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent, type MouseEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/auth';
+import type { Gender } from '@/types/database';
 import { AGREE_FIELD, TERMS, type TermsKey } from './terms-data';
 
 const FORM_ID = 'signup-form';
@@ -39,6 +42,8 @@ const clearErr = (field: string) =>
 
 export function useVars() {
   const router = useRouter();
+  const { signUp } = useAuth();
+  const [busy, setBusy] = useState(false);
   const phoneVerified = useRef(false);
   const genCode = useRef<string | null>(null);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -344,7 +349,7 @@ export function useVars() {
       updateSubmitState();
     },
 
-    onSubmit: (e: FormEvent) => {
+    onSubmit: async (e: FormEvent) => {
       e.preventDefault();
       const f = form();
       if (!f) return;
@@ -379,21 +384,25 @@ export function useVars() {
         return;
       }
 
+      if (busy) return;
+      setBusy(true);
       try {
-        localStorage.setItem(
-          'ichi_profile',
-          JSON.stringify({
-            name: val('name'),
-            birth: val('birth'),
-            gender: gender(),
-            phone: val('phone'),
-            email: val('email'),
-            joinDate: new Date().toISOString().slice(0, 10),
-          })
-        );
-      } catch {
-        /* 저장 실패 무시 */
+        await signUp({
+          email: val('email'),
+          password: val('password'),
+          name: val('name'),
+          phone: val('phone'),
+          birth: val('birth'),
+          gender: (gender() || undefined) as Gender | undefined,
+        });
+      } catch (err) {
+        /* 가입 실패 — 이메일 칸에 사유를 표시하고 입력값은 유지합니다 */
+        setErr('email', err instanceof Error ? err.message : '회원가입에 실패했습니다.');
+        f.querySelector<HTMLElement>('.fg[data-field="email"] .fi')?.focus({ preventScroll: true });
+        setBusy(false);
+        return;
       }
+      setBusy(false);
 
       const note = byId('signup-note');
       if (note) {
