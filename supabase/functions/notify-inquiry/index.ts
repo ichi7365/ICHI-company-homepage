@@ -18,7 +18,7 @@ import { SMTPClient } from 'https://deno.land/x/denomailer@1.6.0/mod.ts';
 const ALLOWED_ORIGINS = [
   'https://www.ichi.kr',
   'https://ichi.kr',
-  'https://ichi-homepage.pages.dev',
+  'https://ichi-company-homepage.pages.dev',
   'http://localhost:3000',
   'http://localhost:3100',
 ];

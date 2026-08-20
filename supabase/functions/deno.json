@@ -1,0 +1,17 @@
+{
+  "_comment": [
+    "이 폴더는 Deno 런타임(Supabase Edge Function)용입니다.",
+    "Next.js 프로젝트와 문법·모듈 해석 방식이 달라",
+    "tsconfig.json 과 .eslintrc.json 에서 제외돼 있습니다.",
+    "편집기에서 빨간 줄이 보이면 Deno 확장을 설치하고 이 폴더만 활성화하세요."
+  ],
+  "imports": {
+    "@supabase/supabase-js": "jsr:@supabase/supabase-js@2",
+    "denomailer": "https://deno.land/x/denomailer@1.6.0/mod.ts"
+  },
+  "lint": {
+    "rules": {
+      "tags": ["recommended"]
+    }
+  }
+}

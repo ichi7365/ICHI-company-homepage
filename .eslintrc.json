@@ -1,5 +1,10 @@
 {
   "extends": ["next/core-web-vitals", "next/typescript"],
+  "ignorePatterns": [
+    "out/",
+    "_design/",
+    "supabase/functions/"
+  ],
   "rules": {
     "react/no-unescaped-entities": "off"
   }
