@@ -1,0 +1,21 @@
+{
+  // Cloudflare 배포 설정.
+  // next build 가 만든 out/ 폴더를 정적 파일로 서빙합니다.
+  // 서버 코드(main)가 없는 '정적 자산 전용' Worker 입니다.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ichi-company-homepage",
+  "compatibility_date": "2026-08-19",
+
+  "assets": {
+    // next.config.mjs 의 output: 'export' 결과물
+    "directory": "./out",
+
+    // 없는 주소로 들어오면 out/404.html 을 보여줍니다
+    "not_found_handling": "404-page"
+  },
+
+  "observability": {
+    // 배포 후 문제 추적용 로그
+    "enabled": true
+  }
+}
