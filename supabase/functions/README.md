@@ -34,13 +34,21 @@ Supabase 대시보드 → Edge Functions → Secrets 화면에서 입력하는 �
 |---|---|---|
 | `SMTP_HOST` | 하이웍스 SMTP 서버 주소 | ✅ |
 | `SMTP_PORT` | `465` (SSL) 또는 `587` (TLS) | 기본 465 |
-| `SMTP_USER` | 발신 계정 (예: `ichi@ichi.kr`) | ✅ |
+| `SMTP_USER` | 발신 계정 — **전용 계정 권장** (예: `web@ichi.kr`) | ✅ |
 | `SMTP_PASS` | 해당 계정 비밀번호 | ✅ |
 | `INQUIRY_TO` | 알림 받을 주소 (미설정 시 `SMTP_USER`) | — |
 | `TURNSTILE_SECRET_KEY` | 캡차 비밀키 | 선택 |
 
 > SMTP 서버 주소와 포트는 **하이웍스 관리자 페이지 → 메일 설정**에서 확인하세요.
-> 계정에 따라 "외부 메일 프로그램 사용" 허용이 필요할 수 있습니다.
+> 계정별로 **'외부 메일 프로그램(SMTP) 사용'** 이 허용돼 있어야 발송됩니다.
+>
+> **DNS 는 건드리지 않습니다.** SMTP 발송은 계정 로그인 방식이라 MX·SPF 와 무관하며,
+> `ichi.kr` 의 SPF 에 이미 하이웍스가 포함돼 있어 스팸 처리 위험도 낮습니다.
+>
+> 대표 메일(`ichi@ichi.kr`) 대신 **전용 계정**(`web@ichi.kr` 등)을 쓰시길 권합니다.
+> 발송 한도에 걸려도 대표 메일 수발신이 영향받지 않고, Edge Function 에 넣는
+> 비밀번호가 대표 계정 것이 아니게 됩니다. 알림 수신은 `INQUIRY_TO` 로 지정하면
+> 그대로 대표 메일함으로 옵니다.
 
 `SUPABASE_URL` 과 `SUPABASE_SERVICE_ROLE_KEY` 는 Supabase 가 자동으로 넣어줍니다. 등록하지 마세요.
 
