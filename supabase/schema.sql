@@ -70,16 +70,21 @@ create index if not exists inquiries_ip_idx on public.inquiries (ip, created_at 
 -- ---------------------------------------------------------------------
 -- 4. posts — 게시판
 -- ---------------------------------------------------------------------
+-- 이 테이블은 2026-06 에 이미 만들어져 있어 구조를 그대로 유지하고
+-- 부족한 컬럼만 추가합니다. (기존 데이터 보존)
 create table if not exists public.posts (
   id          uuid primary key default gen_random_uuid(),
-  author_id   uuid references public.profiles(id) on delete set null,
   title       text not null,
   content     text not null,
-  is_notice   boolean not null default false,    -- 공지 여부
-  view_count  integer not null default 0,
-  created_at  timestamptz not null default now(),
-  updated_at  timestamptz not null default now()
+  image_url   text,                              -- 대표 이미지 (기존 설계 유지)
+  author_id   uuid not null references auth.users(id),
+  created_at  timestamptz default now(),
+  updated_at  timestamptz default now()
 );
+
+-- 홈페이지 화면에 필요한 컬럼 보강 — 이미 있으면 건너뜁니다
+alter table public.posts add column if not exists is_notice  boolean not null default false;
+alter table public.posts add column if not exists view_count integer not null default 0;
 
 create index if not exists posts_created_idx on public.posts (is_notice desc, created_at desc);
 
@@ -144,6 +149,12 @@ create policy inquiries_admin_write on public.inquiries
   for update using (public.is_admin()) with check (public.is_admin());
 
 -- posts: 누구나 조회, 로그인 사용자는 작성, 본인 글만 수정·삭제 (관리자는 전체)
+--   2026-06 에 만든 아래 정책들은 관리자 예외가 없어 대체합니다.
+drop policy if exists "Allow public read"   on public.posts;
+drop policy if exists "Allow admin write"   on public.posts;
+drop policy if exists "Allow admin update"  on public.posts;
+drop policy if exists "Allow admin delete"  on public.posts;
+
 drop policy if exists posts_select_all on public.posts;
 create policy posts_select_all on public.posts
   for select using (true);

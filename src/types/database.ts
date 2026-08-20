@@ -55,9 +55,12 @@ export type Inquiry = {
 
 export type Post = {
   id: string;
-  author_id: string | null;
+  /** auth.users.id — 기존 테이블이 not null 이라 필수입니다 */
+  author_id: string;
   title: string;
   content: string;
+  /** 대표 이미지 (2026-06 기존 설계에서 유지) */
+  image_url: string | null;
   is_notice: boolean;
   view_count: number;
   created_at: string;
