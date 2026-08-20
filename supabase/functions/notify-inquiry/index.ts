@@ -18,10 +18,14 @@ import { SMTPClient } from 'https://deno.land/x/denomailer@1.6.0/mod.ts';
 const ALLOWED_ORIGINS = [
   'https://www.ichi.kr',
   'https://ichi.kr',
-  'https://ichi-company-homepage.pages.dev',
+  /* Cloudflare Worker 주소 (도메인 연결 전 테스트용) */
+  'https://ichi-company-homepage.ichi-075.workers.dev',
   'http://localhost:3000',
   'http://localhost:3100',
 ];
+
+/* 버전별 미리보기 주소(*-ichi-company-homepage.ichi-075.workers.dev)도 허용 */
+const PREVIEW_ORIGIN = /^https:\/\/[a-z0-9-]+-ichi-company-homepage\.ichi-075\.workers\.dev$/;
 
 /** 같은 IP 에서 이 시간 안에 아래 횟수를 넘기면 거절 */
 const THROTTLE_MINUTES = 10;
@@ -37,9 +41,11 @@ const SERVICE_TYPES = [
 
 /* ---------- 공통 ---------- */
 
+const isAllowed = (origin: string | null) =>
+  !!origin && (ALLOWED_ORIGINS.includes(origin) || PREVIEW_ORIGIN.test(origin));
+
 const corsHeaders = (origin: string | null) => ({
-  'Access-Control-Allow-Origin':
-    origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0],
+  'Access-Control-Allow-Origin': isAllowed(origin) ? origin! : ALLOWED_ORIGINS[0],
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   Vary: 'Origin',
