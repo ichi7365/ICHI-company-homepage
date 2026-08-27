@@ -163,12 +163,22 @@ export async function verifyEmailCode(
   if (error) throw new Error('인증번호가 일치하지 않습니다.');
   if (!data.user) throw new Error('인증에 실패했습니다. 다시 시도해 주세요.');
 
-  /* 이미 회원정보가 있으면 가입이 아니라 기존 계정입니다 */
-  const { data: existing } = await supabase
+  /* verifyOtp 직후에는 클라이언트에 세션이 아직 반영되지 않을 수 있습니다.
+     그 상태로 조회하면 RLS 에 막혀 "회원정보 없음" 으로 잘못 판단합니다. */
+  await supabase.auth.getSession();
+
+  const { data: existing, error: lookupError } = await supabase
     .from('profiles')
     .select('id')
     .eq('id', data.user.id)
     .maybeSingle();
+
+  if (lookupError) {
+    /* 조회 자체가 실패하면 중복 여부를 알 수 없습니다.
+       가입을 막지는 않고, 실제 저장 단계에서 다시 걸러집니다. */
+    console.warn('[auth] 기존 회원정보 확인 실패', lookupError.message);
+    return { alreadyRegistered: false };
+  }
 
   return { alreadyRegistered: !!existing };
 }
@@ -210,7 +220,13 @@ export async function completeSignUp(input: SignUpInput): Promise<Profile> {
     .select()
     .single();
 
-  if (error) throw new Error('회원정보 저장에 실패했습니다: ' + error.message);
+  if (error) {
+    /* 23505 = unique 제약 위반. 이미 가입된 계정입니다. */
+    if (error.code === '23505' || /duplicate key/i.test(error.message)) {
+      throw new Error('이미 가입된 이메일입니다. 로그인해 주세요.');
+    }
+    throw new Error('회원정보 저장에 실패했습니다: ' + error.message);
+  }
   return profile;
 }
 
