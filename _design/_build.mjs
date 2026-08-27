@@ -106,6 +106,14 @@ function patchLoginMethod(route, body) {
       }
     }
 
+    /* 3) 인증번호 입력칸
+          Supabase 가 보내는 코드는 6자리가 아닐 수 있어(실제 8자리 확인)
+          길이 제한을 넉넉히 두고 안내 문구도 자릿수를 명시하지 않습니다. */
+    out = out.replace(
+      /(<input type="text" className="fi" name="code" )placeholder="[^"]*" maxLength=\{6\}/,
+      '$1placeholder="메일로 받은 인증번호" maxLength={12}'
+    );
+
     return out;
   }
 

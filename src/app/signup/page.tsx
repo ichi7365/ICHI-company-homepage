@@ -61,7 +61,7 @@ export default function Page() {
                 <div className="fg-alert"></div>
               </div> <div className="fg verify-row" data-field="code" id="verify-block">
                 <div className="id-check-row">
-                  <input type="text" className="fi" name="code" placeholder="인증번호 6자리" maxLength={6} inputMode="numeric" autoComplete="one-time-code" />
+                  <input type="text" className="fi" name="code" placeholder="메일로 받은 인증번호" maxLength={12} inputMode="numeric" autoComplete="one-time-code" />
                   <button type="button" className="id-check-btn" id="verify-btn" onClick={vars.verifyCode}>인증하기</button>
                 </div>
                 <div className="verify-meta">
