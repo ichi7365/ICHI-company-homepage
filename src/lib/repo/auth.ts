@@ -207,16 +207,21 @@ export async function completeSignUp(input: SignUpInput): Promise<Profile> {
   const { error: pwError } = await supabase.auth.updateUser({ password: input.password });
   if (pwError) throw new Error('비밀번호 설정에 실패했습니다: ' + pwError.message);
 
+  /* upsert — 인증만 마치고 중단했던 계정이 남아 있어도 덮어써서 이어갑니다.
+     이미 가입을 끝낸 계정은 verifyEmailCode 단계에서 걸러집니다. */
   const { data: profile, error } = await supabase
     .from('profiles')
-    .insert({
-      id: user.id,
-      name: input.name,
-      email,
-      phone: input.phone ?? null,
-      birth: input.birth || null,
-      gender: input.gender ?? null,
-    })
+    .upsert(
+      {
+        id: user.id,
+        name: input.name,
+        email,
+        phone: input.phone ?? null,
+        birth: input.birth || null,
+        gender: input.gender ?? null,
+      },
+      { onConflict: 'id' }
+    )
     .select()
     .single();
 
@@ -291,28 +296,12 @@ export async function getCurrentProfile(): Promise<Profile | null> {
     .maybeSingle();
 
   if (error) throw new Error('회원정보를 불러오지 못했습니다: ' + error.message);
-  if (data) return data;
 
-  /* 행이 없는 경우 — 이메일 확인을 거친 뒤 첫 로그인이거나,
-     가입 도중 중단된 계정입니다. 가입 시 저장한 메타데이터로 복원합니다. */
-  const meta = (user.user_metadata ?? {}) as Record<string, unknown>;
-  const { data: created, error: createError } = await supabase
-    .from('profiles')
-    .insert({
-      id: user.id,
-      email: user.email ?? '',
-      name: (meta.name as string) || '회원',
-      phone: (meta.phone as string) ?? null,
-      birth: (meta.birth as string) ?? null,
-      gender: (meta.gender as Gender) ?? null,
-    })
-    .select()
-    .single();
-
-  if (createError) {
-    throw new Error('회원정보 생성에 실패했습니다: ' + createError.message);
-  }
-  return created;
+  /* 행이 없으면 아직 가입을 끝내지 않은 계정입니다.
+     예전에는 여기서 자동으로 만들었는데, 회원가입 도중 인증만 마친 시점에도
+     행이 생겨 정작 가입 단계에서 "이미 가입된 이메일" 로 막히는 문제가 있었습니다.
+     생성은 completeSignUp 한 곳에서만 합니다. */
+  return data;
 }
 
 /** 회원정보 수정 (마이페이지) */
