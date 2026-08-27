@@ -64,6 +64,20 @@ const escapeHtml = (v: string) =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!
   );
 
+/* 한글을 base64 로 바꿉니다.
+   btoa() 는 Latin1 범위 밖 문자를 처리하지 못하므로 UTF-8 바이트로 먼저 변환합니다.
+   (이 처리가 없으면 denomailer 가
+    "Cannot encode string: string contains characters outside of the Latin1 range" 오류) */
+const toBase64 = (text: string) => {
+  const bytes = new TextEncoder().encode(text);
+  let binary = '';
+  for (const b of bytes) binary += String.fromCharCode(b);
+  return btoa(binary);
+};
+
+/** 메일 제목처럼 헤더에 한글을 넣을 때 쓰는 표준 표기 (RFC 2047) */
+const encodeHeader = (text: string) => `=?UTF-8?B?${toBase64(text)}?=`;
+
 /* Cloudflare Turnstile — 비밀키가 설정돼 있을 때만 검사합니다 */
 async function passesTurnstile(token: string, ip: string): Promise<boolean> {
   const secret = Deno.env.get('TURNSTILE_SECRET_KEY');
@@ -163,11 +177,15 @@ Deno.serve(async (req) => {
     return json({ error: '문의 접수에 실패했습니다. 잠시 후 다시 시도해주세요.' }, 500, origin);
   }
 
-  /* 6) 알림 메일 — 실패해도 접수 자체는 성공 처리합니다 */
+  /* 6) 알림 메일
+        응답 후 함수가 종료되면 발송이 중단되므로 여기서 기다립니다.
+        다만 메일 서버 문제가 접수 자체를 실패시키면 안 되므로,
+        타임아웃을 두고 어떤 오류가 나도 접수는 성공으로 응답합니다. */
   try {
     await sendNotification({ company, name, email, phone, service, message });
+    console.log('[notify-inquiry] 메일 발송 성공');
   } catch (e) {
-    console.error('[notify-inquiry] 메일 발송 실패', e);
+    console.error('[notify-inquiry] 메일 발송 실패:', (e as Error)?.message ?? e);
   }
 
   return json({ ok: true, id: saved.id }, 200, origin);
@@ -183,22 +201,37 @@ async function sendNotification(input: {
   service: string;
   message: string;
 }) {
-  const host = Deno.env.get('SMTP_HOST');
-  const user = Deno.env.get('SMTP_USER');
-  const pass = Deno.env.get('SMTP_PASS');
-  const to = Deno.env.get('INQUIRY_TO') ?? user;
+  /* 대시보드에서 값을 붙여넣을 때 앞뒤 공백·줄바꿈이 섞이기 쉽습니다.
+     그대로 쓰면 "invalid char found in FQDN" 같은 오류가 나므로 정리합니다. */
+  const env = (name: string) => Deno.env.get(name)?.trim() || undefined;
+
+  const host = env('SMTP_HOST');
+  const user = env('SMTP_USER');
+  const pass = Deno.env.get('SMTP_PASS')?.trim();
+  const to = env('INQUIRY_TO') ?? user;
 
   if (!host || !user || !pass) {
     console.warn('[notify-inquiry] SMTP 설정이 없어 메일을 건너뜁니다.');
     return;
   }
 
-  const port = Number(Deno.env.get('SMTP_PORT') ?? '465');
+  const port = Number(env('SMTP_PORT') ?? '465');
+  console.log(`[notify-inquiry] 메일 발송 시도 ${host}:${port} (${user})`);
 
+  /* 진단 — 어떤 값에 Latin1 범위 밖 문자가 있는지 (값 자체는 남기지 않습니다) */
+  const hasNonLatin1 = (v: string) => /[^ -ÿ]/.test(v);
+  console.log(
+    '[notify-inquiry] 값 점검 ' +
+      `host=${hasNonLatin1(host)} user=${hasNonLatin1(user)} ` +
+      `pass=${hasNonLatin1(pass)} to=${hasNonLatin1(to ?? '')}`
+  );
+
+  console.log('[notify-inquiry] SMTP 연결 시작');
   const client = new SMTPClient({
     connection: {
       hostname: host,
       port,
+      /* 465 는 접속 즉시 TLS, 587 은 접속 후 STARTTLS 로 승급 */
       tls: port === 465,
       auth: { username: user, password: pass },
     },
@@ -233,13 +266,54 @@ async function sendNotification(input: {
       </p>
     </div>`;
 
-  await client.send({
+  /* 서버가 응답하지 않을 때 무한 대기하지 않도록 제한을 둡니다 */
+  const withTimeout = <T,>(p: Promise<T>, ms: number, label: string) =>
+    Promise.race([
+      p,
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error(`${label} 시간 초과 (${ms / 1000}초)`)), ms)
+      ),
+    ]);
+
+  /* HTML 을 못 읽는 메일 프로그램용 대체 텍스트 */
+  const plain = [
+    '홈페이지 문의가 접수되었습니다',
+    '',
+    `회사명    : ${input.company}`,
+    `담당자명  : ${input.name}`,
+    `이메일    : ${input.email}`,
+    `연락처    : ${input.phone || '-'}`,
+    `문의 유형 : ${input.service}`,
+    '',
+    '[문의 내용]',
+    input.message,
+  ].join('\n');
+
+  /* 제목과 본문을 직접 base64 로 인코딩해 넘깁니다.
+     denomailer 에게 한글 문자열을 그대로 주면 Latin1 인코딩을 시도하다 실패합니다. */
+  console.log('[notify-inquiry] 본문 준비 완료, 발송 시작');
+  await withTimeout(client.send({
     from: user,
     to: to!,
     replyTo: input.email,
-    subject: `[홈페이지 문의] ${input.service} · ${input.company} ${input.name}님`,
-    html,
-  });
+    subject: encodeHeader(
+      `[홈페이지 문의] ${input.service} · ${input.company} ${input.name}님`
+    ),
+    mimeContent: [
+      {
+        mimeType: 'text/plain; charset=utf-8',
+        content: toBase64(plain),
+        transferEncoding: 'base64',
+      },
+      {
+        mimeType: 'text/html; charset=utf-8',
+        content: toBase64(html),
+        transferEncoding: 'base64',
+      },
+    ],
+  }), 20_000, 'SMTP 발송');
 
-  await client.close();
+  await withTimeout(client.close(), 5_000, 'SMTP 종료').catch(() => {
+    /* 연결 종료 실패는 무시 — 메일은 이미 나갔습니다 */
+  });
 }
