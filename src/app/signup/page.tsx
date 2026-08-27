@@ -49,14 +49,17 @@ export default function Page() {
 
               <div className="fg" data-field="phone">
                 <label className="fl">Phone <span className="ko">· 연락처</span></label>
-                <div className="id-check-row">
-                  <input type="tel" className="fi" name="phone" placeholder="010-1234-5678" autoComplete="tel" />
-                  <button type="button" className="id-check-btn" id="send-code-btn" onClick={vars.sendCode}>인증번호 받기</button>
-                </div>
+                <input type="tel" className="fi" name="phone" placeholder="010-1234-5678" autoComplete="tel" />
                 <div className="fg-alert"></div>
               </div>
 
-              <div className="fg verify-row" data-field="code" id="verify-block">
+        
+
+              <div className="fg" data-field="email">
+                <label className="fl">Email <span className="ko">· 이메일</span></label>
+                <div className="id-check-row"><input type="email" className="fi" name="email" placeholder="name@example.com" autoComplete="email" /><button type="button" className="id-check-btn" id="send-code-btn" onClick={vars.sendCode}>인증번호 받기</button></div>
+                <div className="fg-alert"></div>
+              </div> <div className="fg verify-row" data-field="code" id="verify-block">
                 <div className="id-check-row">
                   <input type="text" className="fi" name="code" placeholder="인증번호 6자리" maxLength={6} inputMode="numeric" autoComplete="one-time-code" />
                   <button type="button" className="id-check-btn" id="verify-btn" onClick={vars.verifyCode}>인증하기</button>
@@ -66,17 +69,9 @@ export default function Page() {
                   <span className="verify-hint" id="verify-hint"></span>
                 </div>
                 <div className="fg-alert"></div>
-              </div>
-
-              <div className="verify-done" id="verify-done" role="status" aria-live="polite">
+              </div> <div className="verify-done" id="verify-done" role="status" aria-live="polite">
                 <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"></path></svg>
                 <span>인증이 완료되었습니다.</span>
-              </div>
-
-              <div className="fg" data-field="email">
-                <label className="fl">Email <span className="ko">· 이메일</span></label>
-                <input type="email" className="fi" name="email" placeholder="name@example.com" autoComplete="email" />
-                <div className="fg-alert"></div>
               </div>
 
               <div className="fg-row">

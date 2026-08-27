@@ -121,6 +121,99 @@ export async function signUp(input: SignUpInput): Promise<Profile> {
   return profile;
 }
 
+/* ---------- 이메일 인증 (회원가입 시) ---------- */
+
+/** 인증번호 발송 — 입력한 이메일로 6자리 코드를 보냅니다 */
+export async function sendEmailCode(email: string): Promise<void> {
+  const mail = email.trim().toLowerCase();
+
+  if (!isSupabaseConfigured) {
+    console.info('[auth] Supabase 미설정 — 인증번호 발송을 건너뜁니다.');
+    return;
+  }
+
+  const { error } = await supabase.auth.signInWithOtp({
+    email: mail,
+    options: { shouldCreateUser: true },
+  });
+
+  if (error) {
+    if (/rate|limit|seconds/i.test(error.message)) {
+      throw new Error('인증번호를 너무 자주 요청했습니다. 잠시 후 다시 시도해 주세요.');
+    }
+    throw new Error('인증번호 발송에 실패했습니다: ' + error.message);
+  }
+}
+
+/** 인증번호 확인 — 성공하면 이미 가입된 계정인지 함께 알려줍니다 */
+export async function verifyEmailCode(
+  email: string,
+  code: string
+): Promise<{ alreadyRegistered: boolean }> {
+  const mail = email.trim().toLowerCase();
+
+  if (!isSupabaseConfigured) return { alreadyRegistered: false };
+
+  const { data, error } = await supabase.auth.verifyOtp({
+    email: mail,
+    token: code.trim(),
+    type: 'email',
+  });
+
+  if (error) throw new Error('인증번호가 일치하지 않습니다.');
+  if (!data.user) throw new Error('인증에 실패했습니다. 다시 시도해 주세요.');
+
+  /* 이미 회원정보가 있으면 가입이 아니라 기존 계정입니다 */
+  const { data: existing } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('id', data.user.id)
+    .maybeSingle();
+
+  return { alreadyRegistered: !!existing };
+}
+
+/** 이메일 인증을 마친 뒤 비밀번호와 회원정보를 저장해 가입을 완료합니다 */
+export async function completeSignUp(input: SignUpInput): Promise<Profile> {
+  const email = input.email.trim().toLowerCase();
+
+  if (!isSupabaseConfigured) {
+    writeLocal(PROFILE_KEY, {
+      name: input.name,
+      birth: input.birth ?? '',
+      gender: input.gender ?? '',
+      phone: input.phone ?? '',
+      email,
+      joinDate: new Date().toISOString().slice(0, 10),
+    });
+    return localProfile(email);
+  }
+
+  const { data: session } = await supabase.auth.getUser();
+  const user = session.user;
+  if (!user) throw new Error('이메일 인증이 완료되지 않았습니다. 인증번호를 다시 확인해 주세요.');
+
+  /* 인증만 마친 계정에 비밀번호를 설정합니다 */
+  const { error: pwError } = await supabase.auth.updateUser({ password: input.password });
+  if (pwError) throw new Error('비밀번호 설정에 실패했습니다: ' + pwError.message);
+
+  const { data: profile, error } = await supabase
+    .from('profiles')
+    .insert({
+      id: user.id,
+      name: input.name,
+      email,
+      phone: input.phone ?? null,
+      birth: input.birth || null,
+      gender: input.gender ?? null,
+    })
+    .select()
+    .single();
+
+  if (error) throw new Error('회원정보 저장에 실패했습니다: ' + error.message);
+  return profile;
+}
+
 /** 로그인 */
 export async function signIn(email: string, password: string): Promise<Profile> {
   const mail = email.trim().toLowerCase();

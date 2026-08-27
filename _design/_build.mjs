@@ -41,11 +41,72 @@ function patchLoginMethod(route, body) {
   }
 
   if (route === 'signup') {
-    /* 아이디 입력칸과 중복 확인 버튼 제거 — 이메일이 곧 계정입니다 */
-    return body.replace(
+    /* 1) 아이디 입력칸과 중복 확인 버튼 제거 — 이메일이 곧 계정입니다 */
+    let out = body.replace(
       /<div className="fg" data-field="userid">[\s\S]*?id-check-msg"><\/div>\s*<div className="fg-alert"><\/div>\s*<\/div>\s*/,
       ''
     );
+
+    /* 2) 인증 방식을 휴대폰 -> 이메일 로 변경.
+          문자 발송은 발신번호 사전등록(전기통신사업법)이 필요해 보류했습니다.
+          시안에서 연락처 옆에 있던 인증 UI 를 이메일 칸 아래로 옮깁니다. */
+
+    /* div 중첩을 세어 블록 하나를 통째로 잘라냅니다 (정규식으로는 중첩을 못 셉니다) */
+    const takeBlock = (text, marker) => {
+      const from = text.indexOf(marker);
+      if (from < 0) return null;
+      let depth = 0;
+      let i = from;
+      while (i < text.length) {
+        if (text.startsWith('<div', i)) { depth++; i += 4; continue; }
+        if (text.startsWith('</div>', i)) {
+          depth--;
+          i += 6;
+          if (depth === 0) return { block: text.slice(from, i), from, to: i };
+          continue;
+        }
+        i++;
+      }
+      return null;
+    };
+
+    const verify = takeBlock(out, '<div className="fg verify-row" data-field="code" id="verify-block">');
+    const done = verify
+      ? takeBlock(out.slice(verify.to), '<div className="verify-done" id="verify-done"')
+      : null;
+
+    if (verify && done) {
+      const moved = verify.block + ' ' + done.block;
+
+      /* 원래 자리에서 제거 (뒤쪽부터 지워야 위치가 안 밀립니다) */
+      const doneFrom = verify.to + done.from;
+      const doneTo = verify.to + done.to;
+      out = out.slice(0, verify.from) + out.slice(doneTo);
+
+      /* 연락처 칸의 인증 버튼 제거 — 평범한 입력칸으로 */
+      out = out.replace(
+        /<div className="id-check-row">\s*(<input type="tel"[^>]*\/>)\s*<button[^>]*id="send-code-btn"[^>]*>[^<]*<\/button>\s*<\/div>/,
+        '$1'
+      );
+
+      /* 이메일 칸에 인증 버튼을 붙이고 그 아래에 인증 UI 를 넣습니다 */
+      const emailBlock = takeBlock(out, '<div className="fg" data-field="email">');
+      if (emailBlock) {
+        const patched = emailBlock.block
+          .replace(
+            /(<input type="email"[^>]*\/>)/,
+            '<div className="id-check-row">$1' +
+              '<button type="button" className="id-check-btn" id="send-code-btn" onClick={vars.sendCode}>인증번호 받기</button>' +
+              '</div>'
+          );
+        out =
+          out.slice(0, emailBlock.from) +
+          patched + ' ' + moved +
+          out.slice(emailBlock.to);
+      }
+    }
+
+    return out;
   }
 
   if (route === 'contact') {

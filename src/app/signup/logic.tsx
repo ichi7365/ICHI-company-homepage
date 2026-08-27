@@ -1,14 +1,17 @@
 'use client';
 
-/* 회원가입 — 필드 검증, 휴대폰 인증(데모), 약관 동의. 계정은 이메일 기준입니다.
+/* 회원가입 — 필드 검증, 이메일 인증, 약관 동의.
    원본 시안의 DOM 조작 방식을 유지해 마크업/스타일 동작을 그대로 보존합니다.
-   가입은 lib/repo/auth.ts 의 signUp() 으로 처리합니다.
-   TODO(백엔드2): 휴대폰 인증(sendCode/verifyCode)은 아직 데모입니다. */
+
+   인증 방식: 입력한 이메일로 6자리 코드를 보내고 확인합니다.
+   시안은 휴대폰 인증이었지만, 문자 발송은 발신번호 사전등록
+   (전기통신사업법 제84조)에 서류 심사가 필요해 보류했습니다. */
 
 import { useEffect, useRef, useState, type FormEvent, type MouseEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import type { Gender } from '@/types/database';
+import { sendEmailCode, verifyEmailCode, completeSignUp } from '@/lib/repo/auth';
 import { AGREE_FIELD, TERMS, type TermsKey } from './terms-data';
 
 const FORM_ID = 'signup-form';
@@ -42,10 +45,9 @@ const clearErr = (field: string) =>
 
 export function useVars() {
   const router = useRouter();
-  const { signUp } = useAuth();
+  const { refresh } = useAuth();
   const [busy, setBusy] = useState(false);
-  const phoneVerified = useRef(false);
-  const genCode = useRef<string | null>(null);
+  const emailVerified = useRef(false);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
   const modalTerm = useRef<TermsKey | null>(null);
 
@@ -92,8 +94,8 @@ export function useVars() {
       !!val('birth') &&
       !!gender() &&
       phoneOk(val('phone')) &&
-      phoneVerified.current &&
       emailOk(val('email')) &&
+      emailVerified.current &&
       val('password').length >= 8 &&
       !!val('password2') &&
       val('password') === val('password2') &&
@@ -128,8 +130,7 @@ export function useVars() {
   };
 
   const resetVerification = () => {
-    phoneVerified.current = false;
-    genCode.current = null;
+    emailVerified.current = false;
     stopTimer();
     byId('verify-block')?.classList.remove('show');
     byId('verify-done')?.classList.remove('show');
@@ -171,8 +172,7 @@ export function useVars() {
         }
         const verify = byId('verify-btn') as HTMLButtonElement | null;
         if (verify) verify.disabled = true;
-        genCode.current = null;
-        return;
+            return;
       }
       render();
     }, 1000);
@@ -214,7 +214,7 @@ export function useVars() {
       }
       byId('signup-note')?.classList.remove('show');
       if (target.name === 'password') updatePwStrength(target.value);
-      if (target.name === 'phone') resetVerification();
+      if (target.name === 'email') resetVerification();
       if (target.name === 'gender') clearErr('gender');
       updateSubmitState();
     };
@@ -275,70 +275,95 @@ export function useVars() {
       document.body.style.overflow = '';
     },
 
-    sendCode: () => {
-      const phone = val('phone');
-      if (!phone) {
-        setErr('phone', '연락처를 입력해 주세요.');
-        document.querySelector<HTMLInputElement>('[name="phone"]')?.focus({ preventScroll: true });
+    sendCode: async () => {
+      const email = val('email');
+      if (!email) {
+        setErr('email', '이메일을 입력해 주세요.');
+        document.querySelector<HTMLInputElement>('[name="email"]')?.focus({ preventScroll: true });
         return;
       }
-      if (!phoneOk(phone)) {
-        setErr('phone', '올바른 연락처 형식을 입력해 주세요. (예: 010-1234-5678)');
+      if (!emailOk(email)) {
+        setErr('email', '올바른 이메일 형식을 입력해주세요.');
         return;
       }
-      clearErr('phone');
-      phoneVerified.current = false;
-      byId('verify-done')?.classList.remove('show');
-      genCode.current = String(Math.floor(100000 + Math.random() * 900000));
+      clearErr('email');
 
+      const send = byId('send-code-btn') as HTMLButtonElement | null;
+      if (send) {
+        send.disabled = true;
+        send.textContent = '발송 중…';
+      }
+
+      try {
+        await sendEmailCode(email);
+      } catch (e) {
+        setErr('email', e instanceof Error ? e.message : '인증번호 발송에 실패했습니다.');
+        if (send) {
+          send.disabled = false;
+          send.textContent = '인증번호 받기';
+        }
+        return;
+      }
+
+      emailVerified.current = false;
+      byId('verify-done')?.classList.remove('show');
       byId('verify-block')?.classList.add('show');
-      const send = byId('send-code-btn');
-      if (send) send.textContent = '재전송';
+      if (send) {
+        send.disabled = false;
+        send.textContent = '재전송';
+      }
       const verify = byId('verify-btn') as HTMLButtonElement | null;
       if (verify) verify.disabled = false;
-      const code = document.querySelector<HTMLInputElement>('[name="code"]');
-      if (code) {
-        code.value = '';
-        code.disabled = false;
-        code.focus({ preventScroll: true });
+      const codeInput = document.querySelector<HTMLInputElement>('[name="code"]');
+      if (codeInput) {
+        codeInput.value = '';
+        codeInput.disabled = false;
+        codeInput.focus({ preventScroll: true });
       }
       const hint = byId('verify-hint');
-      if (hint) hint.textContent = '데모 인증번호 · ' + genCode.current;
+      if (hint) hint.textContent = '메일함을 확인해 주세요';
 
       clearErr('code');
       startTimer();
       updateSubmitState();
     },
 
-    verifyCode: () => {
+    verifyCode: async () => {
       const block = byId('verify-block');
       if (!block?.classList.contains('show')) return;
-      if (!genCode.current) {
-        setErr('code', '인증시간이 만료되었습니다. 재전송해 주세요.');
-        return;
-      }
+
       const code = val('code');
       if (!code) {
         setErr('code', '인증번호를 입력해 주세요.');
         return;
       }
-      if (code !== genCode.current) {
-        setErr('code', '인증번호가 일치하지 않습니다.');
+
+      const verify = byId('verify-btn') as HTMLButtonElement | null;
+      if (verify) verify.disabled = true;
+
+      try {
+        const { alreadyRegistered } = await verifyEmailCode(val('email'), code);
+        if (alreadyRegistered) {
+          setErr('email', '이미 가입된 이메일입니다. 로그인해 주세요.');
+          if (verify) verify.disabled = false;
+          return;
+        }
+      } catch (e) {
+        setErr('code', e instanceof Error ? e.message : '인증번호가 일치하지 않습니다.');
+        if (verify) verify.disabled = false;
         return;
       }
 
       clearErr('code');
-      phoneVerified.current = true;
+      emailVerified.current = true;
       stopTimer();
       byId('verify-done')?.classList.add('show');
-      const verify = byId('verify-btn') as HTMLButtonElement | null;
-      if (verify) verify.disabled = true;
       const codeInput = document.querySelector<HTMLInputElement>('[name="code"]');
       if (codeInput) codeInput.disabled = true;
       const send = byId('send-code-btn') as HTMLButtonElement | null;
       if (send) send.disabled = true;
-      const phone = document.querySelector<HTMLInputElement>('[name="phone"]');
-      if (phone) phone.readOnly = true;
+      const emailInput = document.querySelector<HTMLInputElement>('[name="email"]');
+      if (emailInput) emailInput.readOnly = true;
       const t = byId('verify-timer');
       if (t) {
         t.textContent = '';
@@ -367,9 +392,9 @@ export function useVars() {
         clearErr('gender');
       }
 
-      if (phoneOk(val('phone')) && !phoneVerified.current) {
-        setErr('phone', '연락처 인증을 완료해 주세요.');
-        if (!firstBad) firstBad = f.querySelector('[name="phone"]');
+      if (emailOk(val('email')) && !emailVerified.current) {
+        setErr('email', '이메일 인증을 완료해 주세요.');
+        if (!firstBad) firstBad = f.querySelector('[name="email"]');
       }
 
       byId('agree-alert')?.classList.remove('show');
@@ -387,7 +412,7 @@ export function useVars() {
       if (busy) return;
       setBusy(true);
       try {
-        await signUp({
+        await completeSignUp({
           email: val('email'),
           password: val('password'),
           name: val('name'),
@@ -395,6 +420,7 @@ export function useVars() {
           birth: val('birth'),
           gender: (gender() || undefined) as Gender | undefined,
         });
+        await refresh();
       } catch (err) {
         /* 가입 실패 — 이메일 칸에 사유를 표시하고 입력값은 유지합니다 */
         setErr('email', err instanceof Error ? err.message : '회원가입에 실패했습니다.');
