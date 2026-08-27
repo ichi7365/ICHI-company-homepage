@@ -64,19 +64,15 @@ const escapeHtml = (v: string) =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!
   );
 
-/* 한글을 base64 로 바꿉니다.
-   btoa() 는 Latin1 범위 밖 문자를 처리하지 못하므로 UTF-8 바이트로 먼저 변환합니다.
-   (이 처리가 없으면 denomailer 가
-    "Cannot encode string: string contains characters outside of the Latin1 range" 오류) */
+/* 본문을 base64 로 인코딩합니다.
+   denomailer 의 기본 방식(quoted-printable)은 76자마다 줄을 자르는데,
+   한글은 3바이트라 글자 중간에서 잘려 깨집니다. base64 는 그 문제가 없습니다. */
 const toBase64 = (text: string) => {
   const bytes = new TextEncoder().encode(text);
   let binary = '';
   for (const b of bytes) binary += String.fromCharCode(b);
   return btoa(binary);
 };
-
-/** 메일 제목처럼 헤더에 한글을 넣을 때 쓰는 표준 표기 (RFC 2047) */
-const encodeHeader = (text: string) => `=?UTF-8?B?${toBase64(text)}?=`;
 
 /* Cloudflare Turnstile — 비밀키가 설정돼 있을 때만 검사합니다 */
 async function passesTurnstile(token: string, ip: string): Promise<boolean> {
@@ -296,9 +292,13 @@ async function sendNotification(input: {
     from: user,
     to: to!,
     replyTo: input.email,
-    subject: encodeHeader(
-      `[홈페이지 문의] ${input.service} · ${input.company} ${input.name}님`
-    ),
+    /* 제목은 영문으로만 씁니다.
+       denomailer 는 한글 제목이 길어지면 여러 줄로 접는데, 이어지는 줄에
+       공백을 넣지 않아 규격에 어긋납니다. 그러면 메일 프로그램이 헤더가
+       끝난 것으로 보고 나머지를 전부 본문으로 취급해 원문이 그대로 노출됩니다.
+       회사명·담당자명 등 한글 정보는 본문에 모두 들어 있습니다. */
+    subject: `[ICHI Homepage] Inquiry from ${input.email}`,
+    /* 한글이 깨지지 않도록 base64 로 직접 인코딩해 넘깁니다 */
     mimeContent: [
       {
         mimeType: 'text/plain; charset=utf-8',
