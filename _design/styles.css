@@ -235,8 +235,9 @@ nav.site.solid{
   font-family:'DM Mono',monospace;font-size:9px;font-weight:400;
   letter-spacing:.28em;color:var(--blue);text-transform:uppercase;
 }
-.nav-center{display:flex;gap:36px;}
+.nav-center{display:flex;gap:36px;flex:0 0 auto;}
 .nl{
+  white-space:nowrap;
   font-size:13px;font-weight:500;letter-spacing:.02em;
   color:var(--gray-600);text-decoration:none;
   transition:color .18s;position:relative;padding:6px 0;
@@ -2016,3 +2017,125 @@ body.is-admin .jd-adminbar{display:flex;}
   .f-copy,.ci-label,.t-tag,.p-tag,.f-col a,.f-legal a{font-size:12.5px !important;}
   .f-col h4,.footer h4,.row .v sub,.v sub{font-size:12px !important;}
 }
+
+
+/* ========================== ADMIN (관리자 페이지) ========================== */
+.nav-admin,.mm-admin{display:none;}
+body.is-admin .nav-admin{
+  display:inline-flex;align-items:center;font-size:12px;font-weight:600;letter-spacing:.04em;
+  color:var(--blue-deep);background:var(--blue-faint);border:1.5px solid var(--blue-light);
+  padding:8px 16px;border-radius:var(--r-pill);text-decoration:none;white-space:nowrap;
+  transition:background .2s,transform .2s;
+}
+body.is-admin .nav-admin:hover{background:#fff;transform:translateY(-1px);}
+body.is-admin .mm-admin{
+  display:block;font-size:15px;font-weight:600;text-align:center;padding:14px;border-radius:var(--r-md);
+  text-decoration:none;color:var(--blue-deep);background:var(--blue-faint);border:1.5px solid var(--blue-light);
+}
+.adm-main{padding:120px clamp(20px,4vw,64px) 96px;background:var(--white);min-height:100vh;}
+.adm-wrap{max-width:1720px;margin:0 auto;}
+.adm-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+.adm-logout{
+  font-size:13px;font-weight:600;color:var(--gray-600);background:#fff;border:1.5px solid var(--gray-200);
+  padding:11px 22px;border-radius:var(--r-pill);cursor:pointer;font-family:inherit;transition:all .2s;
+}
+.adm-logout:hover{border-color:var(--navy);color:var(--navy);}
+.adm-tabs{display:flex;gap:4px;margin-top:36px;border-bottom:1.5px solid var(--gray-200);}
+.adm-tab{
+  font-family:inherit;font-size:15px;font-weight:600;color:var(--gray-500);background:none;border:none;
+  padding:14px 22px;cursor:pointer;position:relative;transition:color .2s;
+}
+.adm-tab:hover{color:var(--navy);}
+.adm-tab.on{color:var(--blue-deep);}
+.adm-tab.on::after{content:'';position:absolute;left:0;right:0;bottom:-1.5px;height:2.5px;background:var(--blue);}
+.adm-panel{margin-top:32px;}
+.adm-bar{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;}
+.adm-search{position:relative;flex:1 1 420px;max-width:620px;}
+.adm-search svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);width:17px;height:17px;color:var(--gray-400);pointer-events:none;}
+.adm-search .fi{padding-left:44px;}
+.adm-filters{display:flex;gap:8px;}
+.adm-chip{
+  font-family:inherit;font-size:13px;font-weight:600;color:var(--gray-500);background:#fff;
+  border:1.5px solid var(--gray-200);border-radius:var(--r-pill);padding:10px 20px;cursor:pointer;transition:all .18s;white-space:nowrap;
+}
+.adm-chip:hover{border-color:var(--blue-light);color:var(--blue-deep);}
+.adm-chip.on{background:var(--navy);border-color:var(--navy);color:#fff;}
+.adm-count{font-size:13.5px;color:var(--gray-500);margin-top:20px;white-space:nowrap;}
+.adm-count b{color:var(--navy);font-weight:700;}
+.adm-table{margin-top:14px;border-top:2px solid var(--navy);overflow-x:auto;}
+.adm-cellbtn{
+  display:grid;grid-template-columns:56px 92px 112px 104px 76px 128px minmax(170px,1fr) 104px 84px;
+  gap:16px;align-items:center;
+}
+.adm-thead{
+  display:grid;gap:16px;align-items:center;
+  grid-template-columns:56px 92px 112px 104px 76px 128px minmax(170px,1fr) 104px 84px 108px;
+  padding:14px 20px;border-bottom:1.5px solid var(--gray-200);font-size:12px;font-weight:700;
+  letter-spacing:.06em;color:var(--gray-500);
+}
+.adm-table.jobs .adm-cellbtn{grid-template-columns:56px minmax(220px,1fr) 160px 116px 96px;}
+.adm-table.jobs .adm-thead{grid-template-columns:56px minmax(220px,1fr) 160px 116px 96px 132px;}
+.adm-thead,.adm-row{min-width:1160px;}
+.adm-table.jobs .adm-thead,.adm-table.jobs .adm-row{min-width:900px;}
+.adm-thead .ta-r{text-align:right;}
+.adm-row{display:grid;grid-template-columns:1fr auto;gap:0;align-items:center;border-bottom:1px solid var(--gray-100);transition:background .18s;}
+.adm-row:hover{background:var(--blue-faint);}
+.adm-row.out{opacity:.62;}
+.adm-cellbtn{
+  width:100%;text-align:left;font-family:inherit;background:none;border:none;cursor:pointer;
+  padding:16px 20px;text-decoration:none;
+}
+.adm-act-cell{display:flex;gap:8px;justify-content:flex-end;padding-right:20px;}
+.adm-no{font-family:'DM Sans','Pretendard Variable',Pretendard,sans-serif;font-size:13px;color:var(--gray-400);font-weight:500;}
+.adm-name{font-size:15px;font-weight:600;color:var(--navy);}
+.adm-mono{font-family:'DM Sans','Pretendard Variable',Pretendard,sans-serif;font-size:13.5px;color:var(--gray-600);}
+.adm-dim{font-size:13px;color:var(--gray-500);}
+.adm-cellbtn .ellipsis{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.adm-badge{
+  display:inline-flex;align-items:center;gap:6px;justify-self:start;padding:6px 14px;border-radius:var(--r-pill);
+  font-size:12px;font-weight:700;white-space:nowrap;
+}
+.adm-badge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;}
+.adm-badge.ok{color:var(--blue-deep);background:var(--blue-faint);border:1px solid var(--blue-light);}
+.adm-badge.out{color:var(--gray-500);background:var(--gray-100);border:1px solid var(--gray-200);}
+.jb-act[disabled]{opacity:.45;cursor:default;}
+.jb-act[disabled]:hover{border-color:var(--gray-200);color:var(--gray-600);background:#fff;}
+.adm-empty{padding:56px 0;text-align:center;font-size:14px;color:var(--gray-500);}
+.adm-overlay{
+  position:fixed;inset:0;z-index:900;background:rgba(15,23,42,.42);backdrop-filter:blur(3px);
+  display:flex;align-items:center;justify-content:center;padding:24px;
+}
+.adm-sheet{
+  width:min(520px,100%);max-height:88vh;overflow-y:auto;background:#fff;border-radius:18px;
+  padding:30px 32px 26px;box-shadow:0 24px 70px -28px rgba(15,23,42,.4);
+}
+.adm-sheet-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px;}
+.adm-sheet-head h2{font-family:'DM Sans',sans-serif;font-size:24px;font-weight:600;color:var(--navy);margin-top:10px;}
+.adm-note{font-size:12.5px;color:var(--gray-500);margin-top:16px;}
+.adm-sheet-foot{display:flex;gap:10px;justify-content:flex-end;margin-top:24px;}
+.mp-btn.ghost{background:#fff;color:var(--gray-600);border:1.5px solid var(--gray-200);}
+.mp-btn.ghost:hover{background:#fff;border-color:var(--navy);color:var(--navy);}
+.mp-btn-danger[disabled]{opacity:.45;cursor:default;}
+@media (max-width:860px){
+  .adm-main{padding:calc(53px + 28px) 20px 72px;}
+  .adm-tabs{overflow-x:auto;}
+  .adm-search{flex:1 1 100%;max-width:none;}
+  .adm-sheet{padding:24px 20px 20px;}
+}
+
+/* admin nav chip — keep the shared header on one line at intermediate widths */
+@media (min-width:861px) and (max-width:1180px){
+  body.is-admin.is-authed .nav-center{gap:24px;}
+  body.is-admin.is-authed .nav-auth{gap:9px;}
+  body.is-admin.is-authed .nav-user{display:none;}
+  body.is-admin .nav-admin{padding:8px 13px;}
+  body.is-admin.is-authed .nav-mypage,body.is-admin.is-authed .nav-logout{padding:9px 14px;}
+}
+
+/* 혈액형(민감정보) 선택 그룹 */
+.fg-hint{font-size:12.5px;color:var(--gray-500);line-height:1.6;margin-top:10px;word-break:keep-all;}
+.blood-opts.locked{opacity:.5;}
+.blood-opts.locked .gender-opt{cursor:not-allowed;}
+.terms-item .opt{color:var(--gray-500);font-weight:600;}
+
+.auth-form .fi.fi-select,select.fi.fi-select{appearance:none;-webkit-appearance:none;background-color:#fff;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none' stroke='%236b7280' stroke-width='1.6' stroke-linecap='round'%3E%3Cpolyline points='1,1.5 6,6.5 11,1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 18px center;background-size:12px 8px;padding-right:44px;cursor:pointer;}

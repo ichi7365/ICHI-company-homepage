@@ -255,4 +255,34 @@ for (const comp of ['SiteNav', 'SiteFooter']) {
   log.push(`comp  ${comp}  (vars:${usesVars ? (hasLogic ? 'logic' : 'stub') : 'no'})`);
 }
 
+/* 회원 표의 칸 수 보정.
+   시안 CSS 는 9칸(번호·이름·아이디·생년월일·혈액형·전화번호·이메일·가입일·상태)
+   기준인데, 아이디와 혈액형은 DB 에 없어 마크업에서 뺐습니다(patchLoginMethod).
+   그대로 두면 표가 한 칸씩 밀리므로 폭 지정을 7칸으로 다시 씁니다. */
+const ADMIN_GRID_PATCH = `
+
+/* --- 관리자 회원 표: 아이디·혈액형 칸 제외 (_build.mjs 가 덧붙임) --- */
+.adm-table:not(.jobs) .adm-cellbtn{
+  grid-template-columns:56px 92px 104px 128px minmax(170px,1fr) 104px 84px;
+}
+.adm-table:not(.jobs) .adm-thead{
+  grid-template-columns:56px 92px 104px 128px minmax(170px,1fr) 104px 84px 108px;
+}
+.adm-table:not(.jobs) .adm-thead,
+.adm-table:not(.jobs) .adm-row{min-width:940px;}
+`;
+
+/* 시안 CSS 복사 — 경로를 앱 기준으로 고쳐서 옮깁니다.
+   시안은 자기 폴더 기준 상대경로(assets/...)를 쓰지만, Next.js 에서는
+   public/assets 를 가리키는 /assets/... 여야 글꼴·이미지가 나옵니다.
+   손으로 고치면 시안을 새로 받을 때마다 다시 깨지므로 여기서 처리합니다. */
+for (const css of ['styles.css', 'theme.css']) {
+  const from = path.join(DESIGN, css);
+  if (!fs.existsSync(from)) continue;
+  let fixed = fs.readFileSync(from, 'utf8').replace(/url\((["']?)assets\//g, 'url($1/assets/');
+  if (css === 'styles.css') fixed += ADMIN_GRID_PATCH;
+  fs.writeFileSync(path.join(SRC, 'app', css), fixed, 'utf8');
+  log.push(`css   ${css}`);
+}
+
 console.log(log.join('\n'));
