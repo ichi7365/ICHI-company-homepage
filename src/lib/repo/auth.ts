@@ -53,6 +53,7 @@ const localProfile = (email: string): Profile => {
     birth: saved.birth || null,
     gender: saved.gender || null,
     role: 'user',
+    status: '정상',
     join_date: saved.joinDate || new Date().toISOString().slice(0, 10),
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),

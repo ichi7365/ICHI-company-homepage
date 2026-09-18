@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>인재채용 | ICHI</title>
+<meta name="description" content="㈜이치와 함께 성장할 인재를 기다립니다. 채용 공고를 확인하세요.">
+<link rel="canonical" href="https://www.ichi.kr/Careers.dc.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="㈜이치 ICHI">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:title" content="인재채용 | ICHI">
+<meta property="og:description" content="㈜이치와 함께 성장할 인재를 기다립니다. 채용 공고를 확인하세요.">
+<meta property="og:url" content="https://www.ichi.kr/Careers.dc.html">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="인재채용 | ICHI">
+<meta name="twitter:description" content="㈜이치와 함께 성장할 인재를 기다립니다. 채용 공고를 확인하세요.">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="crossorigin">
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="styles.css">
+<script src="./support.js"></script>
+<script src="./auth.js"></script>
+<script src="./common.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<script src="./nav-bridge.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="crossorigin">
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="styles.css">
+<script src="./auth.js"></script>
+<script src="./common.js"></script>
+</helmet>
+<dc-import name="SiteNav" hint-size="100%,72px"></dc-import>
+<div class="nav-spacer"></div>
+
+<section class="pad" id="careers" data-screen-label="Careers">
+  <div class="reveal" style="max-width:760px">
+    <div class="section-eye">
+      <span class="eye-mono">Careers</span>
+      <div class="eye-dash"></div>
+    </div>
+    <h2 class="section-h2">회사와 함께 성장할<br><em>인재</em>를 기다립니다</h2>
+    <p class="section-p">반도체 물류자동화의 최전선에서 현장을 이끌어갈 엔지니어와<br>
+전문 인력을 상시 모집합니다. 채용 공고는 아래 게시판에서 확인하실 수 있습니다.</p>
+  </div>
+
+  <sc-if value="{{ showList }}" hint-placeholder-val="{{ true }}">
+    <div class="job-toolbar">
+      <button type="button" class="btn-write" onClick="{{ create }}">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="7" y1="2" x2="7" y2="12"></line><line x1="2" y1="7" x2="12" y2="7"></line></svg>
+        채용공고 작성
+      </button>
+    </div>
+    <div class="job-board">
+      <div class="jb-head">
+        <span>번호</span>
+        <span>제목</span>
+        <span>작성일</span>
+        <span>상태</span>
+        <span class="admin-col">관리</span>
+      </div>
+      <sc-for list="{{ jobs }}" as="job" hint-placeholder-count="4">
+        <div class="jb-row reveal {{ job.stateClass }}" onClick="{{ job.open }}">
+          <span class="jb-no">{{ job.no }}</span>
+          <span class="jb-title">
+            <span class="t">{{ job.title }}</span>
+            <span class="field">{{ job.field }}</span>
+          </span>
+          <span class="jb-date">{{ job.date }}</span>
+          <span class="job-status {{ job.statusClass }}">{{ job.statusLabel }}</span>
+          <span class="jb-admin">
+            <button type="button" class="jb-act" onClick="{{ job.edit }}">수정</button>
+            <button type="button" class="jb-act del" onClick="{{ job.del }}">삭제</button>
+          </span>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ showDetail }}" hint-placeholder-val="{{ false }}">
+    <div class="job-detail">
+      <button type="button" class="job-back" onClick="{{ back }}">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="8,2 3,7 8,12"></polyline><line x1="3" y1="7" x2="12" y2="7"></line></svg>
+        채용 목록으로
+      </button>
+      <sc-if value="{{ true }}" hint-placeholder-val="{{ true }}">
+        <div class="jd-adminbar">
+          <button type="button" class="jb-act" onClick="{{ detailEdit }}">수정</button>
+          <button type="button" class="jb-act del" onClick="{{ detailDel }}">삭제</button>
+        </div>
+      </sc-if>
+      <div class="jd-head">
+        <span class="jd-code">No.{{ job.no }} · {{ job.date }}</span>
+        <span class="job-status {{ job.statusClass }}">{{ job.statusLabel }}</span>
+        <h3 class="jd-title">{{ job.title }}</h3>
+      </div>
+
+      <div class="jd-metagrid">
+        <div class="jd-metacard"><div class="k">모집 분야</div><div class="v">{{ job.field }}</div></div>
+        <div class="jd-metacard"><div class="k">모집 인원</div><div class="v">{{ job.headcount }}</div></div>
+        <div class="jd-metacard"><div class="k">모집 기간</div><div class="v">{{ job.period }}</div></div>
+        <div class="jd-metacard"><div class="k">근무지</div><div class="v">{{ job.location }}</div></div>
+      </div>
+
+      <div class="jd-sec">
+        <h4>담당 업무</h4>
+        <ul class="jd-list">
+          <sc-for list="{{ job.duties }}" as="item" hint-placeholder-count="3"><li>{{ item }}</li></sc-for>
+        </ul>
+      </div>
+      <div class="jd-sec">
+        <h4>지원 자격</h4>
+        <ul class="jd-list">
+          <sc-for list="{{ job.qualifications }}" as="item" hint-placeholder-count="3"><li>{{ item }}</li></sc-for>
+        </ul>
+      </div>
+      <div class="jd-sec">
+        <h4>우대 사항</h4>
+        <ul class="jd-list">
+          <sc-for list="{{ job.preferred }}" as="item" hint-placeholder-count="3"><li>{{ item }}</li></sc-for>
+        </ul>
+      </div>
+      <div class="jd-sec">
+        <h4>근무 조건</h4>
+        <ul class="jd-list">
+          <sc-for list="{{ job.conditions }}" as="item" hint-placeholder-count="3"><li>{{ item }}</li></sc-for>
+        </ul>
+      </div>
+      <div class="jd-sec">
+        <h4>전형 절차</h4>
+        <div class="jd-steps">
+          <sc-for list="{{ job.process }}" as="item" hint-placeholder-count="4"><span class="jd-step"><span class="n">{{ item.n }}</span>{{ item.label }}</span></sc-for>
+        </div>
+      </div>
+
+      <div class="jd-apply">
+        <h4>지원 방법</h4>
+        <p>{{ job.apply }}</p>
+        <a href="Contact.dc.html" class="btn-submit">
+          지원 문의하기
+          <span class="arrow"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="6" x2="10" y2="6"></line><polyline points="6,2 10,6 6,10"></polyline></svg></span>
+        </a>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ showEdit }}" hint-placeholder-val="{{ false }}">
+    <div class="job-form">
+      <button type="button" class="job-back" onClick="{{ back }}">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="8,2 3,7 8,12"></polyline><line x1="3" y1="7" x2="12" y2="7"></line></svg>
+        채용 목록으로
+      </button>
+      <h3 class="jf-title">{{ formTitle }}</h3>
+
+      <div class="jf-grid">
+        <div class="jf-field full">
+          <label>제목</label>
+          <input type="text" class="jf-input" placeholder="예) 반도체 물류자동화 설비 엔지니어 모집" value="{{ f.draft.title }}" onInput="{{ f.setTitle }}">
+        </div>
+        <div class="jf-field">
+          <label>모집 분야</label>
+          <input type="text" class="jf-input" placeholder="예) 조정 (CLW · ZT · STK)" value="{{ f.draft.field }}" onInput="{{ f.setField }}">
+        </div>
+        <div class="jf-field">
+          <label>모집 인원</label>
+          <input type="text" class="jf-input" placeholder="예) 0명 / 00명" value="{{ f.draft.headcount }}" onInput="{{ f.setHead }}">
+        </div>
+        <div class="jf-field">
+          <label>모집 기간</label>
+          <input type="text" class="jf-input" placeholder="예) 2026.04.01 ~ 2026.05.31" value="{{ f.draft.period }}" onInput="{{ f.setPeriod }}">
+        </div>
+        <div class="jf-field">
+          <label>근무지</label>
+          <input type="text" class="jf-input" placeholder="예) 경기 평택 · 이천" value="{{ f.draft.location }}" onInput="{{ f.setLoc }}">
+        </div>
+        <div class="jf-field">
+          <label>모집 상태</label>
+          <select class="jf-select" value="{{ f.draft.status }}" onChange="{{ f.setStatus }}">
+            <option value="open">진행중</option>
+            <option value="closed">마감</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="jf-sec">
+        <h4>담당 업무</h4>
+        <div class="jf-rows">
+          <sc-for list="{{ f.duties }}" as="row" hint-placeholder-count="2">
+            <div class="jf-row">
+              <input type="text" class="jf-input" placeholder="담당 업무를 입력하세요" value="{{ row.val }}" onInput="{{ row.onInput }}">
+              <button type="button" class="jf-del" onClick="{{ row.onDel }}" aria-label="삭제">
+                <svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="3" y1="3" x2="11" y2="11"></line><line x1="11" y1="3" x2="3" y2="11"></line></svg>
+              </button>
+            </div>
+          </sc-for>
+        </div>
+        <button type="button" class="jf-add" onClick="{{ f.addDuty }}">+ 항목 추가</button>
+      </div>
+
+      <div class="jf-sec">
+        <h4>지원 자격</h4>
+        <div class="jf-rows">
+          <sc-for list="{{ f.quals }}" as="row" hint-placeholder-count="2">
+            <div class="jf-row">
+              <input type="text" class="jf-input" placeholder="지원 자격을 입력하세요" value="{{ row.val }}" onInput="{{ row.onInput }}">
+              <button type="button" class="jf-del" onClick="{{ row.onDel }}" aria-label="삭제">
+                <svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="3" y1="3" x2="11" y2="11"></line><line x1="11" y1="3" x2="3" y2="11"></line></svg>
+              </button>
+            </div>
+          </sc-for>
+        </div>
+        <button type="button" class="jf-add" onClick="{{ f.addQual }}">+ 항목 추가</button>
+      </div>
+
+      <div class="jf-sec">
+        <h4>우대 사항</h4>
+        <div class="jf-rows">
+          <sc-for list="{{ f.prefs }}" as="row" hint-placeholder-count="2">
+            <div class="jf-row">
+              <input type="text" class="jf-input" placeholder="우대 사항을 입력하세요" value="{{ row.val }}" onInput="{{ row.onInput }}">
+              <button type="button" class="jf-del" onClick="{{ row.onDel }}" aria-label="삭제">
+                <svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="3" y1="3" x2="11" y2="11"></line><line x1="11" y1="3" x2="3" y2="11"></line></svg>
+              </button>
+            </div>
+          </sc-for>
+        </div>
+        <button type="button" class="jf-add" onClick="{{ f.addPref }}">+ 항목 추가</button>
+      </div>
+
+      <div class="jf-sec">
+        <h4>근무 조건</h4>
+        <div class="jf-rows">
+          <sc-for list="{{ f.conds }}" as="row" hint-placeholder-count="2">
+            <div class="jf-row">
+              <input type="text" class="jf-input" placeholder="근무 조건을 입력하세요" value="{{ row.val }}" onInput="{{ row.onInput }}">
+              <button type="button" class="jf-del" onClick="{{ row.onDel }}" aria-label="삭제">
+                <svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="3" y1="3" x2="11" y2="11"></line><line x1="11" y1="3" x2="3" y2="11"></line></svg>
+              </button>
+            </div>
+          </sc-for>
+        </div>
+        <button type="button" class="jf-add" onClick="{{ f.addCond }}">+ 항목 추가</button>
+      </div>
+
+      <div class="jf-sec">
+        <h4>전형 절차</h4>
+        <div class="jf-rows">
+          <sc-for list="{{ f.procs }}" as="row" hint-placeholder-count="3">
+            <div class="jf-row">
+              <input type="text" class="jf-input" placeholder="예) 서류 전형 / 실무 면접" value="{{ row.val }}" onInput="{{ row.onInput }}">
+              <button type="button" class="jf-del" onClick="{{ row.onDel }}" aria-label="삭제">
+                <svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="3" y1="3" x2="11" y2="11"></line><line x1="11" y1="3" x2="3" y2="11"></line></svg>
+              </button>
+            </div>
+          </sc-for>
+        </div>
+        <button type="button" class="jf-add" onClick="{{ f.addProc }}">+ 단계 추가</button>
+      </div>
+
+      <div class="jf-sec">
+        <h4>지원 방법</h4>
+        <textarea class="jf-textarea" placeholder="지원 방법 및 안내 문구를 입력하세요" value="{{ f.draft.apply }}" onInput="{{ f.setApply }}"></textarea>
+      </div>
+
+      <div class="jf-actions">
+        <button type="button" class="jf-cancel" onClick="{{ back }}">취소</button>
+        <button type="button" class="jf-save" onClick="{{ save }}">{{ saveLabel }}</button>
+      </div>
+    </div>
+  </sc-if>
+</section>
+
+<dc-import name="SiteFooter" hint-size="100%,320px"></dc-import>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { view: 'list', selId: null, editingId: null, draft: null, isAdmin: false, jobs: null };
+
+  _seed = [
+    {
+      id: 'seed-1', date: '2026.04.01', title: '반도체 물류자동화 설비 엔지니어 모집',
+      field: '조정 (CLW · ZT · STK)', headcount: '0명', period: '2026.04.01 ~ 2026.05.31',
+      location: '경기 평택 · 이천 / 충북 청주', status: 'open',
+      duties: [
+        'OHT · Stocker · Clean Way 등 반도체 물류자동화 설비의 조정 및 시운전',
+        '설비 성능 최적화와 운영 안정화 업무 수행',
+        '고객사 FAB 현장에서의 설비 점검 및 이슈 대응',
+      ],
+      qualifications: ['학력 무관 (관련 전공자 우대)', '반도체 · 자동화 · 전기전자 분야에 대한 이해와 관심', '현장 근무 및 교대 근무 가능자'],
+      preferred: ['반도체 FAB 현장 근무 경험 보유자', 'OHT · Stocker 등 물류자동화 설비 운영 경험', '기초 영어 또는 중국어 커뮤니케이션 가능자'],
+      conditions: ['고용형태 : 정규직 (수습 3개월)', '근무형태 : 프로젝트 현장 배치 / 교대 근무', '급여 : 회사 내규에 따름 (경력·역량별 협의)'],
+      process: ['서류 전형', '실무 면접', '임원 면접', '처우 협의 · 입사'],
+      apply: '문의하기 페이지를 통해 지원 의사를 남겨주시면 담당자가 개별 안내드립니다. 이력서는 채용 담당 이메일(ichi@ichi.kr)로 접수해 주세요.',
+    },
+    {
+      id: 'seed-2', date: '2026.04.01', title: '설비 시공 엔지니어 모집',
+      field: '시공 (설치 · 배선)', headcount: '0명', period: '2026.04.01 ~ 2026.05.31',
+      location: '전국 반도체 FAB 현장', status: 'open',
+      duties: ['반도체 자동화설비의 설치 및 배선 작업 수행', '현장 환경에 최적화된 시공 품질 관리', '시공 일정 관리 및 안전 관리 준수'],
+      qualifications: ['학력 무관', '전기 · 설비 · 기계 분야 기초 지식 보유자', '전국 현장 출장 및 근무 가능자'],
+      preferred: ['설비 시공 · 전기 배선 경험자', '관련 자격증 (전기기능사 등) 보유자', '반도체 현장 근무 경험자'],
+      conditions: ['고용형태 : 정규직 (수습 3개월)', '근무형태 : 프로젝트 현장 배치', '급여 : 회사 내규에 따름 (경력별 협의)'],
+      process: ['서류 전형', '실무 면접', '임원 면접', '처우 협의 · 입사'],
+      apply: '문의하기 페이지를 통해 지원 의사를 남겨주시면 담당자가 개별 안내드립니다. 이력서는 채용 담당 이메일(ichi@ichi.kr)로 접수해 주세요.',
+    },
+    {
+      id: 'seed-3', date: '2026.01.06', title: '테크니컬 통역 (한 ↔ 중) 모집',
+      field: '통역 · 번역', headcount: '0명', period: '2026.01.06 ~ 2026.02.28',
+      location: '경기 평택 / 해외 출장', status: 'closed',
+      duties: ['글로벌 프로젝트 현장에서 엔지니어 간 기술 통역', '설비 매뉴얼 · 기술 문서 번역', '고객사 및 협력사와의 커뮤니케이션 지원'],
+      qualifications: ['중국어 통역 가능자 (HSK 5급 이상 또는 동등 수준)', '해외 출장 가능자', '반도체 · 기계 분야 용어에 대한 학습 의지'],
+      preferred: ['기술 통역 경험자', '영어 커뮤니케이션 가능자', '반도체 현장 경험 보유자'],
+      conditions: ['고용형태 : 정규직 / 계약직 협의', '근무형태 : 프로젝트 현장 배치', '급여 : 회사 내규에 따름'],
+      process: ['서류 전형', '어학 · 실무 면접', '임원 면접', '처우 협의 · 입사'],
+      apply: '해당 공고는 모집이 마감되었습니다. 다음 공고를 통해 지원해 주세요.',
+    },
+    {
+      id: 'seed-4', date: '2025.10.01', title: '경영지원 담당 모집',
+      field: '경영기획 (인사 · 재무)', headcount: '0명', period: '2025.10.01 ~ 2025.11.30',
+      location: '본사 (경기 평택)', status: 'closed',
+      duties: ['인사 · 총무 · 재무 등 경영지원 업무 수행', '협력업체 관리 및 영업 지원', '현장 운영을 위한 행정 지원'],
+      qualifications: ['학력 무관 (관련 전공자 우대)', '문서 작성 및 오피스 활용 능숙자', '성실하고 책임감 있는 자'],
+      preferred: ['경영지원 · 인사 · 재무 실무 경험자', '반도체 · 제조업 근무 경험자'],
+      conditions: ['고용형태 : 정규직 (수습 3개월)', '근무형태 : 본사 상근', '급여 : 회사 내규에 따름'],
+      process: ['서류 전형', '실무 면접', '임원 면접', '처우 협의 · 입사'],
+      apply: '해당 공고는 모집이 마감되었습니다. 다음 공고를 통해 지원해 주세요.',
+    },
+  ];
+
+  componentDidMount() {
+    this._loadJobs();
+    var self = this;
+    var checkAdmin = function () {
+      var a = self._admin();
+      if (a !== self.state.isAdmin) self.setState({ isAdmin: a });
+      return a;
+    };
+    // This runtime only commits a re-render from user events or 'storage'
+    // events — not from async setState in a timer. So we poll until auth.js
+    // is ready, then fire a storage event to drive a real re-render.
+    this._onStorage = function () { checkAdmin(); };
+    window.addEventListener('storage', this._onStorage);
+    var tries = 0;
+    this._iv = setInterval(function () {
+      var ready = !!(window.ICHIAuth && window.ICHIAuth.isAdmin);
+      if (ready && self._admin() !== self.state.isAdmin) {
+        window.dispatchEvent(new StorageEvent('storage', { key: 'ichi_auth' }));
+      }
+      if ((ready && tries > 2) || tries > 25) clearInterval(self._iv);
+      tries++;
+    }, 100);
+  }
+  componentWillUnmount() { clearInterval(this._iv); window.removeEventListener('storage', this._onStorage); }
+
+  _admin() { return !!(window.ICHIAuth && window.ICHIAuth.isAdmin && window.ICHIAuth.isAdmin()); }
+  _deny() {
+    var msg = '관리자 계정만 이용 가능한 기능입니다.';
+    if (window.ICHIAuth && window.ICHIAuth.toast) window.ICHIAuth.toast(msg); else window.alert(msg);
+  }
+  _loadJobs() {
+    var arr = null;
+    try { arr = JSON.parse(localStorage.getItem('ichi_jobs') || 'null'); } catch (e) {}
+    if (!Array.isArray(arr) || !arr.length) {
+      arr = JSON.parse(JSON.stringify(this._seed));
+      try { localStorage.setItem('ichi_jobs', JSON.stringify(arr)); } catch (e) {}
+    }
+    this.setState({ jobs: arr });
+  }
+  _persist(arr) {
+    try { localStorage.setItem('ichi_jobs', JSON.stringify(arr)); } catch (e) {}
+    this.setState({ jobs: arr });
+  }
+  _view(j) {
+    return Object.assign({}, j, {
+      statusLabel: j.status === 'open' ? '진행중' : '마감',
+      statusClass: j.status === 'open' ? 'status-open' : 'status-closed',
+      stateClass: j.status === 'open' ? '' : 'closed',
+    });
+  }
+  _empty() {
+    return {
+      id: 'job-' + Date.now(),
+      date: new Date().toISOString().slice(0, 10).replace(/-/g, '.'),
+      title: '', field: '', headcount: '', period: '', location: '', status: 'open',
+      duties: [''], qualifications: [''], preferred: [''], conditions: [''], process: [''], apply: '',
+    };
+  }
+
+  create() {
+    if (!this._admin()) { this._deny(); return; }
+    this.setState({ view: 'edit', editingId: null, draft: this._empty() });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  startEdit(id) {
+    if (!this._admin()) { this._deny(); return; }
+    var j = (this.state.jobs || []).find(function (x) { return x.id === id; });
+    if (!j) return;
+    var d = JSON.parse(JSON.stringify(j));
+    ['duties', 'qualifications', 'preferred', 'conditions', 'process'].forEach(function (k) {
+      if (!Array.isArray(d[k]) || !d[k].length) d[k] = [''];
+    });
+    this.setState({ view: 'edit', editingId: id, draft: d });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  removeJob(id) {
+    if (!this._admin()) { this._deny(); return; }
+    var self = this;
+    var doDel = function () {
+      var arr = (self.state.jobs || []).filter(function (x) { return x.id !== id; });
+      self._persist(arr);
+      if (window.ICHIAuth && window.ICHIAuth.toast) window.ICHIAuth.toast('채용공고가 삭제되었습니다.');
+      self.setState({ view: 'list', selId: null });
+    };
+    if (window.ICHIAuth && window.ICHIAuth.confirm) {
+      window.ICHIAuth.confirm({ title: '채용공고 삭제', body: '이 채용공고를 삭제하시겠습니까?\n삭제된 공고는 복구할 수 없습니다.', confirmText: '삭제', danger: true, onConfirm: doDel });
+    } else if (window.confirm('이 채용공고를 삭제하시겠습니까?')) { doDel(); }
+  }
+
+  _dset(k, v) { this.setState({ draft: Object.assign({}, this.state.draft, { [k]: v }) }); }
+  _dlist(k, i, v) {
+    var d = Object.assign({}, this.state.draft);
+    var a = d[k].slice(); a[i] = v; d[k] = a;
+    this.setState({ draft: d });
+  }
+  _dadd(k) {
+    var d = Object.assign({}, this.state.draft);
+    d[k] = d[k].concat(['']);
+    this.setState({ draft: d });
+  }
+  _ddel(k, i) {
+    var d = Object.assign({}, this.state.draft);
+    var a = d[k].slice(); a.splice(i, 1); if (!a.length) a.push('');
+    d[k] = a;
+    this.setState({ draft: d });
+  }
+  save() {
+    if (!this._admin()) { this._deny(); return; }
+    var d = this.state.draft; if (!d) return;
+    if (!(d.title || '').trim()) { window.alert('제목을 입력해 주세요.'); return; }
+    var clean = function (a) { return (a || []).map(function (s) { return (s || '').trim(); }).filter(Boolean); };
+    var rec = Object.assign({}, d, {
+      title: d.title.trim(), field: (d.field || '').trim(), headcount: (d.headcount || '').trim(),
+      period: (d.period || '').trim(), location: (d.location || '').trim(),
+      duties: clean(d.duties), qualifications: clean(d.qualifications), preferred: clean(d.preferred),
+      conditions: clean(d.conditions), process: clean(d.process), apply: (d.apply || '').trim(),
+    });
+    var arr = (this.state.jobs || []).slice();
+    var idx = arr.findIndex(function (x) { return x.id === rec.id; });
+    if (idx >= 0) arr[idx] = rec; else arr.unshift(rec);
+    this._persist(arr);
+    if (window.ICHIAuth && window.ICHIAuth.toast) window.ICHIAuth.toast(this.state.editingId ? '채용공고가 수정되었습니다.' : '채용공고가 등록되었습니다.');
+    this.setState({ view: 'list', selId: null, editingId: null, draft: null });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  renderVals() {
+    var self = this;
+    var admin = this._admin();
+    var list = this.state.jobs || [];
+    var jobs = list.map(function (j, i) {
+      var v = self._view(j);
+      v.no = String(i + 1).padStart(2, '0');
+      v.open = function () { self.setState({ view: 'detail', selId: j.id }); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+      v.edit = function (e) { if (e && e.stopPropagation) e.stopPropagation(); self.startEdit(j.id); };
+      v.del = function (e) { if (e && e.stopPropagation) e.stopPropagation(); self.removeJob(j.id); };
+      return v;
+    });
+
+    var selIdx = list.findIndex(function (x) { return x.id === self.state.selId; });
+    var job = null;
+    if (selIdx >= 0) {
+      job = this._view(list[selIdx]);
+      job.no = String(selIdx + 1).padStart(2, '0');
+      job.process = (list[selIdx].process || []).map(function (p, i) { return { n: String(i + 1).padStart(2, '0'), label: p }; });
+    }
+
+    var d = this.state.draft;
+    var f = null;
+    if (d) {
+      var mkRows = function (k) {
+        return d[k].map(function (val, i) {
+          return {
+            val: val,
+            onInput: function (e) { self._dlist(k, i, e.target.value); },
+            onDel: function () { self._ddel(k, i); },
+          };
+        });
+      };
+      f = {
+        draft: d,
+        setTitle: function (e) { self._dset('title', e.target.value); },
+        setField: function (e) { self._dset('field', e.target.value); },
+        setHead: function (e) { self._dset('headcount', e.target.value); },
+        setPeriod: function (e) { self._dset('period', e.target.value); },
+        setLoc: function (e) { self._dset('location', e.target.value); },
+        setStatus: function (e) { self._dset('status', e.target.value); },
+        setApply: function (e) { self._dset('apply', e.target.value); },
+        duties: mkRows('duties'), addDuty: function () { self._dadd('duties'); },
+        quals: mkRows('qualifications'), addQual: function () { self._dadd('qualifications'); },
+        prefs: mkRows('preferred'), addPref: function () { self._dadd('preferred'); },
+        conds: mkRows('conditions'), addCond: function () { self._dadd('conditions'); },
+        procs: mkRows('process'), addProc: function () { self._dadd('process'); },
+      };
+    }
+
+    return {
+      admin: admin,
+      boardClass: admin ? 'admin' : '',
+      jobs: jobs,
+      job: job,
+      f: f,
+      showList: this.state.view === 'list',
+      showDetail: this.state.view === 'detail' && !!job,
+      showEdit: this.state.view === 'edit' && !!f,
+      formTitle: this.state.editingId ? '채용공고 수정' : '채용공고 작성',
+      saveLabel: this.state.editingId ? '수정 완료' : '등록하기',
+      create: function () { self.create(); },
+      save: function () { self.save(); },
+      detailEdit: function () { if (self.state.selId) self.startEdit(self.state.selId); },
+      detailDel: function () { if (self.state.selId) self.removeJob(self.state.selId); },
+      back: function () { self.setState({ view: 'list', selId: null, editingId: null, draft: null }); },
+    };
+  }
+}
+</script>
+</body>
+</html>

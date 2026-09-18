@@ -17,6 +17,7 @@ create table if not exists public.profiles (
   birth       date,
   gender      text check (gender in ('남성', '여성')),
   role        text not null default 'user' check (role in ('user', 'admin')),
+  status      text not null default '정상' check (status in ('정상', '탈퇴')),
   join_date   date not null default current_date,
   created_at  timestamptz not null default now(),
   updated_at  timestamptz not null default now()
@@ -120,6 +121,11 @@ create policy profiles_insert_own on public.profiles
 drop policy if exists profiles_update_own on public.profiles;
 create policy profiles_update_own on public.profiles
   for update using (id = auth.uid()) with check (id = auth.uid());
+
+/* 관리자는 다른 회원의 상태(정상/탈퇴)를 바꿀 수 있어야 합니다 */
+drop policy if exists profiles_update_admin on public.profiles;
+create policy profiles_update_admin on public.profiles
+  for update using (public.is_admin()) with check (public.is_admin());
 
 drop policy if exists profiles_delete_own on public.profiles;
 create policy profiles_delete_own on public.profiles

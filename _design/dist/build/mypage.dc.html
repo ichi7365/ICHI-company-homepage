@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>마이페이지 | ICHI</title>
+<meta name="description" content="회원 정보 확인 및 수정, 비밀번호 변경을 지원합니다.">
+<link rel="canonical" href="https://www.ichi.kr/mypage.dc.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="㈜이치 ICHI">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:title" content="마이페이지 | ICHI">
+<meta property="og:description" content="회원 정보 확인 및 수정, 비밀번호 변경을 지원합니다.">
+<meta property="og:url" content="https://www.ichi.kr/mypage.dc.html">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="마이페이지 | ICHI">
+<meta name="twitter:description" content="회원 정보 확인 및 수정, 비밀번호 변경을 지원합니다.">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="crossorigin">
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="styles.css">
+<script src="./support.js"></script>
+<script src="./auth.js"></script>
+<script src="./common.js"></script>
+</head>
+<body class="subpage">
+<x-dc>
+<helmet>
+<script src="./nav-bridge.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="crossorigin">
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="styles.css">
+<script>document.documentElement.classList.add('js-reveal');</script>
+</helmet>
+<dc-import name="SiteNav" hint-size="100%,72px"></dc-import>
+
+<main class="mypage-main" data-screen-label="MyPage">
+  <div class="mypage-wrap">
+    <div class="mp-eye">
+      <span class="eye-mono">My Account</span>
+      <div class="eye-dash"></div>
+    </div>
+    <h1 class="mp-h1"><em id="mp-hello">회원</em>님, 안녕하세요</h1>
+    <p class="mp-sub">계정 정보를 확인하고 관리하실 수 있습니다.</p>
+
+    <!-- 회원정보 -->
+    <div class="mp-card">
+      <div class="mp-card-head">
+        <h2>회원정보 <span class="ko"></span></h2>
+        <button type="button" class="mp-edit-btn" id="mp-edit-btn" onClick="{{ toggleEdit }}">회원정보 수정</button>
+      </div>
+      <div class="mp-info-list">
+        <div class="mp-info-row"><span class="mp-info-label">이름 · Name</span><span class="mp-info-value" id="v-name">—</span></div>
+        <div class="mp-info-row"><span class="mp-info-label">아이디 · ID</span><span class="mp-info-value" id="v-id">—</span></div>
+        <div class="mp-info-row"><span class="mp-info-label">이메일 · Email</span><span class="mp-info-value" id="v-email">—</span></div>
+        <div class="mp-info-row"><span class="mp-info-label">연락처 · Phone</span><span class="mp-info-value" id="v-phone">—</span></div>
+        <div class="mp-info-row"><span class="mp-info-label">생년월일 · Birth</span><span class="mp-info-value" id="v-birth">—</span></div>
+        <div class="mp-info-row"><span class="mp-info-label">성별 · Gender</span><span class="mp-info-value" id="v-gender">—</span></div>
+        <div class="mp-info-row"><span class="mp-info-label">가입일 · Joined</span><span class="mp-info-value" id="v-joined">—</span></div>
+      </div>
+    </div>
+
+    <!-- 비밀번호 변경 -->
+    <div class="mp-card">
+      <div class="mp-card-head"><h2>비밀번호 변경 <span class="ko"></span></h2></div>
+      <form class="mp-form" id="pw-form" onSubmit="{{ onChangePw }}">
+        <div class="fg" data-field="cur">
+          <label class="fl">Current <span class="ko">· 현재 비밀번호</span></label>
+          <input type="password" class="fi" name="cur" placeholder="현재 비밀번호" autoComplete="current-password">
+          <div class="fg-alert"></div>
+        </div>
+        <div class="fg" data-field="new">
+          <label class="fl">New <span class="ko">· 새 비밀번호</span></label>
+          <input type="password" class="fi" name="new" placeholder="영문·숫자 포함 8자 이상" autoComplete="new-password">
+          <div class="fg-alert"></div>
+        </div>
+        <div class="fg" data-field="new2">
+          <label class="fl">Confirm <span class="ko">· 새 비밀번호 확인</span></label>
+          <input type="password" class="fi" name="new2" placeholder="새 비밀번호 재입력" autoComplete="new-password">
+          <div class="fg-alert"></div>
+        </div>
+        <button type="submit" class="mp-btn">비밀번호 변경</button>
+      </form>
+    </div>
+
+    <!-- 회원탈퇴 -->
+    <div class="mp-card danger">
+      <div class="mp-card-head"><h2>회원탈퇴 <span class="ko"></span></h2></div>
+      <p class="mp-card-note">회원탈퇴 시 계정 정보는 삭제되며 복구할 수 없습니다.<br>탈퇴 전 신중하게 확인해 주시기 바랍니다.</p>
+      <button type="button" class="mp-btn-danger" onClick="{{ onWithdraw }}">회원탈퇴</button>
+    </div>
+  </div>
+</main>
+
+<dc-import name="SiteFooter" hint-size="100%,320px"></dc-import>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { menuOpen: false, editing: false };
+  componentDidMount() {
+    // Auth guard — redirect to login if not signed in.
+    const auth = window.ICHIAuth;
+    if (!auth || !auth.isLoggedIn()) {
+      window.location.replace('login.dc.html');
+      return;
+    }
+    this._fill(auth.getUser() || {});
+    const form = document.getElementById('pw-form');
+    if (form) {
+      this._clearErr = (e) => { const fg = e.target.closest && e.target.closest('.fg'); if (fg) fg.classList.remove('has-error'); };
+      form.addEventListener('input', this._clearErr);
+    }
+  }
+  componentWillUnmount() { window.removeEventListener('scroll', this._onScroll); }
+  _fmtDate(s) {
+    if (!s) return '—';
+    const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s);
+    return m ? (m[1] + '.' + m[2] + '.' + m[3]) : s;
+  }
+  _fill(u) {
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v || '—'; };
+    set('mp-hello', u.name || '회원');
+    set('v-name', u.name);
+    set('v-id', u.id);
+    set('v-email', u.email);
+    set('v-phone', u.phone);
+    set('v-birth', this._fmtDate(u.birth));
+    set('v-gender', u.gender);
+    set('v-joined', this._fmtDate(u.joinDate));
+  }
+  renderVals() {
+    return {
+      toggleEdit: () => {
+        const auth = window.ICHIAuth; if (!auth) return;
+        const u = auth.getUser() || {};
+        const btn = document.getElementById('mp-edit-btn');
+        const emailCell = document.getElementById('v-email');
+        const phoneCell = document.getElementById('v-phone');
+        const genderCell = document.getElementById('v-gender');
+        if (!this.state.editing) {
+          emailCell.innerHTML = '<input type="email" class="fi" id="e-email" value="' + (u.email || '') + '" placeholder="name@example.com">';
+          phoneCell.innerHTML = '<input type="tel" class="fi" id="e-phone" value="' + (u.phone || '') + '" placeholder="010-1234-5678">';
+          const g = u.gender || '';
+          genderCell.innerHTML = '<div class="gender-opts">'
+            + '<label class="gender-opt"><input type="radio" name="mp-gender" value="\ub0a8\uc131"' + (g === '\ub0a8\uc131' ? ' checked' : '') + '><span>\ub0a8\uc131</span></label>'
+            + '<label class="gender-opt"><input type="radio" name="mp-gender" value="\uc5ec\uc131"' + (g === '\uc5ec\uc131' ? ' checked' : '') + '><span>\uc5ec\uc131</span></label>'
+            + '</div>';
+          if (btn) btn.textContent = '저장';
+          this.setState({ editing: true });
+        } else {
+          const email = (document.getElementById('e-email') || {}).value || '';
+          const phone = (document.getElementById('e-phone') || {}).value || '';
+          const gender = (document.querySelector('input[name="mp-gender"]:checked') || {}).value || u.gender || '';
+          const updated = auth.update({ email: email.trim(), phone: phone.trim(), gender: gender });
+          try { localStorage.setItem('ichi_profile', JSON.stringify(Object.assign(JSON.parse(localStorage.getItem('ichi_profile') || '{}'), { email: updated.email, phone: updated.phone, gender: updated.gender }))); } catch (err) {}
+          this._fill(updated);
+          if (btn) btn.textContent = '회원정보 수정';
+          this.setState({ editing: false });
+          auth.toast('회원정보가 수정되었습니다.');
+        }
+      },
+      onChangePw: (e) => {
+        e.preventDefault();
+        const form = document.getElementById('pw-form');
+        if (!form) return;
+        const val = (n) => ((form.querySelector('[name="' + n + '"]') || {}).value || '').trim();
+        const setErr = (field, msg) => {
+          const fg = form.querySelector('.fg[data-field="' + field + '"]');
+          if (!fg) return; fg.classList.add('has-error');
+          const a = fg.querySelector('.fg-alert'); if (a) a.textContent = msg;
+        };
+        form.querySelectorAll('.fg.has-error').forEach((fg) => fg.classList.remove('has-error'));
+        const strong = (v) => v.length >= 8 && /[a-zA-Z]/.test(v) && /[0-9]/.test(v);
+        const rules = [
+          ['cur', !val('cur'), '현재 비밀번호를 입력해 주세요.'],
+          ['new', !val('new'), '새 비밀번호를 입력해 주세요.'],
+          ['new', val('new') && !strong(val('new')), '영문과 숫자를 포함해 8자 이상 입력해 주세요.'],
+          ['new2', !val('new2'), '새 비밀번호를 다시 입력해 주세요.'],
+          ['new2', val('new') && val('new2') && val('new') !== val('new2'), '비밀번호가 일치하지 않습니다.'],
+        ];
+        let firstBad = null;
+        for (const [field, bad, msg] of rules) {
+          if (bad) { setErr(field, msg); if (!firstBad) firstBad = form.querySelector('.fg[data-field="' + field + '"] .fi'); }
+        }
+        if (firstBad) { firstBad.focus({ preventScroll: true }); return; }
+        form.reset();
+        if (window.ICHIAuth) window.ICHIAuth.toast('비밀번호가 변경되었습니다.');
+      },
+      onWithdraw: () => {
+        const auth = window.ICHIAuth; if (!auth) return;
+        auth.confirm({
+          title: '회원탈퇴',
+          body: '계정을 삭제하면 모든 회원정보를 복구할 수 없습니다.\n정말 탈퇴하시겠습니까?',
+          confirmText: '회원탈퇴',
+          danger: true,
+          onConfirm: () => {
+            auth.logout();
+            try { localStorage.removeItem('ichi_profile'); } catch (err) {}
+            auth.toastAfterNav('회원탈퇴가 완료되었습니다.');
+            window.location.href = 'ICHI Site.dc.html';
+          }
+        });
+      },
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>로그인 | ICHI</title>
+<meta name="description" content="㈜이치 회원 로그인 페이지입니다.">
+<link rel="canonical" href="https://www.ichi.kr/login.dc.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="㈜이치 ICHI">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:title" content="로그인 | ICHI">
+<meta property="og:description" content="㈜이치 회원 로그인 페이지입니다.">
+<meta property="og:url" content="https://www.ichi.kr/login.dc.html">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="로그인 | ICHI">
+<meta name="twitter:description" content="㈜이치 회원 로그인 페이지입니다.">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="crossorigin">
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="styles.css">
+<script src="./support.js"></script>
+<script src="./auth.js"></script>
+<script src="./common.js"></script>
+</head>
+<body class="subpage">
+<x-dc>
+<helmet>
+<script src="./nav-bridge.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="crossorigin">
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="styles.css">
+<script>document.documentElement.classList.add('js-reveal');</script>
+</helmet>
+<dc-import name="SiteNav" hint-size="100%,72px"></dc-import>
+
+<section class="auth-split" data-screen-label="Login">
+  <aside class="auth-brand">
+    <div class="circuit" aria-hidden="true">
+      <svg viewBox="0 0 400 600" fill="none" preserveAspectRatio="xMidYMid slice" stroke="currentColor" stroke-width="1.4">
+        <path d="M-10 90 H120 a12 12 0 0 1 12 12 V200 a12 12 0 0 0 12 12 H420"></path>
+        <path d="M-10 210 H70 a12 12 0 0 0 12 -12 V70"></path>
+        <path d="M410 150 H300 a12 12 0 0 0 -12 12 V320 a12 12 0 0 1 -12 12 H-10"></path>
+        <path d="M60 620 V440 a12 12 0 0 1 12 -12 H240 a12 12 0 0 0 12 -12 V240"></path>
+        <path d="M410 470 H210 a12 12 0 0 1 -12 -12 V330"></path>
+        <path d="M150 620 V540 a12 12 0 0 1 12 -12 H420"></path>
+        <circle cx="132" cy="102" r="5" fill="currentColor" stroke="none"></circle>
+        <circle cx="288" cy="162" r="5" fill="currentColor" stroke="none"></circle>
+        <circle cx="82" cy="70" r="5" fill="currentColor" stroke="none"></circle>
+        <circle cx="198" cy="330" r="5" fill="currentColor" stroke="none"></circle>
+        <circle cx="252" cy="240" r="5" fill="currentColor" stroke="none"></circle>
+        <circle cx="162" cy="528" r="5" fill="currentColor" stroke="none"></circle>
+      </svg>
+    </div>
+    <span class="blob b1"></span>
+    <span class="blob b2"></span>
+    
+  <div class="auth-card accent wide">
+      <div class="auth-eye">
+        <span class="eye-mono">Member Login</span>
+        <div class="eye-dash"></div>
+      </div>
+      <h1 class="auth-h1" style="font-weight:700;color:var(--blue)">로그인</h1>
+      <p class="auth-sub">파트너 · 임직원 전용 시스템입니다.<br>등록된 계정으로 로그인해 주세요.</p>
+
+      <form class="auth-form" id="login-form" onSubmit="{{ onSubmit }}">
+        <div class="fg" data-field="userid">
+          <label class="fl">ID <span class="ko">· 아이디</span></label>
+          <input type="text" class="fi" name="userid" placeholder="아이디를 입력해 주세요" autoComplete="username">
+          <div class="fg-alert"></div>
+        </div>
+        <div class="fg" data-field="password">
+          <label class="fl">Password <span class="ko">· 비밀번호</span></label>
+          <div class="fi-wrap">
+            <input type="password" class="fi" name="password" placeholder="비밀번호를 입력해 주세요" autoComplete="current-password">
+            <button type="button" class="fi-eye" onClick="{{ togglePw }}" aria-label="비밀번호 표시">
+              <svg class="on-i" viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              <svg class="off" viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path><circle cx="12" cy="12" r="3"></circle><line x1="3" y1="3" x2="21" y2="21"></line></svg>
+            </button>
+          </div>
+          <div class="fg-alert"></div>
+        </div>
+
+        <div class="auth-meta">
+          <label class="auth-check">
+            <input type="checkbox" name="remember">
+            <span class="box"><svg viewBox="0 0 12 12"><polyline points="2,6.5 5,9 10,3.5"></polyline></svg></span>
+            아이디 저장
+          </label>
+          <a href="Contact.dc.html" class="auth-mini-link">아이디 찾기 <span class="sep"></span> 비밀번호 찾기</a>
+        </div>
+
+        <button type="submit" class="btn-submit auth-submit" style="margin-top:6px">
+          로그인
+          <span class="arrow">
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="6" x2="10" y2="6"></line><polyline points="6,2 10,6 6,10"></polyline></svg>
+          </span>
+        </button>
+      </form>
+
+      <div class="auth-note" id="login-note" role="status" aria-live="polite">
+        <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"></path></svg>
+        <span></span>
+      </div>
+
+      <div class="auth-alt">
+        아직 계정이 없으신가요?
+        <a href="signup.dc.html">회원가입</a>
+      </div>
+    </div></aside>
+
+  <div class="auth-panel">
+    <span class="blob" aria-hidden="true"></span>
+    <div class="auth-col">
+    
+
+    <a href="ICHI Site.dc.html" class="auth-home">
+      <svg viewBox="0 0 14 14"><polyline points="8.5,2.5 4,7 8.5,11.5"></polyline></svg>
+      홈으로 돌아가기
+    </a>
+    </div>
+  </div>
+</section>
+
+<dc-import name="SiteFooter" hint-size="100%,320px"></dc-import>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { menuOpen: false };
+  componentDidMount() {
+    const form = document.getElementById('login-form');
+    if (form) {
+      this._clearErr = (e) => {
+        const fg = e.target.closest && e.target.closest('.fg');
+        if (fg) fg.classList.remove('has-error');
+        const note = document.getElementById('login-note');
+        if (note) note.classList.remove('show');
+      };
+      form.addEventListener('input', this._clearErr);
+    }
+  }
+  componentWillUnmount() {
+  }
+  renderVals() {
+    return {
+      onSubmit: (e) => {
+        e.preventDefault();
+        const form = document.getElementById('login-form');
+        if (!form) return;
+        const val = (n) => ((form.querySelector('[name="' + n + '"]') || {}).value || '').trim();
+        const setErr = (field, msg) => {
+          const fg = form.querySelector('.fg[data-field="' + field + '"]');
+          if (!fg) return;
+          fg.classList.add('has-error');
+          const a = fg.querySelector('.fg-alert');
+          if (a) a.textContent = msg;
+        };
+        form.querySelectorAll('.fg.has-error').forEach((fg) => fg.classList.remove('has-error'));
+        const note = document.getElementById('login-note');
+        if (note) note.classList.remove('show');
+        const rules = [
+          ['userid', !val('userid'), '아이디를 입력해 주세요.'],
+          ['password', !val('password'), '비밀번호를 입력해 주세요.'],
+        ];
+        let firstBad = null;
+        for (const [field, bad, msg] of rules) {
+          if (bad) { setErr(field, msg); if (!firstBad) firstBad = form.querySelector('.fg[data-field="' + field + '"] .fi'); }
+        }
+        if (firstBad) { firstBad.focus({ preventScroll: true }); return; }
+        const idVal = (form.querySelector('[name="userid"]') || {}).value || '';
+        let prof = null; try { prof = JSON.parse(localStorage.getItem('ichi_profile') || 'null'); } catch (err) {}
+        const user = Object.assign(
+          { name: '회원', email: '', phone: '', birth: '', gender: '', joinDate: new Date().toISOString().slice(0, 10) },
+          prof || {}, { id: idVal }
+        );
+        if (window.ICHIAuth) window.ICHIAuth.login(user);
+        if (note) { note.querySelector('span').textContent = '로그인 정보가 확인되었습니다. 홈으로 이동합니다…'; note.classList.add('show'); }
+        setTimeout(() => { window.location.href = 'ICHI Site.dc.html'; }, 1500);
+      },
+      togglePw: (e) => {
+        const btn = e.currentTarget;
+        const inp = btn.parentNode.querySelector('input');
+        inp.type = inp.type === 'password' ? 'text' : 'password';
+        btn.classList.toggle('on');
+      },
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -9,6 +9,9 @@ export type JobStatus = 'open' | 'closed';
 export type InquiryStatus = 'new' | 'in_progress' | 'done';
 export type Gender = '남성' | '여성';
 
+/** 관리자 페이지에서 쓰는 회원 상태 */
+export type MemberStatus = '정상' | '탈퇴';
+
 export type Profile = {
   id: string;
   name: string;
@@ -17,6 +20,7 @@ export type Profile = {
   birth: string | null;
   gender: Gender | null;
   role: Role;
+  status: MemberStatus;
   join_date: string;
   created_at: string;
   updated_at: string;
@@ -75,8 +79,9 @@ export type Database = {
     Tables: {
       profiles: {
         Row: Profile;
-        Insert: Omit<Profile, 'created_at' | 'updated_at' | 'role' | 'join_date'> &
-          Partial<Pick<Profile, 'role' | 'join_date'>>;
+        /* role · status · join_date 는 DB 기본값이 있어 넣지 않아도 됩니다 */
+        Insert: Omit<Profile, 'created_at' | 'updated_at' | 'role' | 'status' | 'join_date'> &
+          Partial<Pick<Profile, 'role' | 'status' | 'join_date'>>;
         Update: Partial<Omit<Profile, 'id'>>;
         Relationships: [];
       };

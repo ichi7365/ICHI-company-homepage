@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>관리자 페이지 | ICHI</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="crossorigin">
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="styles.css">
+<script src="./support.js"></script>
+<script src="./auth.js"></script>
+<script src="./common.js"></script>
+</head>
+<body class="subpage">
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="crossorigin">
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="styles.css">
+<script>document.documentElement.classList.add('js-reveal');</script>
+</helmet>
+<dc-import name="SiteNav" hint-size="100%,72px"></dc-import>
+
+<main class="adm-main" data-screen-label="Admin">
+  <div class="adm-wrap">
+    <div class="mp-eye">
+      <span class="eye-mono">Admin Console</span>
+      <div class="eye-dash"></div>
+    </div>
+    <div class="adm-head">
+      <div>
+        <h1 class="mp-h1">관리자 페이지</h1>
+        <p class="mp-sub">직원 계정과 채용공고를 관리하실 수 있습니다.</p>
+      </div>
+      <button type="button" class="adm-logout nav-logout">로그아웃</button>
+    </div>
+
+    <div class="adm-tabs" role="tablist">
+      <button type="button" class="adm-tab {{ tabMembers }}" onClick="{{ showMembers }}">직원관리</button>
+      <button type="button" class="adm-tab {{ tabJobs }}" onClick="{{ showJobs }}">채용공고 관리</button>
+    </div>
+
+    <sc-if value="{{ onMembers }}" hint-placeholder-val="{{ true }}">
+      <section class="adm-panel">
+        <div class="adm-bar">
+          <div class="adm-search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg>
+            <input type="search" class="fi" id="adm-q" placeholder="이름 · 아이디 · 전화번호 · 이메일로 검색" onInput="{{ onSearch }}">
+          </div>
+          <div class="adm-filters">
+            <button type="button" class="adm-chip {{ chipAll }}" onClick="{{ filterAll }}">전체</button>
+            <button type="button" class="adm-chip {{ chipActive }}" onClick="{{ filterActive }}">정상</button>
+            <button type="button" class="adm-chip {{ chipOut }}" onClick="{{ filterOut }}">탈퇴</button>
+          </div>
+        </div>
+        <p class="adm-count">총 <b>{{ total }}</b>명 · 정상 {{ countActive }}명 · 탈퇴 {{ countOut }}명</p>
+
+        <div class="adm-table">
+          <div class="adm-thead">
+            <span>번호</span>
+            <span>이름</span>
+            <span>아이디</span>
+            <span>생년월일</span>
+            <span>혈액형</span>
+            <span>전화번호</span>
+            <span>이메일</span>
+            <span>회원가입일</span>
+            <span>회원 상태</span>
+            <span class="ta-r">관리</span>
+          </div>
+          <sc-for list="{{ members }}" as="m" hint-placeholder-count="5">
+            <div class="adm-row {{ m.rowClass }}">
+              <button type="button" class="adm-cellbtn" onClick="{{ m.open }}">
+                <span class="adm-no">{{ m.no }}</span>
+                <span class="adm-name">{{ m.name }}</span>
+                <span class="adm-mono">{{ m.id }}</span>
+                <span class="adm-dim">{{ m.birth }}</span>
+                <span class="adm-dim">{{ m.blood }}</span>
+                <span class="adm-mono">{{ m.phone }}</span>
+                <span class="adm-dim ellipsis">{{ m.email }}</span>
+                <span class="adm-dim">{{ m.joinDate }}</span>
+                <span class="adm-badge {{ m.badgeClass }}">{{ m.status }}</span>
+              </button>
+              <span class="adm-act-cell">
+                <button type="button" class="jb-act del" disabled="{{ m.outAlready }}" onClick="{{ m.withdraw }}">{{ m.actLabel }}</button>
+              </span>
+            </div>
+          </sc-for>
+        </div>
+        <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}">
+          <p class="adm-empty">검색 조건에 해당하는 회원이 없습니다.</p>
+        </sc-if>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ onJobs }}" hint-placeholder-val="{{ false }}">
+      <section class="adm-panel">
+        <div class="adm-bar">
+          <p class="adm-count">등록된 채용공고 <b>{{ jobTotal }}</b>건</p>
+          <a class="btn-write" href="Careers.dc.html?write=1">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            채용공고 작성
+          </a>
+        </div>
+        <div class="adm-table jobs">
+          <div class="adm-thead">
+            <span>번호</span>
+            <span>제목</span>
+            <span>모집 분야</span>
+            <span>작성일</span>
+            <span>상태</span>
+            <span class="ta-r">관리</span>
+          </div>
+          <sc-for list="{{ jobs }}" as="j" hint-placeholder-count="3">
+            <div class="adm-row">
+              <a class="adm-cellbtn" href="{{ j.href }}">
+                <span class="adm-no">{{ j.no }}</span>
+                <span class="adm-name ellipsis">{{ j.title }}</span>
+                <span class="adm-dim ellipsis">{{ j.field }}</span>
+                <span class="adm-dim">{{ j.date }}</span>
+                <span class="adm-badge {{ j.badgeClass }}">{{ j.statusLabel }}</span>
+              </a>
+              <span class="adm-act-cell">
+                <a class="jb-act" href="{{ j.editHref }}">수정</a>
+                <button type="button" class="jb-act del" onClick="{{ j.del }}">삭제</button>
+              </span>
+            </div>
+          </sc-for>
+        </div>
+        <sc-if value="{{ jobsEmpty }}" hint-placeholder-val="{{ false }}">
+          <p class="adm-empty">등록된 채용공고가 없습니다. 인재채용 페이지에서 공고를 등록해 주세요.</p>
+        </sc-if>
+      </section>
+    </sc-if>
+  </div>
+</main>
+
+<sc-if value="{{ hasDetail }}" hint-placeholder-val="{{ false }}">
+  <div class="adm-overlay" onClick="{{ closeDetail }}">
+    <div class="adm-sheet" role="dialog" aria-modal="true" onClick="{{ stop }}">
+      <div class="adm-sheet-head">
+        <div>
+          <span class="eye-mono">Member Detail</span>
+          <h2>{{ detailName }}</h2>
+        </div>
+        <button type="button" class="mm-close" aria-label="닫기" onClick="{{ closeDetail }}">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="3" y1="3" x2="15" y2="15"></line><line x1="15" y1="3" x2="3" y2="15"></line></svg>
+        </button>
+      </div>
+      <div class="mp-info-list">
+        <div class="mp-info-row"><span class="mp-info-label">이름 · Name</span><span class="mp-info-value">{{ detailName }}</span></div>
+        <div class="mp-info-row"><span class="mp-info-label">아이디 · ID</span><span class="mp-info-value">{{ detailId }}</span></div>
+        <div class="mp-info-row"><span class="mp-info-label">생년월일 · Birth</span><span class="mp-info-value">{{ detailBirth }}</span></div>
+        <div class="mp-info-row"><span class="mp-info-label">성별 · Gender</span><span class="mp-info-value">{{ detailGender }}</span></div>
+        <div class="mp-info-row"><span class="mp-info-label">혈액형 · Blood</span><span class="mp-info-value">{{ detailBlood }}</span></div>
+        <div class="mp-info-row"><span class="mp-info-label">연락처 · Phone</span><span class="mp-info-value">{{ detailPhone }}</span></div>
+        <div class="mp-info-row"><span class="mp-info-label">이메일 · Email</span><span class="mp-info-value">{{ detailEmail }}</span></div>
+        <div class="mp-info-row"><span class="mp-info-label">회원가입일 · Joined</span><span class="mp-info-value">{{ detailJoin }}</span></div>
+        <div class="mp-info-row"><span class="mp-info-label">회원 상태 · Status</span><span class="mp-info-value">{{ detailStatus }}</span></div>
+      </div>
+      <p class="adm-note">비밀번호는 보안상 관리자에게도 표시되지 않습니다.</p>
+      <div class="adm-sheet-foot">
+        <button type="button" class="mp-btn ghost" onClick="{{ closeDetail }}">닫기</button>
+        <button type="button" class="mp-btn-danger" disabled="{{ detailOut }}" onClick="{{ detailWithdraw }}">{{ detailActLabel }}</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<dc-import name="SiteFooter" hint-size="100%,320px"></dc-import>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { tab: 'members', q: '', filter: '전체', members: [], jobs: [], detail: null };
+
+  componentDidMount() {
+    // 관리자 권한 확인 — 일반 회원/비로그인은 접근 불가 (URL 직접 입력 포함)
+    var self = this;
+    var tries = 0;
+    var guard = setInterval(function () {
+      var auth = window.ICHIAuth;
+      tries++;
+      if (auth) {
+        clearInterval(guard);
+        if (!auth.isLoggedIn() || !auth.isAdmin()) { auth.requireAdmin(); return; }
+        self._load();
+      } else if (tries > 60) {
+        clearInterval(guard);
+        window.location.replace('login.dc.html');
+      }
+    }, 60);
+    this._guard = guard;
+    // 이 런타임은 타이머 setState를 즉시 커밋하지 않으므로 storage 이벤트로 리렌더를 유도
+    this._onStorage = function () { self.forceUpdate(); };
+    window.addEventListener('storage', this._onStorage);
+    var t = (new URLSearchParams(window.location.search).get('tab') || '');
+    if (t === 'jobs') this.setState({ tab: 'jobs' });
+  }
+  componentWillUnmount() { clearInterval(this._guard); window.removeEventListener('storage', this._onStorage); }
+
+  _load() {
+    var auth = window.ICHIAuth;
+    var jobs = [];
+    try { jobs = JSON.parse(localStorage.getItem('ichi_jobs') || '[]'); } catch (e) {}
+    this.setState({ members: (auth.members ? auth.members.all() : []), jobs: Array.isArray(jobs) ? jobs : [] });
+    try { window.dispatchEvent(new StorageEvent('storage', { key: 'ichi_members' })); } catch (e) {}
+  }
+
+  _fmt(s) {
+    if (!s) return '—';
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s);
+    return m ? (m[1] + '.' + m[2] + '.' + m[3]) : s;
+  }
+
+  _withdraw(mem) {
+    var auth = window.ICHIAuth; if (!auth) return;
+    var self = this;
+    auth.confirm({
+      title: '회원 탈퇴 처리',
+      body: '해당 회원을 탈퇴 처리하시겠습니까?\n탈퇴 처리된 회원은 로그인할 수 없습니다.',
+      confirmText: '탈퇴 처리',
+      danger: true,
+      onConfirm: function () {
+        auth.members.setStatus(mem.id, '탈퇴');
+        var me = auth.getUser() || {};
+        if (me.id === mem.id) { auth.logout(); window.location.href = 'ICHI Site.dc.html'; return; }
+        self.setState({ detail: null });
+        self._load();
+        auth.toast(mem.name + ' 회원이 탈퇴 처리되었습니다.');
+      }
+    });
+  }
+
+  _delJob(job) {
+    var auth = window.ICHIAuth;
+    var self = this;
+    var run = function () {
+      var arr = (self.state.jobs || []).filter(function (x) { return x.id !== job.id; });
+      try { localStorage.setItem('ichi_jobs', JSON.stringify(arr)); } catch (e) {}
+      self.setState({ jobs: arr });
+      if (auth) auth.toast('채용공고가 삭제되었습니다.');
+    };
+    if (auth) auth.confirm({ title: '채용공고 삭제', body: '해당 공고를 삭제하시겠습니까?', confirmText: '삭제', danger: true, onConfirm: run });
+    else run();
+  }
+
+  renderVals() {
+    var self = this;
+    var all = this.state.members || [];
+    var q = (this.state.q || '').trim().toLowerCase();
+    var f = this.state.filter;
+    var filtered = all.filter(function (m) {
+      if (f !== '전체' && (m.status || '정상') !== f) return false;
+      if (!q) return true;
+      return [m.name, m.id, m.phone, m.email].some(function (v) {
+        return String(v || '').toLowerCase().replace(/-/g, '').indexOf(q.replace(/-/g, '')) !== -1;
+      });
+    });
+    var members = filtered.map(function (m, i) {
+      var out = (m.status || '정상') === '탈퇴';
+      return {
+        no: String(i + 1).padStart(2, '0'),
+        name: m.name || '—',
+        id: m.id || '—',
+        birth: self._fmt(m.birth),
+        blood: m.blood || '—',
+        phone: m.phone || '—',
+        email: m.email || '—',
+        joinDate: self._fmt(m.joinDate),
+        status: out ? '탈퇴' : '정상',
+        badgeClass: out ? 'out' : 'ok',
+        rowClass: out ? 'out' : '',
+        outAlready: out,
+        actLabel: out ? '탈퇴됨' : '탈퇴',
+        open: function () { self.setState({ detail: m }); },
+        withdraw: function (e) { e.stopPropagation(); self._withdraw(m); }
+      };
+    });
+
+    var jobs = (this.state.jobs || []).map(function (j, i) {
+      var open = (j.status || 'open') === 'open';
+      return {
+        no: String(i + 1).padStart(2, '0'),
+        title: j.title || '—',
+        field: j.field || '—',
+        date: j.date || '—',
+        statusLabel: open ? '진행중' : '마감',
+        badgeClass: open ? 'ok' : 'out',
+        href: 'Careers.dc.html?job=' + encodeURIComponent(j.id),
+        editHref: 'Careers.dc.html?edit=' + encodeURIComponent(j.id),
+        del: function (e) { e.preventDefault(); self._delJob(j); }
+      };
+    });
+
+    var d = this.state.detail;
+    var dOut = !!d && (d.status || '정상') === '탈퇴';
+
+    return {
+      tabMembers: this.state.tab === 'members' ? 'on' : '',
+      tabJobs: this.state.tab === 'jobs' ? 'on' : '',
+      onMembers: this.state.tab === 'members',
+      onJobs: this.state.tab === 'jobs',
+      showMembers: function () { self.setState({ tab: 'members' }); },
+      showJobs: function () { self.setState({ tab: 'jobs' }); },
+      onSearch: function (e) { self.setState({ q: e.target.value }); },
+      filterAll: function () { self.setState({ filter: '전체' }); },
+      filterActive: function () { self.setState({ filter: '정상' }); },
+      filterOut: function () { self.setState({ filter: '탈퇴' }); },
+      chipAll: f === '전체' ? 'on' : '',
+      chipActive: f === '정상' ? 'on' : '',
+      chipOut: f === '탈퇴' ? 'on' : '',
+      total: all.length,
+      countActive: all.filter(function (m) { return (m.status || '정상') !== '탈퇴'; }).length,
+      countOut: all.filter(function (m) { return m.status === '탈퇴'; }).length,
+      members: members,
+      empty: members.length === 0,
+      jobs: jobs,
+      jobTotal: jobs.length,
+      jobsEmpty: jobs.length === 0,
+      hasDetail: !!d,
+      detailName: d ? (d.name || '—') : '',
+      detailId: d ? (d.id || '—') : '',
+      detailBirth: d ? this._fmt(d.birth) : '',
+      detailGender: d ? (d.gender || '—') : '',
+      detailBlood: d ? (d.blood || '—') : '',
+      detailPhone: d ? (d.phone || '—') : '',
+      detailEmail: d ? (d.email || '—') : '',
+      detailJoin: d ? this._fmt(d.joinDate) : '',
+      detailStatus: d ? (dOut ? '탈퇴' : '정상') : '',
+      detailOut: dOut,
+      detailActLabel: dOut ? '탈퇴 처리됨' : '탈퇴 처리',
+      detailWithdraw: function () { if (d) self._withdraw(d); },
+      closeDetail: function () { self.setState({ detail: null }); },
+      stop: function (e) { e.stopPropagation(); }
+    };
+  }
+}
+</script>
+</body>
+</html>

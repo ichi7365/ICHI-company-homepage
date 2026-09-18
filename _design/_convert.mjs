@@ -25,6 +25,7 @@ const ROUTES = {
   'mypage.dc.html': 'mypage',
   'Terms.dc.html': 'terms',
   'Privacy.dc.html': 'privacy',
+  'Admin.dc.html': 'admin',
 };
 const HREF = Object.fromEntries(Object.entries(ROUTES).map(([f, r]) => [f, '/' + r]));
 

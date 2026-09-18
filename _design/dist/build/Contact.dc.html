@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>문의하기 | ICHI</title>
+<meta name="description" content="반도체 물류자동화 엔지니어링 관련 문의를 남겨주시면 담당자가 신속하게 연락드립니다.">
+<link rel="canonical" href="https://www.ichi.kr/Contact.dc.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="㈜이치 ICHI">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:title" content="문의하기 | ICHI">
+<meta property="og:description" content="반도체 물류자동화 엔지니어링 관련 문의를 남겨주시면 담당자가 신속하게 연락드립니다.">
+<meta property="og:url" content="https://www.ichi.kr/Contact.dc.html">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="문의하기 | ICHI">
+<meta name="twitter:description" content="반도체 물류자동화 엔지니어링 관련 문의를 남겨주시면 담당자가 신속하게 연락드립니다.">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="crossorigin">
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="styles.css">
+<script src="./support.js"></script>
+<script src="./auth.js"></script>
+<script src="./common.js"></script>
+</head>
+<body class="subpage">
+<x-dc>
+<helmet>
+<script src="./nav-bridge.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="crossorigin">
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="styles.css">
+<script>document.documentElement.classList.add('js-reveal');</script>
+</helmet>
+<dc-import name="SiteNav" hint-size="100%,72px"></dc-import>
+
+<div class="nav-spacer"></div>
+
+<!-- ====================== CONTACT ====================== -->
+<section class="pad" id="contact" data-screen-label="Contact">
+  <div class="contact-wrap">
+    <div class="reveal">
+      <div class="section-eye">
+        <span class="eye-mono">Contact</span>
+        <div class="eye-dash"></div>
+      </div>
+      <h2 class="section-h2">함께<br>시작하세요</h2>
+      <p class="section-p">반도체 물류자동화 설비 · 채용 · 협력 제안 등 모든 문의를 환영합니다.<br>
+영업일 기준 24시간 이내 답변드립니다.</p>
+
+      <div class="contact-info">
+        <div class="ci-row">
+          <div class="iconbox">
+            <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          </div>
+          <div class="text">
+            <span class="lbl">ADDRESS</span>
+            <span class="val">경기도 화성시 동탄첨단산업1로 27 IX 타워 B동 2637호, 2638호</span>
+          </div>
+        </div>
+        <div class="ci-row">
+          <div class="iconbox">
+            <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.63 19.79 19.79 0 01.18 4.13 2 2 0 012.18 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.91 9.91a16 16 0 006.16 6.16l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"></path></svg>
+          </div>
+          <div class="text">
+            <span class="lbl">PHONE</span>
+            <span class="val">031-8003-7365</span>
+          </div>
+        </div>
+        <div class="ci-row">
+          <div class="iconbox">
+            <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"></rect><polyline points="22,6 12,13 2,6"></polyline></svg>
+          </div>
+          <div class="text">
+            <span class="lbl">EMAIL</span>
+            <span class="val">ichi@ichi.kr</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="contact-form-col reveal" style="transition-delay:.15s; align-self: end">
+    <form class="form {{ formStateClass }}" id="contact-form" onSubmit="{{ onFormSubmit }}">
+      <div class="fg-row">
+        <div class="fg" data-field="company">
+          <label class="fl">Company <span class="ko">· 회사명</span></label>
+          <input type="text" class="fi" name="company" placeholder="회사명을 입력해 주세요">
+          <div class="fg-alert"></div>
+        </div>
+        <div class="fg" data-field="name">
+          <label class="fl">Name <span class="ko">· 담당자</span></label>
+          <input type="text" class="fi" name="name" placeholder="담당자명">
+          <div class="fg-alert"></div>
+        </div>
+      </div>
+      <div class="fg" data-field="email">
+        <label class="fl">Email</label>
+        <input type="email" class="fi" name="email" placeholder="answer@example.com">
+        <div class="fg-alert"></div>
+      </div>
+      <div class="fg" data-field="service">
+        <label class="fl">Service <span class="ko">· 문의 유형</span></label>
+        <select class="fi" name="service">
+          <option value="" disabled="" selected="">문의 유형을 선택해 주세요</option>
+          <option>반도체 엔지니어링 서비스</option>
+          <option>테크니컬 통역 / 번역</option>
+          <option>채용문의</option>
+          <option>협력업체 등록 / 제휴</option>
+          <option>기타 문의</option>
+        </select>
+        <div class="fg-alert"></div>
+      </div>
+      <div class="fg" data-field="message">
+        <label class="fl">Message <span class="ko">· 내용</span></label>
+        <textarea class="fi fi-ta" name="message" placeholder="프로젝트나 문의 내용을 자유롭게 작성해 주세요"></textarea>
+        <div class="fg-alert"></div>
+      </div>
+      <button type="submit" class="btn-submit" style="margin-top:8px">
+        Send Message
+        <span class="arrow">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="6" x2="10" y2="6"></line><polyline points="6,2 10,6 6,10"></polyline></svg>
+        </span>
+      </button>
+    </form>
+
+    <div class="form-success {{ successStateClass }}" role="status" aria-live="polite">
+      <div class="fs-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
+      </div>
+      <h3 class="fs-title">문의가 정상적으로 접수되었습니다.</h3>
+      <p class="fs-desc">담당자가 확인 후 연락드리겠습니다.</p>
+      <button type="button" class="fs-again" onClick="{{ resetForm }}">새 문의 작성하기</button>
+    </div>
+    </div>
+  </div>
+</section>
+
+<dc-import name="SiteFooter" hint-size="100%,320px"></dc-import>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;contactEmail&quot;: {&quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;ichi@ichi.kr&quot;, &quot;section&quot;: &quot;문의&quot;, &quot;tsType&quot;: &quot;string&quot;}}">
+class Component extends DCLogic {
+  state = { menuOpen: false, submitted: false };
+  componentDidMount() {
+    const form = document.getElementById('contact-form');
+    if (form) {
+      this._clearErr = (e) => {
+        const fg = e.target.closest && e.target.closest('.fg');
+        if (fg) fg.classList.remove('has-error');
+      };
+      form.addEventListener('input', this._clearErr);
+      form.addEventListener('change', this._clearErr);
+    }
+  }
+  componentWillUnmount() {
+  }
+  renderVals() {
+    return {
+      formStateClass: this.state.submitted ? 'is-sent' : '',
+      successStateClass: this.state.submitted ? 'show' : '',
+      resetForm: () => {
+        const form = document.getElementById('contact-form');
+        if (form) form.reset();
+        this.setState({ submitted: false });
+      },
+      onFormSubmit: (e) => {
+        e.preventDefault();
+        const form = document.getElementById('contact-form');
+        if (!form) return;
+        const val = (n) => ((form.querySelector('[name="' + n + '"]') || {}).value || '').trim();
+        const setErr = (field, msg) => {
+          const fg = form.querySelector('.fg[data-field="' + field + '"]');
+          if (!fg) return;
+          fg.classList.add('has-error');
+          const a = fg.querySelector('.fg-alert');
+          if (a) a.textContent = msg;
+        };
+        form.querySelectorAll('.fg.has-error').forEach((fg) => fg.classList.remove('has-error'));
+        const rules = [
+          ['company', !val('company'), '회사명을 입력해주세요.'],
+          ['name', !val('name'), '담당자명을 입력해주세요.'],
+          ['email', !val('email'), '이메일을 입력해주세요.'],
+          ['email', !!val('email') && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val('email')), '올바른 이메일 형식을 입력해주세요.'],
+          ['service', !val('service'), '문의 유형을 선택해주세요.'],
+          ['message', !val('message'), '문의 내용을 입력해주세요.'],
+        ];
+        let firstBad = null;
+        for (const [field, bad, msg] of rules) {
+          if (bad) {
+            setErr(field, msg);
+            if (!firstBad) firstBad = form.querySelector('.fg[data-field="' + field + '"] .fi');
+          }
+        }
+        if (firstBad) { firstBad.focus({ preventScroll: true }); return; }
+        this.setState({ submitted: true });
+        form.reset();
+      },
+    };
+  }
+}
+</script>
+</body>
+</html>

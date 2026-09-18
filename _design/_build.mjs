@@ -17,6 +17,7 @@ const ROUTES = {
   'mypage.dc.html': 'mypage',
   'Terms.dc.html': 'terms',
   'Privacy.dc.html': 'privacy',
+  'Admin.dc.html': 'admin',
 };
 
 const indent = (s, n) => s.split('\n').map(l => (l.trim() ? ' '.repeat(n) + l : l)).join('\n');
@@ -117,6 +118,22 @@ function patchLoginMethod(route, body) {
     return out;
   }
 
+  if (route === 'admin') {
+    /* 시안은 아이디 로그인 시절 기준이라 DB 에 없는 칸이 있습니다.
+       - 아이디 : 이메일 로그인(A안)으로 바꾸면서 없앤 항목
+       - 혈액형 : 회원가입에서 받지 않는 항목
+       채용공고 작성 버튼은 시안 링크 대신 실제 라우트로 보냅니다. */
+    return body
+      .replace(/\s*<span>아이디<\/span>/, '')
+      .replace(/\s*<span>혈액형<\/span>/, '')
+      .replace(/\s*<span className="adm-mono">\{m\.id\}<\/span>/, '')
+      .replace(/\s*<span className="adm-dim">\{m\.blood\}<\/span>/, '')
+      .replace('이름 · 아이디 · 전화번호 · 이메일로 검색', '이름 · 전화번호 · 이메일로 검색')
+      .replace('href="Careers.dc.html?write=1"', 'href="/careers?write=1"')
+      .replace(/\s*<div className="mp-info-row"><span className="mp-info-label">아이디 · ID<\/span>[\s\S]*?<\/div>/, '')
+      .replace(/\s*<div className="mp-info-row"><span className="mp-info-label">혈액형 · Blood<\/span>[\s\S]*?<\/div>/, '');
+  }
+
   if (route === 'contact') {
     /* 허니팟 — 사람에게는 보이지 않고 봇만 채우는 칸.
        값이 들어오면 Edge Function 이 스팸으로 판단합니다. */
@@ -190,6 +207,8 @@ for (const [file, route] of Object.entries(ROUTES)) {
     `export const metadata: Metadata = {`,
     `  title: ${JSON.stringify(title)},`,
     desc ? `  description: ${JSON.stringify(desc)},` : '',
+    /* 관리자 페이지는 검색엔진에 노출되면 안 됩니다 */
+    route === 'admin' ? '  robots: { index: false, follow: false },' : '',
     `};`,
     ``,
     `export default function Layout({ children }: { children: React.ReactNode }) {`,
