@@ -2,9 +2,8 @@
 
 /* 로그인 상태 · 확인모달 · 토스트를 화면 전체에 제공합니다.
  *
- * 실제 인증/저장은 lib/repo/auth.ts 가 담당합니다.
- * Supabase 환경변수가 없으면 repo 쪽이 자동으로 localStorage 로 동작하므로,
- * 이 파일은 어느 쪽이든 신경 쓰지 않습니다. */
+ * 실제 인증/저장은 lib/repo/auth.ts → Cloudflare Worker 가 담당합니다.
+ * 로그인 세션은 HttpOnly 쿠키라 이 파일에서는 다루지 않고, /api/auth/me 로 상태만 확인합니다. */
 
 import {
   createContext,
@@ -16,7 +15,6 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import * as auth from '@/lib/repo/auth';
 import type { Profile } from '@/types/database';
 
@@ -60,6 +58,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [toastOn, setToastOn] = useState(false);
   const [modal, setModal] = useState<ConfirmOptions | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /* 다른 탭에 로그인 · 로그아웃을 알리는 통로 */
+  const channel = useRef<BroadcastChannel | null>(null);
 
   const refresh = useCallback(async () => {
     try {
@@ -79,26 +79,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (alive) setReady(true);
     })();
 
-    /* Supabase 사용 시: 로그인/로그아웃/토큰갱신에 반응 */
-    if (isSupabaseConfigured) {
-      const { data } = supabase.auth.onAuthStateChange((event) => {
-        if (event === 'SIGNED_OUT') setUser(null);
-        else void refresh();
-      });
-      return () => {
-        alive = false;
-        data.subscription.unsubscribe();
-      };
+    /* 다른 탭에서 로그인 · 로그아웃하면 다시 확인 */
+    try {
+      channel.current = new BroadcastChannel('ichi_auth');
+      channel.current.onmessage = () => void refresh();
+    } catch {
+      /* BroadcastChannel 미지원 브라우저 — 새로고침하면 반영됩니다 */
     }
-
-    /* 폴백 사용 시: 다른 탭에서의 변경 감지 */
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === 'ichi_auth') void refresh();
-    };
-    window.addEventListener('storage', onStorage);
     return () => {
       alive = false;
-      window.removeEventListener('storage', onStorage);
+      channel.current?.close();
+      channel.current = null;
     };
   }, [refresh]);
 
@@ -139,8 +130,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => document.removeEventListener('keydown', onKey);
   }, [modal]);
 
-  const value = useMemo<AuthValue>(
-    () => ({
+  const value = useMemo<AuthValue>(() => {
+    const announce = () => channel.current?.postMessage('changed');
+
+    return {
       ready,
       user,
       isLoggedIn: !!user,
@@ -149,18 +142,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signIn: async (email, password) => {
         const profile = await auth.signIn(email, password);
         setUser(profile);
+        announce();
         return profile;
       },
 
       signUp: async (input) => {
         const profile = await auth.signUp(input);
         setUser(profile);
+        announce();
         return profile;
       },
 
       signOut: async () => {
         await auth.signOut();
         setUser(null);
+        announce();
       },
 
       updateProfile: async (patch) => {
@@ -172,6 +168,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       withdraw: async () => {
         await auth.withdraw();
         setUser(null);
+        announce();
       },
 
       refresh,
@@ -184,9 +181,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       },
       confirm: (opts: ConfirmOptions) => setModal(opts),
-    }),
-    [ready, user, refresh, toast]
-  );
+    };
+  }, [ready, user, refresh, toast]);
 
   const closeModal = () => setModal(null);
 

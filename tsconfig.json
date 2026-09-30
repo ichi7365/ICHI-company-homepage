@@ -26,6 +26,7 @@
     "node_modules",
     "out",
     "_design",
-    "supabase/functions"
+    "supabase/functions",
+    "worker"
   ]
 }

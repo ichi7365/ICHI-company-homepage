@@ -1,0 +1,16 @@
+{
+  /* Worker 전용 타입 검사 설정 — npm run check:worker
+     Cloudflare 런타임 타입은 npm run cf-typegen 이 worker/worker-configuration.d.ts 로 만듭니다. */
+  "compilerOptions": {
+    "target": "es2022",
+    "lib": ["es2023"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "types": []
+  },
+  "include": ["./**/*.ts"]
+}

@@ -4,9 +4,15 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:api": "wrangler dev --port 8787",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "preview": "next build && wrangler dev --port 8787",
+    "db:migrate:local": "wrangler d1 migrations apply ichi-homepage-db --local",
+    "db:migrate:remote": "wrangler d1 migrations apply ichi-homepage-db --remote",
+    "cf-typegen": "wrangler types worker/worker-configuration.d.ts --include-env=false",
+    "check:worker": "wrangler types worker/worker-configuration.d.ts --include-env=false && tsc -p worker/tsconfig.json"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.3",

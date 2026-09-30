@@ -2,16 +2,14 @@
 
 /* 인증 — 이메일 + 비밀번호 방식(A안).
  *
- * Supabase Auth 의 기본 방식을 그대로 씁니다. 별도 매핑이 없어서
- * 비밀번호 재설정 메일, 이메일 확인 같은 기본 기능이 전부 정상 동작합니다.
+ * Cloudflare Worker(worker/routes/auth.ts) 를 호출합니다.
+ * 로그인하면 서버가 HttpOnly 쿠키로 세션을 내려주므로, 브라우저 쪽에서는
+ * 토큰을 따로 저장하지 않습니다.
  *
- * Supabase 미설정 시에는 기존 localStorage 동작을 그대로 씁니다. */
+ * 함수 이름 · 인자 · 반환값은 Supabase 시절과 같아서 화면 코드는 그대로입니다. */
 
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { api } from '@/lib/api';
 import type { Gender, Profile } from '@/types/database';
-
-const AUTH_KEY = 'ichi_auth';
-const PROFILE_KEY = 'ichi_profile';
 
 /** 마이페이지에서 고칠 수 있는 항목 (id 는 변경 불가) */
 export type ProfilePatch = Partial<Omit<Profile, 'id' | 'created_at' | 'updated_at'>>;
@@ -25,125 +23,20 @@ export type SignUpInput = {
   gender?: Gender;
 };
 
-/* ---------- localStorage 폴백 ---------- */
+type UserRes = { user: Profile };
 
-const readLocal = (key: string) => {
-  try {
-    return JSON.parse(localStorage.getItem(key) || 'null');
-  } catch {
-    return null;
-  }
-};
+const mail = (email: string) => email.trim().toLowerCase();
 
-const writeLocal = (key: string, value: unknown) => {
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch {
-    /* 저장 실패 무시 */
-  }
-};
-
-const localProfile = (email: string): Profile => {
-  const saved = readLocal(PROFILE_KEY) || {};
-  return {
-    id: email,
-    name: saved.name || '회원',
-    email,
-    phone: saved.phone || null,
-    birth: saved.birth || null,
-    gender: saved.gender || null,
-    role: 'user',
-    status: '정상',
-    join_date: saved.joinDate || new Date().toISOString().slice(0, 10),
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  };
-};
-
-/* ---------- 공개 API ---------- */
-
-/** 회원가입 — 계정 생성 후 profiles 행을 만듭니다.
- *  이미 가입된 이메일이면 Supabase 가 오류를 돌려줍니다. */
+/** 회원가입 — 이메일 인증을 마쳐야 가입되므로 completeSignUp 과 같습니다 */
 export async function signUp(input: SignUpInput): Promise<Profile> {
-  const email = input.email.trim().toLowerCase();
-
-  if (!isSupabaseConfigured) {
-    writeLocal(PROFILE_KEY, {
-      name: input.name,
-      birth: input.birth ?? '',
-      gender: input.gender ?? '',
-      phone: input.phone ?? '',
-      email,
-      joinDate: new Date().toISOString().slice(0, 10),
-    });
-    return localProfile(email);
-  }
-
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password: input.password,
-    /* 이메일 확인이 켜져 있으면 이 시점에 profiles 행을 만들 수 없습니다.
-       확인 링크를 누른 뒤 첫 로그인 때 복원할 수 있도록 메타데이터에 담아둡니다. */
-    options: {
-      data: {
-        name: input.name,
-        phone: input.phone ?? null,
-        birth: input.birth || null,
-        gender: input.gender ?? null,
-      },
-    },
-  });
-  if (error) {
-    if (/already/i.test(error.message)) throw new Error('이미 가입된 이메일입니다.');
-    throw new Error('회원가입에 실패했습니다: ' + error.message);
-  }
-
-  const user = data.user;
-  if (!user) throw new Error('회원가입에 실패했습니다: 계정 정보를 받지 못했습니다.');
-
-  /* 이메일 확인이 켜져 있으면 세션이 없어 지금은 profiles 를 만들 수 없습니다.
-     확인 링크를 누르고 로그인하면 getCurrentProfile() 이 메타데이터로 만들어 줍니다. */
-  if (!data.session) return localProfile(email);
-
-  const { data: profile, error: profileError } = await supabase
-    .from('profiles')
-    .insert({
-      id: user.id,
-      name: input.name,
-      email,
-      phone: input.phone ?? null,
-      birth: input.birth || null,
-      gender: input.gender ?? null,
-    })
-    .select()
-    .single();
-
-  if (profileError) throw new Error('회원정보 저장에 실패했습니다: ' + profileError.message);
-  return profile;
+  return completeSignUp(input);
 }
 
 /* ---------- 이메일 인증 (회원가입 시) ---------- */
 
 /** 인증번호 발송 — 입력한 이메일로 6자리 코드를 보냅니다 */
 export async function sendEmailCode(email: string): Promise<void> {
-  const mail = email.trim().toLowerCase();
-
-  if (!isSupabaseConfigured) {
-    console.info('[auth] Supabase 미설정 — 인증번호 발송을 건너뜁니다.');
-    return;
-  }
-
-  const { error } = await supabase.auth.signInWithOtp({
-    email: mail,
-    options: { shouldCreateUser: true },
-  });
-
-  if (error) {
-    if (/rate|limit|seconds/i.test(error.message)) {
-      throw new Error('인증번호를 너무 자주 요청했습니다. 잠시 후 다시 시도해 주세요.');
-    }
-    throw new Error('인증번호 발송에 실패했습니다: ' + error.message);
-  }
+  await api('/api/auth/email-code', { method: 'POST', body: { email: mail(email) } });
 }
 
 /** 인증번호 확인 — 성공하면 이미 가입된 계정인지 함께 알려줍니다 */
@@ -151,221 +44,73 @@ export async function verifyEmailCode(
   email: string,
   code: string
 ): Promise<{ alreadyRegistered: boolean }> {
-  const mail = email.trim().toLowerCase();
-
-  if (!isSupabaseConfigured) return { alreadyRegistered: false };
-
-  const { data, error } = await supabase.auth.verifyOtp({
-    email: mail,
-    token: code.trim(),
-    type: 'email',
+  return api('/api/auth/email-code/verify', {
+    method: 'POST',
+    body: { email: mail(email), code: code.trim() },
   });
-
-  if (error) throw new Error('인증번호가 일치하지 않습니다.');
-  if (!data.user) throw new Error('인증에 실패했습니다. 다시 시도해 주세요.');
-
-  /* verifyOtp 직후에는 클라이언트에 세션이 아직 반영되지 않을 수 있습니다.
-     그 상태로 조회하면 RLS 에 막혀 "회원정보 없음" 으로 잘못 판단합니다. */
-  await supabase.auth.getSession();
-
-  const { data: existing, error: lookupError } = await supabase
-    .from('profiles')
-    .select('id')
-    .eq('id', data.user.id)
-    .maybeSingle();
-
-  if (lookupError) {
-    /* 조회 자체가 실패하면 중복 여부를 알 수 없습니다.
-       가입을 막지는 않고, 실제 저장 단계에서 다시 걸러집니다. */
-    console.warn('[auth] 기존 회원정보 확인 실패', lookupError.message);
-    return { alreadyRegistered: false };
-  }
-
-  return { alreadyRegistered: !!existing };
 }
 
-/** 이메일 인증을 마친 뒤 비밀번호와 회원정보를 저장해 가입을 완료합니다 */
+/** 이메일 인증을 마친 뒤 비밀번호와 회원정보를 저장해 가입을 완료합니다 (가입 즉시 로그인됨) */
 export async function completeSignUp(input: SignUpInput): Promise<Profile> {
-  const email = input.email.trim().toLowerCase();
-
-  if (!isSupabaseConfigured) {
-    writeLocal(PROFILE_KEY, {
+  const { user } = await api<UserRes>('/api/auth/signup', {
+    method: 'POST',
+    body: {
+      email: mail(input.email),
+      password: input.password,
       name: input.name,
-      birth: input.birth ?? '',
-      gender: input.gender ?? '',
-      phone: input.phone ?? '',
-      email,
-      joinDate: new Date().toISOString().slice(0, 10),
-    });
-    return localProfile(email);
-  }
-
-  const { data: session } = await supabase.auth.getUser();
-  const user = session.user;
-  if (!user) throw new Error('이메일 인증이 완료되지 않았습니다. 인증번호를 다시 확인해 주세요.');
-
-  /* 인증만 마친 계정에 비밀번호를 설정합니다 */
-  const { error: pwError } = await supabase.auth.updateUser({ password: input.password });
-  if (pwError) throw new Error('비밀번호 설정에 실패했습니다: ' + pwError.message);
-
-  /* upsert — 인증만 마치고 중단했던 계정이 남아 있어도 덮어써서 이어갑니다.
-     이미 가입을 끝낸 계정은 verifyEmailCode 단계에서 걸러집니다. */
-  const { data: profile, error } = await supabase
-    .from('profiles')
-    .upsert(
-      {
-        id: user.id,
-        name: input.name,
-        email,
-        phone: input.phone ?? null,
-        birth: input.birth || null,
-        gender: input.gender ?? null,
-      },
-      { onConflict: 'id' }
-    )
-    .select()
-    .single();
-
-  if (error) {
-    /* 23505 = unique 제약 위반. 이미 가입된 계정입니다. */
-    if (error.code === '23505' || /duplicate key/i.test(error.message)) {
-      throw new Error('이미 가입된 이메일입니다. 로그인해 주세요.');
-    }
-    throw new Error('회원정보 저장에 실패했습니다: ' + error.message);
-  }
-  return profile;
+      phone: input.phone ?? null,
+      birth: input.birth || null,
+      gender: input.gender ?? null,
+    },
+  });
+  return user;
 }
 
 /** 로그인 */
 export async function signIn(email: string, password: string): Promise<Profile> {
-  const mail = email.trim().toLowerCase();
-
-  if (!isSupabaseConfigured) {
-    const profile = localProfile(mail);
-    writeLocal(AUTH_KEY, { ...profile, loggedIn: true, at: Date.now() });
-    return profile;
-  }
-
-  const { error } = await supabase.auth.signInWithPassword({ email: mail, password });
-  /* 계정 존재 여부를 알 수 없도록 실패 사유를 구분하지 않습니다 */
-  if (error) throw new Error('이메일 또는 비밀번호가 올바르지 않습니다.');
-
-  const profile = await getCurrentProfile();
-  if (!profile) throw new Error('회원정보를 불러오지 못했습니다.');
-  return profile;
+  const { user } = await api<UserRes>('/api/auth/login', {
+    method: 'POST',
+    body: { email: mail(email), password },
+  });
+  return user;
 }
 
 /** 로그아웃 */
 export async function signOut(): Promise<void> {
-  if (!isSupabaseConfigured) {
-    try {
-      localStorage.removeItem(AUTH_KEY);
-    } catch {
-      /* 무시 */
-    }
-    return;
-  }
-  const { error } = await supabase.auth.signOut();
-  if (error) throw new Error('로그아웃에 실패했습니다: ' + error.message);
+  await api('/api/auth/logout', { method: 'POST' });
 }
 
-/** 비밀번호 재설정 메일 발송 — 이메일 로그인이라 기본 기능을 그대로 씁니다 */
+/** 비밀번호 재설정 인증번호 발송 — 가입하지 않은 이메일이어도 같은 응답입니다 */
 export async function sendPasswordReset(email: string): Promise<void> {
-  if (!isSupabaseConfigured) return;
+  await api('/api/auth/password-reset', { method: 'POST', body: { email: mail(email) } });
+}
 
-  const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
-    redirectTo: `${window.location.origin}/login`,
+/** 비밀번호 재설정 — 메일로 받은 인증번호와 새 비밀번호 */
+export async function resetPassword(email: string, code: string, password: string): Promise<void> {
+  await api('/api/auth/password-reset/confirm', {
+    method: 'POST',
+    body: { email: mail(email), code: code.trim(), password },
   });
-  if (error) throw new Error('메일 발송에 실패했습니다: ' + error.message);
 }
 
 /** 현재 로그인한 회원 정보 (없으면 null) */
 export async function getCurrentProfile(): Promise<Profile | null> {
-  if (!isSupabaseConfigured) {
-    const saved = readLocal(AUTH_KEY);
-    return saved ? localProfile(saved.email || '') : null;
-  }
-
-  const { data: session } = await supabase.auth.getUser();
-  const user = session.user;
-  if (!user) return null;
-
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .maybeSingle();
-
-  if (error) throw new Error('회원정보를 불러오지 못했습니다: ' + error.message);
-
-  /* 행이 없으면 아직 가입을 끝내지 않은 계정입니다.
-     예전에는 여기서 자동으로 만들었는데, 회원가입 도중 인증만 마친 시점에도
-     행이 생겨 정작 가입 단계에서 "이미 가입된 이메일" 로 막히는 문제가 있었습니다.
-     생성은 completeSignUp 한 곳에서만 합니다. */
-  return data;
+  const { user } = await api<{ user: Profile | null }>('/api/auth/me');
+  return user;
 }
 
-/** 회원정보 수정 (마이페이지) */
+/** 회원정보 수정 (마이페이지) — 이름 · 연락처 · 생년월일 · 성별만 반영됩니다 */
 export async function updateProfile(patch: ProfilePatch): Promise<Profile> {
-  if (!isSupabaseConfigured) {
-    const saved = readLocal(PROFILE_KEY) || {};
-    writeLocal(PROFILE_KEY, { ...saved, ...patch });
-    const auth = readLocal(AUTH_KEY) || {};
-    writeLocal(AUTH_KEY, { ...auth, ...patch });
-    return { ...localProfile(auth.email || ''), ...patch } as Profile;
-  }
-
-  const { data: session } = await supabase.auth.getUser();
-  if (!session.user) throw new Error('로그인이 필요합니다.');
-
-  const { data, error } = await supabase
-    .from('profiles')
-    .update(patch)
-    .eq('id', session.user.id)
-    .select()
-    .single();
-
-  if (error) throw new Error('회원정보 수정에 실패했습니다: ' + error.message);
-  return data;
+  const { user } = await api<UserRes>('/api/me', { method: 'PATCH', body: patch });
+  return user;
 }
 
 /** 비밀번호 변경 (마이페이지) */
 export async function changePassword(current: string, next: string): Promise<void> {
-  if (!isSupabaseConfigured) return;
-
-  const { data: session } = await supabase.auth.getUser();
-  const email = session.user?.email;
-  if (!email) throw new Error('로그인이 필요합니다.');
-
-  /* 현재 비밀번호 확인 — 틀리면 여기서 걸립니다 */
-  const { error: verifyError } = await supabase.auth.signInWithPassword({
-    email,
-    password: current,
-  });
-  if (verifyError) throw new Error('현재 비밀번호가 올바르지 않습니다.');
-
-  const { error } = await supabase.auth.updateUser({ password: next });
-  if (error) throw new Error('비밀번호 변경에 실패했습니다: ' + error.message);
+  await api('/api/me/password', { method: 'POST', body: { current, next } });
 }
 
-/** 회원탈퇴
- *  auth.users 삭제는 service_role 권한이 필요해 브라우저에서 못 합니다.
- *  TODO(백엔드2): Supabase Edge Function 으로 계정까지 삭제 처리 */
+/** 회원탈퇴 — 계정과 로그인 세션을 모두 삭제합니다 */
 export async function withdraw(): Promise<void> {
-  if (!isSupabaseConfigured) {
-    try {
-      localStorage.removeItem(AUTH_KEY);
-      localStorage.removeItem(PROFILE_KEY);
-    } catch {
-      /* 무시 */
-    }
-    return;
-  }
-
-  const { data: session } = await supabase.auth.getUser();
-  if (!session.user) throw new Error('로그인이 필요합니다.');
-
-  const { error } = await supabase.from('profiles').delete().eq('id', session.user.id);
-  if (error) throw new Error('회원탈퇴에 실패했습니다: ' + error.message);
-  await signOut();
+  await api('/api/me', { method: 'DELETE' });
 }

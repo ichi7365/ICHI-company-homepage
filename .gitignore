@@ -40,3 +40,12 @@ src/**/_body.jsx.txt
 
 # 정적 export 결과물
 /out
+
+# Cloudflare 로컬 개발 — 로컬 D1 · R2 데이터, 비밀값, 자동 생성 타입
+/.wrangler/
+.dev.vars*
+!.dev.vars.example
+worker/worker-configuration.d.ts
+
+# 데이터 이관 산출물 — 회원 개인정보가 들어 있으므로 절대 올리지 마세요
+/import/

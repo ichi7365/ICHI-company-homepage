@@ -1,14 +1,11 @@
 'use client';
 
 /* 채용공고 데이터 접근 — 화면(careers/logic.tsx)은 이 파일만 호출합니다.
-   Supabase 환경변수가 설정돼 있으면 DB 를, 없으면 기존 localStorage 를 씁니다.
-   백엔드1이 Supabase 를 붙인 뒤에는 .env.local 만 채우면 자동으로 전환됩니다. */
+   조회는 /api/jobs, 등록 · 수정 · 삭제는 관리자만 /api/admin/jobs 로 갑니다. */
 
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { api } from '@/lib/api';
 import type { JobRow } from '@/types/database';
-import { SEED_JOBS, type Job } from '@/app/careers/seed';
-
-const STORE_KEY = 'ichi_jobs';
+import type { Job } from '@/app/careers/seed';
 
 /* ---------- DB row ↔ 화면에서 쓰는 Job 모양 변환 ---------- */
 
@@ -45,77 +42,40 @@ const toRow = (j: Job) => ({
   posted_on: (j.date || '').replace(/\./g, '-') || undefined,
 });
 
-/* ---------- localStorage 폴백 ---------- */
-
-const readLocal = (): Job[] => {
-  try {
-    const raw = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
-    if (Array.isArray(raw) && raw.length) return raw;
-  } catch {
-    /* 손상된 데이터 무시 */
-  }
-  const seeded: Job[] = JSON.parse(JSON.stringify(SEED_JOBS));
-  writeLocal(seeded);
-  return seeded;
-};
-
-const writeLocal = (jobs: Job[]) => {
-  try {
-    localStorage.setItem(STORE_KEY, JSON.stringify(jobs));
-  } catch {
-    /* 저장 실패 무시 */
-  }
-};
+const fail = (what: string, e: unknown) => new Error(`${what}: ${(e as Error).message}`);
 
 /* ---------- 공개 API ---------- */
 
 export async function listJobs(): Promise<Job[]> {
-  if (!isSupabaseConfigured) return readLocal();
-
-  const { data, error } = await supabase
-    .from('jobs')
-    .select('*')
-    .order('posted_on', { ascending: false });
-
-  if (error) throw new Error('채용공고를 불러오지 못했습니다: ' + error.message);
-  return (data ?? []).map(toJob);
+  try {
+    return (await api<JobRow[]>('/api/jobs')).map(toJob);
+  } catch (e) {
+    throw fail('채용공고를 불러오지 못했습니다', e);
+  }
 }
 
 export async function createJob(job: Job): Promise<Job> {
-  if (!isSupabaseConfigured) {
-    const next = [job, ...readLocal()];
-    writeLocal(next);
-    return job;
+  try {
+    return toJob(await api<JobRow>('/api/admin/jobs', { method: 'POST', body: toRow(job) }));
+  } catch (e) {
+    throw fail('채용공고 등록에 실패했습니다', e);
   }
-
-  const { data, error } = await supabase.from('jobs').insert(toRow(job)).select().single();
-  if (error) throw new Error('채용공고 등록에 실패했습니다: ' + error.message);
-  return toJob(data);
 }
 
 export async function updateJob(job: Job): Promise<Job> {
-  if (!isSupabaseConfigured) {
-    const next = readLocal().map((x) => (x.id === job.id ? job : x));
-    writeLocal(next);
-    return job;
+  try {
+    return toJob(
+      await api<JobRow>(`/api/admin/jobs/${encodeURIComponent(job.id)}`, { method: 'PUT', body: toRow(job) })
+    );
+  } catch (e) {
+    throw fail('채용공고 수정에 실패했습니다', e);
   }
-
-  const { data, error } = await supabase
-    .from('jobs')
-    .update(toRow(job))
-    .eq('id', job.id)
-    .select()
-    .single();
-  if (error) throw new Error('채용공고 수정에 실패했습니다: ' + error.message);
-  return toJob(data);
 }
 
 export async function deleteJob(id: string): Promise<void> {
-  if (!isSupabaseConfigured) {
-    writeLocal(readLocal().filter((x) => x.id !== id));
-    return;
+  try {
+    await api(`/api/admin/jobs/${encodeURIComponent(id)}`, { method: 'DELETE' });
+  } catch (e) {
+    throw fail('채용공고 삭제에 실패했습니다', e);
   }
-
-  const { error } = await supabase.from('jobs').delete().eq('id', id);
-  if (error) throw new Error('채용공고 삭제에 실패했습니다: ' + error.message);
 }

@@ -1,8 +1,9 @@
-/* Supabase 테이블 타입 — supabase/schema.sql 과 짝을 이룹니다.
+/* 테이블 타입 — migrations/0001_init.sql(D1) 과 짝을 이룹니다.
+   API(worker/) 가 돌려주는 모양도 이 타입과 같습니다.
    스키마를 바꾸면 이 파일도 같이 고쳐주세요.
 
-   (선택) Supabase CLI 로 자동 생성도 가능합니다:
-     npx supabase gen types typescript --project-id <프로젝트ID> > src/types/database.ts */
+   아래 Database 타입은 Supabase 클라이언트(src/lib/supabase.ts)용입니다.
+   Supabase 코드를 정리할 때 함께 지우면 됩니다. */
 
 export type Role = 'user' | 'admin';
 export type JobStatus = 'open' | 'closed';
@@ -57,18 +58,42 @@ export type Inquiry = {
   created_at: string;
 };
 
-export type Post = {
+/** 게시판 분류 — notice(공지사항) · news(회사소식) */
+export type PostCategory = 'notice' | 'news';
+
+/** 게시글 이미지 · 첨부파일 (파일은 R2, url 은 /api/files/…) */
+export type PostFile = {
+  key: string;
+  url: string;
+  kind: 'image' | 'attachment';
+  filename: string;
+  mime: string;
+  size: number;
+};
+
+/** 게시글 목록 한 줄 (본문 제외) */
+export type PostSummary = {
   id: string;
-  /** auth.users.id — 기존 테이블이 not null 이라 필수입니다 */
-  author_id: string;
+  category: PostCategory;
   title: string;
-  content: string;
   /** 대표 이미지 (2026-06 기존 설계에서 유지) */
   image_url: string | null;
+  /** 표시용 작성자 */
+  author_name: string | null;
   is_notice: boolean;
+  /** false 면 관리자만 볼 수 있음 */
+  is_published: boolean;
   view_count: number;
   created_at: string;
   updated_at: string;
+};
+
+export type Post = PostSummary & {
+  /** HTML — 화면에 넣을 때 sanitize 필요 */
+  content: string;
+  files: PostFile[];
+  /** Supabase 시절 컬럼 — API 응답에는 없습니다 */
+  author_id?: string | null;
 };
 
 /* insert 시에는 DB 가 채워주는 컬럼을 생략할 수 있습니다 */

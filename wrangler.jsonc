@@ -1,17 +1,54 @@
 {
   // Cloudflare 배포 설정.
-  // next build 가 만든 out/ 폴더를 정적 파일로 서빙합니다.
-  // 서버 코드(main)가 없는 '정적 자산 전용' Worker 입니다.
+  //   /api/*  → worker/index.ts (D1 · R2 에 접근하는 서버 코드)
+  //   그 외   → next build 가 만든 out/ 폴더의 정적 페이지
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "ichi-company-homepage",
   "compatibility_date": "2026-08-19",
+  "main": "worker/index.ts",
 
   "assets": {
     // next.config.mjs 의 output: 'export' 결과물
     "directory": "./out",
+    "binding": "ASSETS",
 
     // 없는 주소로 들어오면 out/404.html 을 보여줍니다
-    "not_found_handling": "404-page"
+    "not_found_handling": "404-page",
+
+    // /api/* 만 Worker 코드를 거칩니다.
+    // 정적 페이지 요청은 Worker 를 실행하지 않아 무료 사용량(하루 10만 요청)에 포함되지 않습니다.
+    "run_worker_first": ["/api/*"]
+  },
+
+  // D1 — 게시판 · 회원 · 채용공고 · 문의 (스키마는 migrations/)
+  //   ⚠️ database_id 는 Cloudflare 대시보드에서 D1 을 만든 뒤 나오는 값으로 바꾸세요.
+  //      로컬 개발(--local)은 이 값과 관계없이 동작합니다.
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ichi-homepage-db",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
+
+  // R2 — 게시글 이미지 · 첨부파일 (버킷은 공개하지 않고 /api/files/ 로만 내려줍니다)
+  "r2_buckets": [
+    {
+      "binding": "FILES",
+      "bucket_name": "ichi-homepage-files"
+    }
+  ],
+
+  // 공개돼도 되는 설정값. 비밀번호 같은 비밀값은 여기 적지 말고
+  // 대시보드 → Settings → Variables and secrets 에 Secret 으로 등록하세요 (worker/env.ts 참고).
+  "vars": {
+    "SMTP_HOST": "smtps.hiworks.com",
+    "SMTP_PORT": "465",
+    // 메일을 보내는 계정 — 하이웍스에서 '외부 메일 프로그램(SMTP) 사용' 이 허용돼 있어야 합니다
+    "SMTP_USER": "web@ichi.kr",
+    // 문의 알림을 받는 주소
+    "INQUIRY_TO": "ichi@ichi.kr"
   },
 
   "observability": {
