@@ -82,9 +82,20 @@ class SmtpSession {
   private buf = '';
   private reader!: ReadableStreamDefaultReader<Uint8Array>;
   private writer!: WritableStreamDefaultWriter<Uint8Array>;
+  private last = Date.now();
 
-  constructor(private socket: Socket) {
+  /** progress — 지금 어느 단계인지 · 단계별 걸린 시간 (실패 · 시간 초과 시 로그에 남깁니다) */
+  constructor(
+    private socket: Socket,
+    private progress: Progress
+  ) {
     this.attach(socket);
+  }
+
+  private done(label: string) {
+    const now = Date.now();
+    this.progress.steps.push(`${label} ${now - this.last}ms`);
+    this.last = now;
   }
 
   private attach(socket: Socket) {
@@ -112,14 +123,18 @@ class SmtpSession {
   /** 명령을 보내고 응답 코드의 첫 자리가 expect 인지 확인합니다.
    *  label 은 오류 메시지에 쓰입니다 — 비밀번호가 로그에 남지 않도록 명령 원문 대신 씁니다. */
   async send(line: string, expect: '2' | '3', label: string): Promise<string> {
+    this.progress.step = label;
     await this.writer.write(enc.encode(line + '\r\n'));
     const reply = await this.read();
+    this.done(label);
     if (reply[0] !== expect) throw new Error(`SMTP ${label} 실패: ${reply.slice(0, 200)}`);
     return reply;
   }
 
   async expectGreeting() {
+    this.progress.step = '접속';
     const reply = await this.read();
+    this.done('접속');
     if (reply[0] !== '2') throw new Error(`SMTP 접속 실패: ${reply.slice(0, 200)}`);
   }
 
@@ -140,7 +155,9 @@ class SmtpSession {
   }
 }
 
-async function deliver(env: Env, mail: Mail) {
+type Progress = { step: string; steps: string[] };
+
+async function deliver(env: Env, mail: Mail, progress: Progress) {
   /* 대시보드에 값을 붙여넣을 때 앞뒤 공백 · 줄바꿈이 섞이기 쉬워 정리합니다 */
   const host = env.SMTP_HOST?.trim();
   const user = env.SMTP_USER?.trim();
@@ -152,7 +169,7 @@ async function deliver(env: Env, mail: Mail) {
     { hostname: host, port },
     { secureTransport: port === 465 ? 'on' : 'starttls', allowHalfOpen: false }
   );
-  const smtp = new SmtpSession(socket);
+  const smtp = new SmtpSession(socket, progress);
 
   try {
     await smtp.expectGreeting();
@@ -181,14 +198,22 @@ export async function sendMail(env: Env, mail: Mail): Promise<void> {
     return;
   }
 
+  const progress: Progress = { step: '접속', steps: [] };
   let timer: ReturnType<typeof setTimeout> | undefined;
   try {
     await Promise.race([
-      deliver(env, mail),
+      deliver(env, mail, progress),
       new Promise<never>((_, reject) => {
-        timer = setTimeout(() => reject(new Error('SMTP 발송 시간 초과 (20초)')), 20_000);
+        timer = setTimeout(
+          () => reject(new Error(`SMTP 발송 시간 초과 (20초) — '${progress.step}' 단계에서 응답 없음`)),
+          20_000
+        );
       }),
     ]);
+  } catch (e) {
+    /* 어느 단계가 얼마나 걸렸는지 — 하이웍스 응답 지연 · 차단 진단용 (비밀번호는 남지 않음) */
+    console.error(`[mail] 실패 단계 기록: ${progress.steps.join(' → ') || '(접속 전)'}`);
+    throw e;
   } finally {
     if (timer) clearTimeout(timer);
   }
