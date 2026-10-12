@@ -45,9 +45,10 @@ function readInput(body: Record<string, unknown>) {
     throw new HttpError(400, '대표 이미지는 업로드한 파일만 지정할 수 있습니다.');
   }
 
+  /* 본문 이미지 + 첨부파일 — 옛 갤러리 글은 이미지가 10장을 넘기도 합니다 */
   const keys = body.file_keys ?? [];
-  if (!Array.isArray(keys) || keys.length > 30 || !keys.every((k) => typeof k === 'string' && isFileKey(k))) {
-    throw new HttpError(400, '첨부파일 정보가 올바르지 않습니다. (최대 30개)');
+  if (!Array.isArray(keys) || keys.length > 100 || !keys.every((k) => typeof k === 'string' && isFileKey(k))) {
+    throw new HttpError(400, '첨부파일 정보가 올바르지 않습니다. (이미지 · 첨부 합쳐 최대 100개)');
   }
 
   return {

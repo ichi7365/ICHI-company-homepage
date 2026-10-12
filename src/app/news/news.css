@@ -1,0 +1,76 @@
+/* 회사소식 게시판 — 인재채용 게시판 스타일(styles.css 의 .job-* · .jb-* · .jd-* · .jf-*)과
+   관리자 필터 칩(.adm-chip)을 그대로 쓰고, 거기에 없는 것만 여기에 둡니다.
+   styles.css 는 _design/_build.mjs 가 시안에서 다시 만들어 덮어쓰므로 별도 파일로 둡니다. */
+
+/* 목록 위: 분류 칩 + 글쓰기 */
+.nd-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:44px;margin-bottom:-12px;}
+.nd-toolbar .adm-filters{flex-wrap:wrap;}
+
+/* 상단 고정글 번호 자리의 '공지' */
+.jb-no.nd-pin{color:var(--blue-deep);font-weight:700;}
+
+.nd-empty{padding:64px 24px;text-align:center;font-size:15px;color:var(--gray-500);border-bottom:1px solid var(--gray-150);}
+
+/* 페이지 번호 */
+.nd-pager{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin-top:40px;}
+.nd-page{
+  min-width:38px;height:38px;padding:0 12px;font-family:'DM Sans','Pretendard Variable',Pretendard,sans-serif;font-size:13px;font-weight:600;
+  color:var(--gray-500);background:#fff;border:1.5px solid var(--gray-200);border-radius:var(--r-pill);cursor:pointer;transition:all .18s;
+}
+.nd-page:hover:not(:disabled){border-color:var(--blue-light);color:var(--blue-deep);}
+.nd-page.on{background:var(--navy);border-color:var(--navy);color:#fff;}
+.nd-page:disabled{opacity:.4;cursor:default;}
+
+/* 본문 (상세 화면 · 편집기 공통) */
+.nd-body{margin-top:36px;font-size:16px;line-height:1.85;color:var(--gray-700);word-break:keep-all;overflow-wrap:anywhere;}
+.nd-body p{margin:0 0 .9em;}
+.nd-body h3{font-size:20px;font-weight:700;color:var(--navy);letter-spacing:-.01em;margin:1.6em 0 .6em;}
+.nd-body ul,.nd-body ol{padding-left:1.4em;margin:0 0 1em;}
+.nd-body li{margin:.2em 0;}
+.nd-body b,.nd-body strong{color:var(--navy);}
+.nd-body a{color:var(--blue-deep);text-decoration:underline;}
+.nd-body img{max-width:100%;height:auto !important;border-radius:var(--r-md);margin:8px 0;vertical-align:middle;}
+.nd-body table{max-width:100%;border-collapse:collapse;}
+.nd-body td,.nd-body th{border:1px solid var(--gray-150);padding:6px 10px;}
+.nd-images{display:flex;flex-direction:column;gap:12px;}
+
+/* 첨부파일 */
+.nd-files{margin-top:44px;padding-top:28px;border-top:2px solid var(--gray-150);}
+.nd-files h4{font-family:inherit;font-size:14px;letter-spacing:0;color:var(--blue);font-weight:700;margin-bottom:16px;}
+.nd-file{
+  display:flex;align-items:center;gap:12px;padding:14px 18px;border:1.5px solid var(--gray-150);border-radius:var(--r-md);
+  background:var(--gray-50);color:var(--navy);font-size:14px;font-weight:600;text-decoration:none;transition:all .18s;min-width:0;
+}
+.nd-file + .nd-file{margin-top:10px;}
+.nd-file svg{flex:none;color:var(--blue);}
+.nd-file .name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.nd-file .size{margin-left:auto;flex:none;font-size:12px;font-weight:500;color:var(--gray-500);}
+a.nd-file:hover{border-color:var(--blue-light);background:var(--blue-faint);color:var(--blue-deep);}
+.nd-file-edit{flex:1;}
+
+/* 작성 화면 */
+.nd-check{display:inline-flex;align-items:center;gap:10px;font-size:15px !important;font-weight:600;color:var(--navy) !important;cursor:pointer;}
+.nd-check input{width:18px;height:18px;accent-color:var(--blue);cursor:pointer;}
+.nd-hint{font-size:12.5px;color:var(--gray-500);margin-top:10px;}
+
+.nd-editor-wrap{border:1.5px solid var(--gray-200);border-radius:var(--r-md);background:#fff;overflow:hidden;transition:border-color .2s,box-shadow .2s;}
+.nd-editor-wrap:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-faint);}
+.nd-tools{display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;border-bottom:1.5px solid var(--gray-150);background:var(--gray-50);}
+.nd-tool{
+  font-family:inherit;font-size:13px;font-weight:600;color:var(--gray-600);background:#fff;border:1.5px solid var(--gray-200);
+  border-radius:8px;padding:7px 13px;cursor:pointer;transition:all .18s;display:inline-flex;align-items:center;
+}
+.nd-tool:hover{border-color:var(--blue-light);color:var(--blue-deep);background:var(--blue-faint);}
+.nd-editor{margin-top:0;min-height:320px;max-height:70vh;overflow-y:auto;padding:18px 20px;outline:none;}
+.nd-editor:empty::before{content:attr(data-placeholder);color:var(--gray-400);}
+
+label.jf-add{cursor:pointer;}
+.is-busy{opacity:.55;pointer-events:none;}
+.jf-save:disabled{opacity:.6;cursor:default;transform:none;}
+
+/* 모바일 — 인재채용(#careers) 과 같은 여백 */
+@media(max-width:780px){
+  #news.pad{padding-top:var(--m-gap,28px);}
+  .nd-toolbar{margin-top:28px;margin-bottom:8px;}
+  .nd-body{font-size:15px;}
+}

@@ -221,9 +221,19 @@ for (const [file, route] of Object.entries(ROUTES)) {
   log.push(`page  /${route || ''}  (vars:${usesVars ? (hasLogic ? 'logic' : 'stub') : 'no'})`);
 }
 
-/* 원본 auth.js 가 런타임에 DOM 을 조작하던 부분을 JSX 바인딩으로 대체 */
+/* 원본 auth.js 가 런타임에 DOM 을 조작하던 부분을 JSX 바인딩으로 대체.
+   + 시안에 없는 '회사소식'(/news) 메뉴를 인재채용 다음에 끼워 넣습니다.
+     (게시판 화면은 시안 없이 인재채용 게시판 디자인을 따라 만들었습니다 — src/app/news) */
 function bindAuth(body) {
   return body
+    .replace(
+      /(<a href="\/careers" className="nl">인재채용<\/a>)(?![\s\S]{0,80}\/news)/,
+      '$1\n<a href="/news" className="nl">회사소식</a>'
+    )
+    .replace(
+      /(<a href="\/careers" className="mm-link"( onClick=\{vars\.closeMenu\})?>인재채용<\/a>)(?![\s\S]{0,80}\/news)/,
+      (_m, link, onClick) => `${link}\n<a href="/news" className="mm-link"${onClick || ''}>회사소식</a>`
+    )
     .replace(/<b className="(nav-uname|mm-uname)"><\/b>/g, '<b className="$1">{vars.userName}</b>')
     .replace(
       /<button className="(nav-logout|mm-logout)" type="button">/g,
