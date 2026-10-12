@@ -45,7 +45,8 @@
     "SMTP_HOST": "smtps.hiworks.com",
     "SMTP_PORT": "465",
     // 메일을 보내는 계정 — 하이웍스에서 '외부 메일 프로그램(SMTP) 사용' 이 허용돼 있어야 합니다
-    "SMTP_USER": "web@ichi.kr",
+    // 대표 메일을 그대로 씁니다. 이 계정 비밀번호를 바꾸면 Secret SMTP_PASS 도 다시 등록하세요.
+    "SMTP_USER": "ichi@ichi.kr",
     // 문의 알림을 받는 주소
     "INQUIRY_TO": "ichi@ichi.kr"
   },
