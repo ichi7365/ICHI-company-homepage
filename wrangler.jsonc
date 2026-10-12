@@ -21,13 +21,12 @@
   },
 
   // D1 — 게시판 · 회원 · 채용공고 · 문의 (스키마는 migrations/)
-  //   ⚠️ database_id 는 Cloudflare 대시보드에서 D1 을 만든 뒤 나오는 값으로 바꾸세요.
-  //      로컬 개발(--local)은 이 값과 관계없이 동작합니다.
+  //   2026-10-12 대시보드에서 생성 (지역: Asia Pacific)
   "d1_databases": [
     {
       "binding": "DB",
       "database_name": "ichi-homepage-db",
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "3bb05e15-e5a8-4683-9e58-a619dd870e6b",
       "migrations_dir": "migrations"
     }
   ],
