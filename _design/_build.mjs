@@ -161,6 +161,15 @@ const log = [];
 
 for (const [file, route] of Object.entries(ROUTES)) {
   const dir = path.join(SRC, 'app', route);
+
+  /* 시안 이후 손으로 기능을 더한 페이지는 맨 위 주석에 @manual 을 달아 둡니다 (예: admin).
+     다시 만들면 그 기능이 사라지므로 건너뜁니다. 시안 변경분은 직접 옮겨 주세요. */
+  const pagePath = path.join(dir, 'page.tsx');
+  if (fs.existsSync(pagePath) && /^\s*(?:'use client';\s*)?\/\*\s*@manual\b/.test(fs.readFileSync(pagePath, 'utf8'))) {
+    log.push(`skip  /${route}  (@manual — 손으로 고친 페이지)`);
+    continue;
+  }
+
   const body = patchLoginMethod(route, fs.readFileSync(path.join(dir, '_body.jsx.txt'), 'utf8'));
   const src = fs.readFileSync(path.join(DESIGN, file), 'utf8');
 

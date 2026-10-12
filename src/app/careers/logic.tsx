@@ -1,9 +1,9 @@
 ﻿'use client';
 
 /* 인재채용 — 공고 목록/상세 + 관리자 전용 등록·수정·삭제.
-   저장은 lib/repo/jobs.ts 를 통해 Supabase 로 갑니다. */
+   저장은 lib/repo/jobs.ts → Cloudflare Worker(/api/jobs) 로 갑니다. */
 
-import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { useAuth } from '@/lib/auth';
 import { listJobs, createJob, updateJob, deleteJob } from '@/lib/repo/jobs';
 import type { Job } from './seed';
@@ -38,12 +38,14 @@ const decorate = (j: Job) => ({
 });
 
 export function useVars() {
-  const { isAdmin, toast, confirm } = useAuth();
+  const { ready, isAdmin, toast, confirm } = useAuth();
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const [view, setView] = useState<'list' | 'detail' | 'edit'>('list');
   const [selId, setSelId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Job | null>(null);
+  const queryHandled = useRef(false);
 
   /* 최초 로드 */
   const reload = useCallback(async () => {
@@ -52,12 +54,36 @@ export function useVars() {
     } catch (e) {
       console.error('[careers] 목록 조회 실패', e);
       toast(e instanceof Error ? e.message : '채용공고를 불러오지 못했습니다.');
+    } finally {
+      setLoaded(true);
     }
   }, [toast]);
 
   useEffect(() => {
     void reload();
   }, [reload]);
+
+  /* 관리자 페이지에서 오는 주소 — ?job=<id> 상세, ?edit=<id> 수정, ?write=1 작성 */
+  useEffect(() => {
+    if (queryHandled.current || !loaded || !ready) return;
+    queryHandled.current = true;
+    const p = new URLSearchParams(window.location.search);
+    const job = p.get('job');
+    const edit = p.get('edit');
+    const write = p.get('write');
+    if (!job && !edit && !write) return;
+    window.history.replaceState(null, '', '/careers');
+    if (job && jobs.some((x) => x.id === job)) {
+      setSelId(job);
+      setView('detail');
+    } else if (edit) {
+      startEdit(edit);
+    } else if (write) {
+      startCreate();
+    }
+    // 목록을 다 불러온 뒤 한 번만 — startEdit · startCreate 는 그 시점의 값으로 충분합니다
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loaded, ready, jobs]);
 
   const deny = useCallback(() => toast('관리자 계정만 이용 가능한 기능입니다.'), [toast]);
   const toTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });

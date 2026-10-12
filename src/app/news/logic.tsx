@@ -138,11 +138,20 @@ export function useVars() {
     [toast, showList]
   );
 
-  /* 처음 들어올 때 주소에 id 가 있으면 바로 상세, 뒤로가기 · 앞으로가기도 따라갑니다 */
+  /* 처음 들어올 때 주소에 id 가 있으면 바로 상세, 뒤로가기 · 앞으로가기도 따라갑니다.
+     관리자 페이지에서 오는 ?write=1 · ?edit=<id> 는 작성 · 수정 화면을 엽니다. */
   useEffect(() => {
     if (!ready) return;
-    const id = urlId();
-    if (id) void openDetail(id, false);
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    const edit = params.get('edit');
+    if (isAdmin && (edit || params.get('write'))) {
+      window.history.replaceState(null, '', '/news');
+      if (edit) void startEdit(edit);
+      else startCreate();
+    } else if (id) {
+      void openDetail(id, false);
+    }
     const onPop = () => {
       const next = urlId();
       if (next) void openDetail(next, false);

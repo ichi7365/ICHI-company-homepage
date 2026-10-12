@@ -9,7 +9,7 @@
 import type { Ctx } from '../types';
 import { HttpError, clientIp, json, readJson } from '../lib/http';
 import { mailHtml, sendMail } from '../lib/mail';
-import { isEmail } from '../lib/validate';
+import { isEmail, oneOf } from '../lib/validate';
 import { escapeHtml } from '../lib/util';
 
 /** 같은 IP 에서 이 시간 안에 아래 횟수를 넘기면 거절 */
@@ -167,4 +167,22 @@ export async function list(c: Ctx) {
     'SELECT id, company, name, email, phone, service, message, status, created_at FROM inquiries ORDER BY created_at DESC'
   ).all();
   return json(results);
+}
+
+/** PATCH /api/admin/inquiries/:id — 처리 상태 (접수 · 처리중 · 완료) */
+export async function setStatus(c: Ctx) {
+  const [id] = c.params;
+  const body = await readJson(c.req);
+  const status = oneOf(body.status, ['new', 'in_progress', 'done'] as const, '처리 상태가 올바르지 않습니다.');
+  const { meta } = await c.env.DB.prepare('UPDATE inquiries SET status = ? WHERE id = ?').bind(status, id).run();
+  if (!meta.changes) throw new HttpError(404, '문의를 찾을 수 없습니다.');
+  return json({ ok: true });
+}
+
+/** DELETE /api/admin/inquiries/:id — 스팸 · 테스트 문의 정리 */
+export async function remove(c: Ctx) {
+  const [id] = c.params;
+  const { meta } = await c.env.DB.prepare('DELETE FROM inquiries WHERE id = ?').bind(id).run();
+  if (!meta.changes) throw new HttpError(404, '문의를 찾을 수 없습니다.');
+  return json({ ok: true });
 }
