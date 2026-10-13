@@ -3,6 +3,7 @@
  * 시안 메뉴는 4개였는데 회사소식이 더해져 5개가 됐고, 로그인하면 오른쪽에 이름 · 관리자 · 마이페이지 · 로그아웃이 붙습니다.
  * 시안은 780px 이하에서만 햄버거(☰)로 바뀌어서, 그보다 조금 넓은 화면에서는 오른쪽 버튼이 눌려
  * '로그인' 글자가 세로로 꺾였습니다. 넓은 화면의 모습은 그대로 두고, 좁아질수록 단계적으로 줄입니다.
+ * 781px 이상에서는 메뉴 이름이 항상 보여야 합니다 (햄버거로 접지 않음 — 2026-10-13 요청).
  *
  *   필요한 폭(측정) — 로그인 전 약 830px, 관리자 로그인 약 1,080px
  *
@@ -43,9 +44,15 @@ nav.site.solid{
   body.is-authed .nav-user{display:none;}
 }
 
-/* 4단계 — 가운데 메뉴를 햄버거(☰)로. 로그인 · 관리자 버튼은 오른쪽에 그대로 둡니다
-   (780px 이하에서는 시안대로 로고 가운데 + 햄버거만) */
+/* 4단계 — 메뉴 이름은 계속 보이게 두고(요청), 바깥 여백 · 메뉴 간격 · 버튼 크기를 줄여 한 줄에 맞춥니다.
+   햄버거(☰)는 시안대로 780px 이하(휴대폰)에서만 나옵니다. */
 @media (max-width:980px){
-  .nav-center{display:none;}
-  .nav-burger{display:flex;}
+  nav.site{padding:0 24px;}
+  .nav-center{gap:18px;}
+  .nav-right{gap:6px;}
+  .nav-auth{gap:6px;}
+  .nav-cta{padding:9px 16px;}
+  .nav-mypage{padding:9px 14px;}
+  .nav-logout{padding:7px 12px;}
+  body.is-admin .nav-admin{padding:7px 12px;}
 }
