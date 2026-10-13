@@ -38,7 +38,12 @@ function patchLoginMethod(route, body) {
         '<input type="email" className="fi" name="email" placeholder="name@example.com" autoComplete="email" />'
       )
       .replace(/아이디 저장/g, '이메일 저장')
-      .replace(/아이디 찾기 <span className="sep"><\/span> /, '');
+      .replace(/아이디 찾기 <span className="sep"><\/span> /, '')
+      /* 비밀번호 찾기 화면(src/app/password-reset) 으로 연결 — 시안에는 문의하기로 연결돼 있음 */
+      .replace(
+        /<a href="[^"]*" className="auth-mini-link">비밀번호 찾기<\/a>/,
+        '<a href="/password-reset" className="auth-mini-link">비밀번호 찾기</a>'
+      );
   }
 
   if (route === 'signup') {

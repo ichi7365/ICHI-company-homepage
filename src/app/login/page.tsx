@@ -61,7 +61,7 @@ export default function Page() {
                   <span className="box"><svg viewBox="0 0 12 12"><polyline points="2,6.5 5,9 10,3.5"></polyline></svg></span>
                   이메일 저장
                 </label>
-                <a href="/contact" className="auth-mini-link">비밀번호 찾기</a>
+                <a href="/password-reset" className="auth-mini-link">비밀번호 찾기</a>
               </div>
 
               <button type="submit" className="btn-submit auth-submit" style={{ marginTop: "6px" }}>

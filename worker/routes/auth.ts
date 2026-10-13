@@ -220,7 +220,7 @@ export async function login(c: Ctx) {
   if (row && !row.password_hash && row.status === '정상') {
     throw new HttpError(
       401,
-      '새 홈페이지로 옮기면서 비밀번호를 다시 정해야 합니다. 회원가입 화면에서 같은 이메일로 인증해 주세요.'
+      '새 홈페이지로 옮기면서 비밀번호를 다시 정해야 합니다. 로그인 화면의 [비밀번호 찾기]에서 새 비밀번호를 정해 주세요.'
     );
   }
 
