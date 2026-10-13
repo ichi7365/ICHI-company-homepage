@@ -1,0 +1,37 @@
+/* 상단 메뉴 폭 보정 (2026-10-13)
+ *
+ * 시안 메뉴는 4개였는데 회사소식이 더해져 5개가 됐고, 로그인하면 오른쪽에 이름 · 관리자 · 마이페이지 · 로그아웃이 붙습니다.
+ * 시안은 780px 이하에서만 햄버거(☰)로 바뀌어서, 그보다 조금 넓은 화면에서는 오른쪽 버튼이 눌려
+ * '로그인' 글자가 세로로 꺾였습니다. 넓은 화면의 모습은 그대로 두고, 좁아질수록 단계적으로 줄입니다.
+ *
+ *   필요한 폭(측정) — 로그인 전 약 830px, 관리자 로그인 약 1,080px (스크롤하면 메뉴가 80px 더 좁아짐)
+ *
+ * styles.css 는 _design/_build.mjs 가 시안에서 다시 만들어 덮어쓰므로 별도 파일로 둡니다 (app/layout.tsx 에서 불러옴). */
+
+/* 버튼 글자는 절대 줄바꿈하지 않음 */
+.nav-cta,
+.nav-auth > *{white-space:nowrap;flex:none;}
+.nav-right{flex:none;}
+
+/* 1단계 — 메뉴 사이 간격을 조금 좁힘 */
+@media (max-width:1280px){
+  .nav-center{gap:26px;}
+}
+
+/* 2단계 — 로고 옆 'SMART AUTOMATION' 문구를 숨김 */
+@media (max-width:1180px){
+  nav.site .logo .divider,
+  nav.site .logo .tag{display:none;}
+}
+
+/* 3단계 — 로그인한 이름 표시를 숨김 (관리자 · 마이페이지 · 로그아웃 버튼은 유지) */
+@media (max-width:1100px){
+  body.is-authed .nav-user{display:none;}
+}
+
+/* 4단계 — 가운데 메뉴를 햄버거(☰)로. 로그인 · 관리자 버튼은 오른쪽에 그대로 둡니다
+   (780px 이하에서는 시안대로 로고 가운데 + 햄버거만) */
+@media (max-width:980px){
+  .nav-center{display:none;}
+  .nav-burger{display:flex;}
+}
