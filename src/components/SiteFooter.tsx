@@ -15,6 +15,7 @@ export default function SiteFooter() {
             <h4>Company</h4>
             <a href="/about">회사소개</a>
             <a href="/business">사업소개</a>
+            <a href="/news">회사소식</a>
           </div>
           <div className="f-col">
             <h4>Services</h4>

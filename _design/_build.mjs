@@ -243,6 +243,8 @@ function bindAuth(body) {
       /(<a href="\/careers" className="mm-link"( onClick=\{vars\.closeMenu\})?>인재채용<\/a>)(?![\s\S]{0,80}\/news)/,
       (_m, link, onClick) => `${link}\n<a href="/news" className="mm-link"${onClick || ''}>회사소식</a>`
     )
+    /* 하단(footer) Company 칸 — 사업소개 다음 */
+    .replace(/(<a href="\/business">사업소개<\/a>)(?![\s\S]{0,80}\/news)/, '$1\n<a href="/news">회사소식</a>')
     .replace(/<b className="(nav-uname|mm-uname)"><\/b>/g, '<b className="$1">{vars.userName}</b>')
     .replace(
       /<button className="(nav-logout|mm-logout)" type="button">/g,
