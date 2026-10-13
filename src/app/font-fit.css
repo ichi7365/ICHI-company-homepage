@@ -27,6 +27,12 @@
 /* 글꼴을 따로 정하지 않은 버튼 · 입력칸은 본문 글꼴을 따름 (따로 정한 곳은 그대로) */
 button,input,select,textarea{font-family:inherit;}
 
+/* 로그인 화면 '아이디 찾기 | 비밀번호 찾기' — 시안은 링크 하나였는데 실제 화면 두 개로 나눠서(span 안에 a 두 개)
+   밑줄 없이 시안과 같은 모양이 되도록 링크마다 색 · 밑줄을 맞춥니다 */
+span.auth-mini-link:hover{color:var(--gray-500);}
+.auth-mini-link a{color:inherit;text-decoration:none;transition:color .2s;}
+.auth-mini-link a:hover{color:var(--blue-deep);}
+
 /* 이메일 + 인증번호 받기 / 인증번호 + 인증하기 줄 — 버튼을 입력칸 높이에 맞춤 */
 .id-check-row{align-items:stretch;}
 .id-check-btn{display:inline-flex;align-items:center;justify-content:center;}

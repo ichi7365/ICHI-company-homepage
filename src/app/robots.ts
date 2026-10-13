@@ -8,7 +8,7 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: '*',
       allow: '/',
       /* 회원 전용 · 관리 화면은 색인 제외 */
-      disallow: ['/login', '/signup', '/password-reset', '/mypage', '/admin', '/api/'],
+      disallow: ['/login', '/signup', '/find-id', '/password-reset', '/mypage', '/admin', '/api/'],
     },
     sitemap: 'https://www.ichi.kr/sitemap.xml',
   };

@@ -3,6 +3,8 @@ import type { Env } from './env';
 /** profiles 테이블 한 행 (password_hash 포함 — 응답에 그대로 내보내지 마세요) */
 export type ProfileRow = {
   id: string;
+  /** 로그인 아이디 (소문자) */
+  username: string | null;
   name: string;
   email: string;
   phone: string | null;

@@ -1,20 +1,24 @@
 'use client';
 
-/* 인증 — 이메일 + 비밀번호 방식(A안).
+/* 인증 — 아이디 + 비밀번호 (시안대로, 2026-10-13).
+ * 이메일은 회원가입 인증 · 아이디 찾기 · 비밀번호 찾기에 씁니다.
  *
  * Cloudflare Worker(worker/routes/auth.ts) 를 호출합니다.
  * 로그인하면 서버가 HttpOnly 쿠키로 세션을 내려주므로, 브라우저 쪽에서는
- * 토큰을 따로 저장하지 않습니다.
- *
- * 함수 이름 · 인자 · 반환값은 Supabase 시절과 같아서 화면 코드는 그대로입니다. */
+ * 토큰을 따로 저장하지 않습니다. */
 
 import { api } from '@/lib/api';
 import type { Gender, Profile } from '@/types/database';
 
-/** 마이페이지에서 고칠 수 있는 항목 (id 는 변경 불가) */
-export type ProfilePatch = Partial<Omit<Profile, 'id' | 'created_at' | 'updated_at'>>;
+/** 마이페이지에서 고칠 수 있는 항목 (id · 아이디는 변경 불가) */
+export type ProfilePatch = Partial<Omit<Profile, 'id' | 'username' | 'created_at' | 'updated_at'>>;
+
+/** 아이디 규칙 — 서버(worker/lib/validate.ts)와 같게. 화면에서 미리 안내하는 용도입니다. */
+export const USERNAME_RE = /^[a-z][a-z0-9_]{3,19}$/;
+export const USERNAME_RULE = '영문 소문자로 시작하는 4~20자(영문 소문자 · 숫자 · _)';
 
 export type SignUpInput = {
+  username: string;
   email: string;
   password: string;
   name: string;
@@ -55,6 +59,7 @@ export async function completeSignUp(input: SignUpInput): Promise<Profile> {
   const { user } = await api<UserRes>('/api/auth/signup', {
     method: 'POST',
     body: {
+      username: input.username.trim().toLowerCase(),
       email: mail(input.email),
       password: input.password,
       name: input.name,
@@ -66,11 +71,24 @@ export async function completeSignUp(input: SignUpInput): Promise<Profile> {
   return user;
 }
 
-/** 로그인 */
-export async function signIn(email: string, password: string): Promise<Profile> {
+/** 아이디 중복 확인 — 형식이 틀리면 서버 안내 문구로 예외 */
+export async function checkUsername(username: string): Promise<boolean> {
+  const { available } = await api<{ available: boolean }>(
+    `/api/auth/username?u=${encodeURIComponent(username.trim().toLowerCase())}`
+  );
+  return available;
+}
+
+/** 아이디 찾기 — 가입한 이메일로 아이디를 보내 줍니다 (가입하지 않은 이메일이어도 같은 응답) */
+export async function findId(email: string): Promise<void> {
+  await api('/api/auth/find-id', { method: 'POST', body: { email: mail(email) } });
+}
+
+/** 로그인 — 아이디 + 비밀번호 */
+export async function signIn(username: string, password: string): Promise<Profile> {
   const { user } = await api<UserRes>('/api/auth/login', {
     method: 'POST',
-    body: { email: mail(email), password },
+    body: { username: username.trim().toLowerCase(), password },
   });
   return user;
 }

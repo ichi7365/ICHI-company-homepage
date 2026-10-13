@@ -25,6 +25,8 @@ type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 /* 주소 패턴 — :id 는 한 칸, * 는 나머지 전부 */
 const ROUTES: [Method, string, Handler][] = [
   /* 인증 · 내 정보 */
+  ['GET', '/api/auth/username', auth.usernameAvailable],
+  ['POST', '/api/auth/find-id', auth.findId],
   ['POST', '/api/auth/email-code', auth.sendSignupCode],
   ['POST', '/api/auth/email-code/verify', auth.verifySignupCode],
   ['POST', '/api/auth/signup', auth.signUp],

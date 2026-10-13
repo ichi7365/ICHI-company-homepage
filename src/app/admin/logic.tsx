@@ -224,7 +224,7 @@ export function useVars() {
   const filtered = members.filter((m) => {
     if (filter !== '전체' && (isOut(m) ? '탈퇴' : '정상') !== filter) return false;
     if (!keyword) return true;
-    return [m.name, m.phone, m.email].some((v) => norm(v).includes(keyword));
+    return [m.name, m.username, m.phone, m.email].some((v) => norm(v).includes(keyword));
   });
 
   const memberRows = filtered.map((m, i) => {
@@ -233,6 +233,7 @@ export function useVars() {
     return {
       no: pad2(i + 1),
       name: m.name || '—',
+      username: m.username || '—',
       isAdmin: m.role === 'admin',
       birth: fmtDate(m.birth),
       phone: m.phone || '—',
@@ -371,6 +372,7 @@ export function useVars() {
     /* 회원 상세 */
     hasDetail: !!d,
     detailName: d ? d.name || '—' : '',
+    detailUsername: d ? d.username || '—' : '',
     detailBirth: d ? fmtDate(d.birth) : '',
     detailGender: d ? d.gender || '—' : '',
     detailPhone: d ? d.phone || '—' : '',

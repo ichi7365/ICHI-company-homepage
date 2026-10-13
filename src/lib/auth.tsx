@@ -34,7 +34,7 @@ type AuthValue = {
   isLoggedIn: boolean;
   isAdmin: boolean;
   /** 로그인 — 실패 시 예외를 던집니다 */
-  signIn: (email: string, password: string) => Promise<Profile>;
+  signIn: (username: string, password: string) => Promise<Profile>;
   /** 회원가입 — 실패 시 예외를 던집니다 */
   signUp: (input: auth.SignUpInput) => Promise<Profile>;
   signOut: () => Promise<void>;
@@ -139,8 +139,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoggedIn: !!user,
       isAdmin: user?.role === 'admin',
 
-      signIn: async (email, password) => {
-        const profile = await auth.signIn(email, password);
+      signIn: async (username, password) => {
+        const profile = await auth.signIn(username, password);
         setUser(profile);
         announce();
         return profile;

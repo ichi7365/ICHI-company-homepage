@@ -1,13 +1,16 @@
-/* 인증 — 이메일 + 비밀번호, 가입할 때 이메일 인증번호(6자리).
+/* 인증 — 아이디 + 비밀번호 (2026-10-13 부터, 시안대로). 가입할 때 이메일 인증번호(6자리).
  * 화면 쪽 짝: src/lib/repo/auth.ts
  *
  * 흐름 (회원가입 화면과 동일)
+ *   0) GET  /api/auth/username?u=…        아이디 중복 확인
  *   1) POST /api/auth/email-code         인증번호 메일 발송
  *   2) POST /api/auth/email-code/verify  인증번호 확인 → 이미 가입했는지 알려줌
- *   3) POST /api/auth/signup             인증을 마친 이메일만 가입 → 바로 로그인
+ *   3) POST /api/auth/signup             아이디 · 인증을 마친 이메일로 가입 → 바로 로그인
+ *
+ * 이메일은 계정마다 하나이고, 아이디 찾기(POST /api/auth/find-id) · 비밀번호 찾기에 씁니다.
  *
  * Supabase 에서 옮겨온 회원은 비밀번호가 없습니다(password_hash NULL).
- * 이 회원이 같은 이메일로 1~3 을 거치면 새 계정을 만들지 않고
+ * 이 회원이 같은 이메일로 1~3 을 거치거나 비밀번호 찾기를 하면 새 계정을 만들지 않고
  * 기존 계정(권한 · 가입일 유지)에 비밀번호를 설정합니다. */
 
 import type { Ctx, ProfileRow } from '../types';
@@ -45,6 +48,49 @@ const codeHash = (purpose: Purpose, email: string, code: string) =>
 
 const findByEmail = (c: Ctx, email: string) =>
   c.env.DB.prepare('SELECT * FROM profiles WHERE email = ?').bind(email).first<ProfileRow>();
+
+const findByUsername = (c: Ctx, username: string) =>
+  c.env.DB.prepare('SELECT * FROM profiles WHERE username = ?').bind(username).first<ProfileRow>();
+
+/* ---------- 아이디 ---------- */
+
+/** GET /api/auth/username?u=아이디 — 중복 확인 (형식이 틀리면 안내 문구와 함께 400) */
+export async function usernameAvailable(c: Ctx) {
+  await throttle(c.env, `uname-ip:${clientIp(c.req)}`, 60, 10, '확인 요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.');
+  const username = v.username(c.url.searchParams.get('u'));
+  const taken = await findByUsername(c, username);
+  return json({ username, available: !taken });
+}
+
+/** POST /api/auth/find-id — 가입한 이메일로 아이디를 보내 줍니다.
+ *  가입 여부와 관계없이 같은 응답 (계정 추측 방지). 아이디는 메일로만 알려 줍니다. */
+export async function findId(c: Ctx) {
+  const body = await readJson(c.req);
+  const email = v.email(body.email);
+  const tooMany = '요청이 너무 잦습니다. 잠시 후 다시 시도해 주세요.';
+  await throttle(c.env, `findid:${email}`, 3, 60, tooMany);
+  await throttle(c.env, `findid-ip:${clientIp(c.req)}`, 20, 60, tooMany);
+
+  const row = await findByEmail(c, email);
+  if (row?.username && row.status === '정상') {
+    try {
+      await sendMail(c.env, {
+        to: email,
+        subject: '[ICHI] 아이디 안내',
+        text: `ICHI 홈페이지에 가입하신 아이디는 다음과 같습니다.\n\n아이디: ${row.username}\n\n본인이 요청하지 않았다면 이 메일을 무시하세요.`,
+        html: mailHtml(
+          '<p>ICHI 홈페이지에 가입하신 아이디는 다음과 같습니다.</p>' +
+            `<p style="font-size:24px;font-weight:bold;margin:16px 0">${row.username}</p>` +
+            '<p>본인이 요청하지 않았다면 이 메일을 무시하세요.</p>'
+        ),
+      });
+    } catch (e) {
+      console.error('[auth] 아이디 안내 메일 발송 실패:', (e as Error).message);
+      throw new HttpError(502, '메일 발송에 실패했습니다. 잠시 후 다시 시도해 주세요.');
+    }
+  }
+  return json({ ok: true });
+}
 
 /* ---------- 인증번호 ---------- */
 
@@ -138,9 +184,10 @@ export async function verifySignupCode(c: Ctx) {
 
 /* ---------- 가입 · 로그인 ---------- */
 
-/** POST /api/auth/signup — 이메일 인증을 마친 뒤 가입 완료 */
+/** POST /api/auth/signup — 아이디 + 이메일 인증을 마친 뒤 가입 완료 */
 export async function signUp(c: Ctx) {
   const body = await readJson(c.req);
+  const username = v.username(body.username);
   const email = v.email(body.email);
   const password = v.password(body.password);
   if (!v.isStrongPw(password)) throw new HttpError(400, '비밀번호는 영문과 숫자를 포함해 8자 이상 입력해 주세요.');
@@ -161,38 +208,46 @@ export async function signUp(c: Ctx) {
 
   const hash = await hashPassword(c.env, password);
   const existing = await findByEmail(c, email);
+  const owner = await findByUsername(c, username);
+  if (owner && owner.id !== existing?.id) throw new HttpError(409, '이미 사용 중인 아이디입니다.');
   let id: string;
+
+  /* 같은 아이디 · 이메일로 동시에 가입한 경우 — 어느 쪽이 겹쳤는지 알려 줍니다 */
+  const conflict = (e: unknown) => {
+    const msg = String((e as Error).message);
+    if (/UNIQUE/i.test(msg)) {
+      throw new HttpError(
+        409,
+        /username/i.test(msg) ? '이미 사용 중인 아이디입니다.' : '이미 가입된 이메일입니다. 로그인해 주세요.'
+      );
+    }
+    throw e;
+  };
 
   if (existing?.password_hash) {
     throw new HttpError(409, '이미 가입된 이메일입니다. 로그인해 주세요.');
   } else if (existing) {
-    /* Supabase 에서 옮겨온 회원 — 권한 · 가입일은 그대로 두고 비밀번호와 입력한 정보만 채웁니다 */
+    /* Supabase 에서 옮겨온 회원 — 권한 · 가입일은 그대로 두고 아이디 · 비밀번호와 입력한 정보만 채웁니다 */
     if (existing.status !== '정상') {
       throw new HttpError(403, '탈퇴 처리된 계정입니다. 관리자에게 문의해 주세요.');
     }
     id = existing.id;
     await c.env.DB.prepare(
-      `UPDATE profiles SET password_hash = ?, name = ?, phone = ?, birth = ?, gender = ?, updated_at = ?
+      `UPDATE profiles SET username = ?, password_hash = ?, name = ?, phone = ?, birth = ?, gender = ?, updated_at = ?
         WHERE id = ?`
     )
-      .bind(hash, name, phone, birth, gender, nowIso(), id)
-      .run();
+      .bind(username, hash, name, phone, birth, gender, nowIso(), id)
+      .run()
+      .catch(conflict);
   } else {
     id = crypto.randomUUID();
-    try {
-      await c.env.DB.prepare(
-        `INSERT INTO profiles (id, name, email, phone, birth, gender, join_date, password_hash)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-      )
-        .bind(id, name, email, phone, birth, gender, kstToday(), hash)
-        .run();
-    } catch (e) {
-      /* 같은 이메일로 동시에 가입한 경우 */
-      if (/UNIQUE/i.test(String((e as Error).message))) {
-        throw new HttpError(409, '이미 가입된 이메일입니다. 로그인해 주세요.');
-      }
-      throw e;
-    }
+    await c.env.DB.prepare(
+      `INSERT INTO profiles (id, username, name, email, phone, birth, gender, join_date, password_hash)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    )
+      .bind(id, username, name, email, phone, birth, gender, kstToday(), hash)
+      .run()
+      .catch(conflict);
   }
 
   await c.env.DB.prepare("DELETE FROM email_codes WHERE email = ? AND purpose = 'signup'").bind(email).run();
@@ -201,19 +256,19 @@ export async function signUp(c: Ctx) {
   return json({ user: toPublic(profile!) }, 200, { 'Set-Cookie': await createSession(c.env, id) });
 }
 
-/** POST /api/auth/login */
+/** POST /api/auth/login — { username, password } */
 export async function login(c: Ctx) {
   const body = await readJson(c.req);
-  const fail = '이메일 또는 비밀번호가 올바르지 않습니다.';
-  const email = String(body.email ?? '').trim().toLowerCase();
+  const fail = '아이디 또는 비밀번호가 올바르지 않습니다.';
+  const username = String(body.username ?? '').trim().toLowerCase();
   const password = typeof body.password === 'string' ? body.password : '';
-  if (!v.isEmail(email) || !password || password.length > 128) throw new HttpError(401, fail);
+  if (!username || username.length > 40 || !password || password.length > 128) throw new HttpError(401, fail);
 
   const tooMany = '로그인 시도가 너무 많습니다. 잠시 후 다시 시도해 주세요.';
   await throttle(c.env, `login-ip:${clientIp(c.req)}`, 30, 10, tooMany);
-  await throttle(c.env, `login:${email}`, 10, 10, tooMany);
+  await throttle(c.env, `login:${username}`, 10, 10, tooMany);
 
-  const row = await findByEmail(c, email);
+  const row = await findByUsername(c, username);
 
   /* 옮겨온 회원 — 비밀번호를 새로 정하는 방법을 안내합니다.
      (인증번호 확인 단계에서도 가입 여부가 드러나므로 여기서 알려줘도 새로 새는 정보는 없습니다) */

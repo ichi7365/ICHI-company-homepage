@@ -56,6 +56,19 @@ export function email(v: unknown, required = '이메일을 입력해 주세요.'
   return s;
 }
 
+/** 아이디 규칙 — 영문 소문자로 시작, 영문 소문자 · 숫자 · 밑줄(_) 4~20자 (대문자는 소문자로 바꿔 저장) */
+export const USERNAME_RULE = '아이디는 영문 소문자로 시작하는 4~20자(영문 소문자 · 숫자 · _)로 입력해 주세요.';
+const USERNAME_RE = /^[a-z][a-z0-9_]{3,19}$/;
+/** 다른 사람이 관리자처럼 보이지 않도록 쓰지 못하게 하는 아이디 */
+const RESERVED = ['admin', 'administrator', 'root', 'manager', 'master', 'system', 'webmaster', 'support', 'test', 'guest', 'user'];
+
+export function username(v: unknown, required = '아이디를 입력해 주세요.'): string {
+  const s = text(v, '아이디', 40, required).toLowerCase();
+  if (!USERNAME_RE.test(s)) throw new HttpError(400, USERNAME_RULE);
+  if (RESERVED.includes(s)) throw new HttpError(400, '사용할 수 없는 아이디입니다.');
+  return s;
+}
+
 /** 비밀번호 — 공백을 지우지 않고 그대로 씁니다 */
 export function password(v: unknown, required = '비밀번호를 입력해 주세요.'): string {
   if (typeof v !== 'string' || !v) throw new HttpError(400, required);

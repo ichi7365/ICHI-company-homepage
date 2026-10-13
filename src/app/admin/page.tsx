@@ -41,7 +41,7 @@ export default function Page() {
               <div className="adm-bar">
                 <div className="adm-search">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="11" cy="11" r="7"></circle><line x1="16.5" y1="16.5" x2="21" y2="21"></line></svg>
-                  <input type="search" className="fi" id="adm-q" placeholder="이름 · 전화번호 · 이메일로 검색" onInput={vars.onSearch} />
+                  <input type="search" className="fi" id="adm-q" placeholder="이름 · 아이디 · 전화번호 · 이메일로 검색" onInput={vars.onSearch} />
                 </div>
                 <div className="adm-filters">
                   <button type="button" className={`adm-chip ${vars.chipAll}`} onClick={vars.filterAll}>전체</button>
@@ -55,6 +55,7 @@ export default function Page() {
                 <div className="adm-thead">
                   <span>번호</span>
                   <span>이름</span>
+                  <span>아이디</span>
                   <span>생년월일</span>
                   <span>전화번호</span>
                   <span>이메일</span>
@@ -67,6 +68,7 @@ export default function Page() {
                     <button type="button" className="adm-cellbtn" onClick={m.open}>
                       <span className="adm-no">{m.no}</span>
                       <span className="adm-name">{m.name}{m.isAdmin ? <em className="adm-role">관리자</em> : null}</span>
+                      <span className="adm-mono ellipsis">{m.username}</span>
                       <span className="adm-dim">{m.birth}</span>
                       <span className="adm-mono">{m.phone}</span>
                       <span className="adm-dim ellipsis">{m.email}</span>
@@ -217,6 +219,7 @@ export default function Page() {
             </div>
             <div className="mp-info-list">
               <div className="mp-info-row"><span className="mp-info-label">이름 · Name</span><span className="mp-info-value">{vars.detailName}</span></div>
+              <div className="mp-info-row"><span className="mp-info-label">아이디 · ID</span><span className="mp-info-value">{vars.detailUsername}</span></div>
               <div className="mp-info-row"><span className="mp-info-label">생년월일 · Birth</span><span className="mp-info-value">{vars.detailBirth}</span></div>
               <div className="mp-info-row"><span className="mp-info-label">성별 · Gender</span><span className="mp-info-value">{vars.detailGender}</span></div>
               <div className="mp-info-row"><span className="mp-info-label">연락처 · Phone</span><span className="mp-info-value">{vars.detailPhone}</span></div>

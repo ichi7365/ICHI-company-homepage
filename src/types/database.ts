@@ -15,6 +15,8 @@ export type MemberStatus = '정상' | '탈퇴';
 
 export type Profile = {
   id: string;
+  /** 로그인 아이디 (소문자) */
+  username: string | null;
   name: string;
   email: string;
   phone: string | null;

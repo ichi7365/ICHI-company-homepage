@@ -22,36 +22,22 @@ const ROUTES = {
 
 const indent = (s, n) => s.split('\n').map(l => (l.trim() ? ' '.repeat(n) + l : l)).join('\n');
 
-/* 로그인 방식을 '이메일 + 비밀번호'(A안)로 정하면서 시안 마크업을 손봅니다.
-   시안 원본(_design)은 그대로 두고 여기서 패치하므로, 시안을 다시 받아
-   재변환해도 이 수정이 유지됩니다. */
+/* 시안 마크업 보정. 시안 원본(_design)은 그대로 두고 여기서 패치하므로,
+   시안을 다시 받아 재변환해도 이 수정이 유지됩니다.
+
+   로그인 방식: 2026-10-13 부터 시안대로 '아이디 + 비밀번호'. (그 전에는 Supabase 때문에 이메일 로그인이었음)
+   이메일은 회원가입 인증 · 아이디 찾기 · 비밀번호 찾기에 씁니다. */
 function patchLoginMethod(route, body) {
   if (route === 'login') {
-    return body
-      .replace(/data-field="userid"/g, 'data-field="email"')
-      .replace(
-        /<label className="fl">ID <span className="ko">· 아이디<\/span><\/label>/,
-        '<label className="fl">Email <span className="ko">· 이메일</span></label>'
-      )
-      .replace(
-        /<input type="text" className="fi" name="userid"[^/]*\/>/,
-        '<input type="email" className="fi" name="email" placeholder="name@example.com" autoComplete="email" />'
-      )
-      .replace(/아이디 저장/g, '이메일 저장')
-      .replace(/아이디 찾기 <span className="sep"><\/span> /, '')
-      /* 비밀번호 찾기 화면(src/app/password-reset) 으로 연결 — 시안에는 문의하기로 연결돼 있음 */
-      .replace(
-        /<a href="[^"]*" className="auth-mini-link">비밀번호 찾기<\/a>/,
-        '<a href="/password-reset" className="auth-mini-link">비밀번호 찾기</a>'
-      );
+    /* 시안은 '아이디 찾기 | 비밀번호 찾기' 가 링크 하나(문의하기)라 실제 화면 두 개로 나눕니다 */
+    return body.replace(
+      /<a href="[^"]*" className="auth-mini-link">아이디 찾기 <span className="sep"><\/span> 비밀번호 찾기<\/a>/,
+      '<span className="auth-mini-link"><a href="/find-id">아이디 찾기</a> <span className="sep"></span> <a href="/password-reset">비밀번호 찾기</a></span>'
+    );
   }
 
   if (route === 'signup') {
-    /* 1) 아이디 입력칸과 중복 확인 버튼 제거 — 이메일이 곧 계정입니다 */
-    let out = body.replace(
-      /<div className="fg" data-field="userid">[\s\S]*?id-check-msg"><\/div>\s*<div className="fg-alert"><\/div>\s*<\/div>\s*/,
-      ''
-    );
+    let out = body;
 
     /* 2) 인증 방식을 휴대폰 -> 이메일 로 변경.
           문자 발송은 발신번호 사전등록(전기통신사업법)이 필요해 보류했습니다.
@@ -124,18 +110,13 @@ function patchLoginMethod(route, body) {
   }
 
   if (route === 'admin') {
-    /* 시안은 아이디 로그인 시절 기준이라 DB 에 없는 칸이 있습니다.
-       - 아이디 : 이메일 로그인(A안)으로 바꾸면서 없앤 항목
-       - 혈액형 : 회원가입에서 받지 않는 항목
+    /* ※ 지금 admin/page.tsx 는 @manual 이라 재변환하지 않습니다 (아래는 참고용으로 남김).
+       시안에는 DB 에 없는 '혈액형' 칸이 있어 뺍니다 (회원가입에서 받지 않는 항목).
        채용공고 작성 버튼은 시안 링크 대신 실제 라우트로 보냅니다. */
     return body
-      .replace(/\s*<span>아이디<\/span>/, '')
       .replace(/\s*<span>혈액형<\/span>/, '')
-      .replace(/\s*<span className="adm-mono">\{m\.id\}<\/span>/, '')
       .replace(/\s*<span className="adm-dim">\{m\.blood\}<\/span>/, '')
-      .replace('이름 · 아이디 · 전화번호 · 이메일로 검색', '이름 · 전화번호 · 이메일로 검색')
       .replace('href="Careers.dc.html?write=1"', 'href="/careers?write=1"')
-      .replace(/\s*<div className="mp-info-row"><span className="mp-info-label">아이디 · ID<\/span>[\s\S]*?<\/div>/, '')
       .replace(/\s*<div className="mp-info-row"><span className="mp-info-label">혈액형 · Blood<\/span>[\s\S]*?<\/div>/, '');
   }
 
@@ -151,13 +132,6 @@ function patchLoginMethod(route, body) {
     );
   }
 
-  if (route === 'mypage') {
-    /* '아이디' 행 제거 — 바로 아래 '이메일' 행과 같은 값이 됩니다 */
-    return body.replace(
-      /<div className="mp-info-row"><span className="mp-info-label">아이디 · ID<\/span>[\s\S]*?<\/div>\s*/,
-      ''
-    );
-  }
 
   return body;
 }
@@ -240,16 +214,17 @@ for (const [file, route] of Object.entries(ROUTES)) {
      (게시판 화면은 시안 없이 인재채용 게시판 디자인을 따라 만들었습니다 — src/app/news) */
 function bindAuth(body) {
   return body
+    /* 끼워 넣는 줄은 앞 줄과 같은 들여쓰기로 ([ \t]* 를 그대로 다시 씀) */
     .replace(
-      /(<a href="\/careers" className="nl">인재채용<\/a>)(?![\s\S]{0,80}\/news)/,
-      '$1\n<a href="/news" className="nl">회사소식</a>'
+      /^([ \t]*)(<a href="\/careers" className="nl">인재채용<\/a>)(?![\s\S]{0,80}\/news)/m,
+      '$1$2\n$1<a href="/news" className="nl">회사소식</a>'
     )
     .replace(
-      /(<a href="\/careers" className="mm-link"( onClick=\{vars\.closeMenu\})?>인재채용<\/a>)(?![\s\S]{0,80}\/news)/,
-      (_m, link, onClick) => `${link}\n<a href="/news" className="mm-link"${onClick || ''}>회사소식</a>`
+      /^([ \t]*)(<a href="\/careers" className="mm-link"( onClick=\{vars\.closeMenu\})?>인재채용<\/a>)(?![\s\S]{0,80}\/news)/m,
+      (_m, ind, link, onClick) => `${ind}${link}\n${ind}<a href="/news" className="mm-link"${onClick || ''}>회사소식</a>`
     )
     /* 하단(footer) Company 칸 — 사업소개 다음 */
-    .replace(/(<a href="\/business">사업소개<\/a>)(?![\s\S]{0,80}\/news)/, '$1\n<a href="/news">회사소식</a>')
+    .replace(/^([ \t]*)(<a href="\/business">사업소개<\/a>)(?![\s\S]{0,80}\/news)/m, '$1$2\n$1<a href="/news">회사소식</a>')
     .replace(/<b className="(nav-uname|mm-uname)"><\/b>/g, '<b className="$1">{vars.userName}</b>')
     .replace(
       /<button className="(nav-logout|mm-logout)" type="button">/g,
@@ -283,19 +258,19 @@ for (const comp of ['SiteNav', 'SiteFooter']) {
 
 /* 회원 표의 칸 수 보정.
    시안 CSS 는 9칸(번호·이름·아이디·생년월일·혈액형·전화번호·이메일·가입일·상태)
-   기준인데, 아이디와 혈액형은 DB 에 없어 마크업에서 뺐습니다(patchLoginMethod).
-   그대로 두면 표가 한 칸씩 밀리므로 폭 지정을 7칸으로 다시 씁니다. */
+   기준인데, 혈액형은 DB 에 없어 마크업에서 뺐습니다.
+   그대로 두면 표가 한 칸씩 밀리므로 폭 지정을 8칸으로 다시 씁니다. */
 const ADMIN_GRID_PATCH = `
 
-/* --- 관리자 회원 표: 아이디·혈액형 칸 제외 (_build.mjs 가 덧붙임) --- */
+/* --- 관리자 회원 표: 혈액형 칸 제외 (_build.mjs 가 덧붙임) --- */
 .adm-table:not(.jobs) .adm-cellbtn{
-  grid-template-columns:56px 92px 104px 128px minmax(170px,1fr) 104px 84px;
+  grid-template-columns:56px 92px 104px 104px 128px minmax(170px,1fr) 104px 84px;
 }
 .adm-table:not(.jobs) .adm-thead{
-  grid-template-columns:56px 92px 104px 128px minmax(170px,1fr) 104px 84px 108px;
+  grid-template-columns:56px 92px 104px 104px 128px minmax(170px,1fr) 104px 84px 108px;
 }
 .adm-table:not(.jobs) .adm-thead,
-.adm-table:not(.jobs) .adm-row{min-width:940px;}
+.adm-table:not(.jobs) .adm-row{min-width:1050px;}
 `;
 
 /* 시안 CSS 복사 — 경로를 앱 기준으로 고쳐서 옮깁니다.

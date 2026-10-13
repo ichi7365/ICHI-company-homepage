@@ -11,18 +11,27 @@ import { useEffect, useRef, useState, type FormEvent, type MouseEvent } from 're
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import type { Gender } from '@/types/database';
-import { sendEmailCode, verifyEmailCode, completeSignUp } from '@/lib/repo/auth';
+import {
+  sendEmailCode,
+  verifyEmailCode,
+  completeSignUp,
+  checkUsername,
+  USERNAME_RE,
+  USERNAME_RULE,
+} from '@/lib/repo/auth';
 import { AGREE_FIELD, TERMS, type TermsKey } from './terms-data';
 
 const FORM_ID = 'signup-form';
 const AGREES = ['agree1', 'agree2', 'agree3'] as const;
-const FIELDS = ['name', 'birth', 'phone', 'email', 'password', 'password2'] as const;
+const FIELDS = ['name', 'birth', 'phone', 'email', 'userid', 'password', 'password2'] as const;
 const CODE_SECONDS = 180;
 
 const form = () => document.getElementById(FORM_ID) as HTMLFormElement | null;
 const byId = (id: string) => document.getElementById(id);
 const emailOk = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 const phoneOk = (v: string) => /^01[0-9]{8,9}$/.test(v.replace(/\D/g, ''));
+/** 서버와 같은 비밀번호 규칙 — 영문 · 숫자 포함 8자 이상 */
+const pwOk = (v: string) => v.length >= 8 && /[a-zA-Z]/.test(v) && /[0-9]/.test(v);
 
 const val = (name: string) => {
   const el = form()?.querySelector<HTMLInputElement>(`[name="${name}"]`);
@@ -48,6 +57,8 @@ export function useVars() {
   const { refresh } = useAuth();
   const [busy, setBusy] = useState(false);
   const emailVerified = useRef(false);
+  /** 중복 확인을 통과한 아이디 (소문자). 입력을 바꾸면 다시 확인해야 합니다. */
+  const checkedId = useRef<string | null>(null);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
   const modalTerm = useRef<TermsKey | null>(null);
 
@@ -71,9 +82,14 @@ export function useVars() {
         if (!v) msg = '이메일을 입력해 주세요.';
         else if (!emailOk(v)) msg = '올바른 이메일 형식을 입력해주세요.';
         break;
+      case 'userid':
+        if (!v) msg = '아이디를 입력해 주세요.';
+        else if (!USERNAME_RE.test(v.toLowerCase())) msg = `아이디는 ${USERNAME_RULE}로 입력해 주세요.`;
+        else if (checkedId.current !== v.toLowerCase()) msg = '아이디 중복 확인을 해주세요.';
+        break;
       case 'password':
         if (!v) msg = '비밀번호를 입력해 주세요.';
-        else if (v.length < 8) msg = '비밀번호는 8자 이상 입력해 주세요.';
+        else if (!pwOk(v)) msg = '영문과 숫자를 포함해 8자 이상 입력해 주세요.';
         break;
       case 'password2':
         if (!v) msg = '비밀번호를 다시 입력해 주세요.';
@@ -96,7 +112,9 @@ export function useVars() {
       phoneOk(val('phone')) &&
       emailOk(val('email')) &&
       emailVerified.current &&
-      val('password').length >= 8 &&
+      !!val('userid') &&
+      checkedId.current === val('userid').toLowerCase() &&
+      pwOk(val('password')) &&
       !!val('password2') &&
       val('password') === val('password2') &&
       agreed;
@@ -215,6 +233,12 @@ export function useVars() {
       byId('signup-note')?.classList.remove('show');
       if (target.name === 'password') updatePwStrength(target.value);
       if (target.name === 'email') resetVerification();
+      if (target.name === 'userid') {
+        /* 아이디를 바꾸면 중복 확인을 다시 해야 합니다 */
+        checkedId.current = null;
+        const m = byId('id-check-msg');
+        if (m) m.className = 'id-check-msg';
+      }
       if (target.name === 'gender') clearErr('gender');
       updateSubmitState();
     };
@@ -241,6 +265,42 @@ export function useVars() {
   /* ---------- 화면에서 호출하는 핸들러 ---------- */
 
   return {
+    /* 아이디 중복 확인 — 서버에서 형식 · 사용 여부를 확인합니다 */
+    checkId: async () => {
+      const msg = byId('id-check-msg');
+      const show = (text: string, ok: boolean) => {
+        if (!msg) return;
+        msg.textContent = text;
+        msg.className = 'id-check-msg show ' + (ok ? 'ok' : 'taken');
+      };
+      const id = val('userid').toLowerCase();
+      checkedId.current = null;
+      clearErr('userid');
+
+      if (!id) {
+        show('아이디를 입력해 주세요.', false);
+        form()?.querySelector<HTMLInputElement>('[name="userid"]')?.focus({ preventScroll: true });
+        updateSubmitState();
+        return;
+      }
+      if (!USERNAME_RE.test(id)) {
+        show(`아이디는 ${USERNAME_RULE}로 입력해 주세요.`, false);
+        updateSubmitState();
+        return;
+      }
+      try {
+        if (await checkUsername(id)) {
+          checkedId.current = id;
+          show('사용 가능한 아이디입니다.', true);
+        } else {
+          show('이미 사용 중인 아이디입니다.', false);
+        }
+      } catch (err) {
+        show(err instanceof Error ? err.message : '아이디를 확인하지 못했습니다.', false);
+      }
+      updateSubmitState();
+    },
+
     openTerms: (e: MouseEvent<HTMLElement>) => {
       const key = e.currentTarget.dataset.term as TermsKey | undefined;
       const doc = key ? TERMS[key] : undefined;
@@ -413,6 +473,7 @@ export function useVars() {
       setBusy(true);
       try {
         await completeSignUp({
+          username: val('userid'),
           email: val('email'),
           password: val('password'),
           name: val('name'),
