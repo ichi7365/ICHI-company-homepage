@@ -188,22 +188,25 @@ for (const [file, route] of Object.entries(ROUTES)) {
 
   fs.writeFileSync(path.join(dir, 'page.tsx'), page, 'utf8');
 
-  /* client component 는 metadata 를 export 할 수 없으므로 route layout 에 배치 */
+  /* client component 는 metadata 를 export 할 수 없으므로 route layout 에 배치.
+     제목 · 대표 주소(canonical) 규칙은 src/lib/seo.ts 의 pageMeta() 가 정합니다
+     (시안 제목 '회사소개 | ICHI' → 페이지 이름 '회사소개' 만 넘기면 '회사소개 | 이치 ICHI' 가 됨) */
+  const name = title.replace(/\s*\|\s*ICHI$/, '');
+  /* 관리자 · 로그인 · 회원 화면은 검색엔진에 노출되면 안 됩니다 */
+  const noindex = ['admin', 'login', 'signup', 'mypage'].includes(route);
+  const args = [JSON.stringify('/' + route), JSON.stringify(name)];
+  if (desc || noindex) args.push(desc ? JSON.stringify(desc) : 'undefined');
+  if (noindex) args.push('true');
   const layout = [
-    `import type { Metadata } from 'next';`,
+    `import { pageMeta } from '@/lib/seo';`,
     ``,
-    `export const metadata: Metadata = {`,
-    `  title: ${JSON.stringify(title)},`,
-    desc ? `  description: ${JSON.stringify(desc)},` : '',
-    /* 관리자 페이지는 검색엔진에 노출되면 안 됩니다 */
-    route === 'admin' ? '  robots: { index: false, follow: false },' : '',
-    `};`,
+    `export const metadata = pageMeta(${args.join(', ')});`,
     ``,
     `export default function Layout({ children }: { children: React.ReactNode }) {`,
     `  return children;`,
     `}`,
     ``,
-  ].filter(l => l !== '').join('\n');
+  ].join('\n');
 
   if (route !== '') fs.writeFileSync(path.join(dir, 'layout.tsx'), layout, 'utf8');
   log.push(`page  /${route || ''}  (vars:${usesVars ? (hasLogic ? 'logic' : 'stub') : 'no'})`);

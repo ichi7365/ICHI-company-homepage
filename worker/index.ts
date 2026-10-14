@@ -1,6 +1,7 @@
 /* ICHI 홈페이지 Worker
  *
  *   /api/*  → 이 코드가 처리합니다. D1(DB) · R2(FILES) 는 여기서만 접근할 수 있습니다.
+ *   옛 홈페이지 주소(/bbs/* 등) → 새 주소로 301 (routes/legacy.ts)
  *   그 외   → out/ 정적 페이지를 그대로 내려줍니다 (wrangler.jsonc 의 assets).
  *
  * /api/admin/* 는 들어오자마자 서버에서 관리자 여부를 확인합니다.
@@ -19,6 +20,7 @@ import * as inquiries from './routes/inquiries';
 import * as members from './routes/members';
 import * as posts from './routes/posts';
 import * as files from './routes/files';
+import { isLegacyPath, legacyRedirect } from './routes/legacy';
 
 type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
@@ -89,6 +91,7 @@ async function handleApi(req: Request, env: Env, ctx: ExecutionContext): Promise
 export default {
   async fetch(req, env, ctx): Promise<Response> {
     const { pathname } = new URL(req.url);
+    if (isLegacyPath(pathname)) return legacyRedirect(req, env);
     if (!pathname.startsWith('/api/')) return env.ASSETS.fetch(req);
 
     try {

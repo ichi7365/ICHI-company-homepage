@@ -15,9 +15,9 @@
     // 없는 주소로 들어오면 out/404.html 을 보여줍니다
     "not_found_handling": "404-page",
 
-    // /api/* 만 Worker 코드를 거칩니다.
+    // /api/* 와 옛 홈페이지 주소(/bbs/* 등 → 새 주소로 301, worker/routes/legacy.ts)만 Worker 코드를 거칩니다.
     // 정적 페이지 요청은 Worker 를 실행하지 않아 무료 사용량(하루 10만 요청)에 포함되지 않습니다.
-    "run_worker_first": ["/api/*"]
+    "run_worker_first": ["/api/*", "/bbs/*", "/theme/*", "/index.php"]
   },
 
   // D1 — 게시판 · 회원 · 채용공고 · 문의 (스키마는 migrations/)

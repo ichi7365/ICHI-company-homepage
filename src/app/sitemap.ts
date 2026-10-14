@@ -1,9 +1,10 @@
 import type { MetadataRoute } from 'next';
+import { SITE_URL } from '@/lib/seo';
 
 /* 검색엔진용 사이트맵 — /sitemap.xml 로 자동 생성됩니다.
    페이지를 추가하면 아래 목록에도 넣어주세요. */
 
-const BASE = 'https://www.ichi.kr';
+const BASE = SITE_URL;
 
 type Entry = {
   path: string;
