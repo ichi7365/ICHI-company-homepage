@@ -22,7 +22,7 @@ export const SITE_DESCRIPTION =
 const OG_IMAGE = { url: '/assets/og-image.png', width: 1200, height: 630 };
 
 /* 검색엔진 소유 확인 값 — 네이버 서치어드바이저 · 구글 서치 콘솔에서 받은 값을 넣습니다 (비워 두면 태그를 넣지 않음) */
-const NAVER_SITE_VERIFICATION = '';
+const NAVER_SITE_VERIFICATION = '8022328840a165acb3d528af9b7188fa1e9d7efa'; // 2026-10-14 서치어드바이저 · https://www.ichi.kr
 const GOOGLE_SITE_VERIFICATION = '';
 
 export const verification: Metadata['verification'] = {
