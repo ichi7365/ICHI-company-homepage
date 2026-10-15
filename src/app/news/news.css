@@ -3,23 +3,11 @@
    styles.css 는 _design/_build.mjs 가 시안에서 다시 만들어 덮어쓰므로 별도 파일로 둡니다. */
 
 /* 목록 위: 분류 칩 + 글쓰기 */
-.nd-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:44px;margin-bottom:-12px;}
-.nd-toolbar .adm-filters{flex-wrap:wrap;}
 
 /* 상단 고정글 번호 자리의 '공지' */
-.jb-no.nd-pin{color:var(--blue-deep);font-weight:700;}
 
-.nd-empty{padding:64px 24px;text-align:center;font-size:15px;color:var(--gray-500);border-bottom:1px solid var(--gray-150);}
 
 /* 페이지 번호 */
-.nd-pager{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin-top:40px;}
-.nd-page{
-  min-width:38px;height:38px;padding:0 12px;font-family:'DM Sans','Pretendard Variable',Pretendard,sans-serif;font-size:13px;font-weight:600;
-  color:var(--gray-500);background:#fff;border:1.5px solid var(--gray-200);border-radius:var(--r-pill);cursor:pointer;transition:all .18s;
-}
-.nd-page:hover:not(:disabled){border-color:var(--blue-light);color:var(--blue-deep);}
-.nd-page.on{background:var(--navy);border-color:var(--navy);color:#fff;}
-.nd-page:disabled{opacity:.4;cursor:default;}
 
 /* 본문 (상세 화면 · 편집기 공통) */
 .nd-body{margin-top:36px;font-size:16px;line-height:1.85;color:var(--gray-700);word-break:keep-all;overflow-wrap:anywhere;}
@@ -71,6 +59,5 @@ label.jf-add{cursor:pointer;}
 /* 모바일 — 인재채용(#careers) 과 같은 여백 */
 @media(max-width:780px){
   #news.pad{padding-top:var(--m-gap,28px);}
-  .nd-toolbar{margin-top:28px;margin-bottom:8px;}
-  .nd-body{font-size:15px;}
+    .nd-body{font-size:15px;}
 }

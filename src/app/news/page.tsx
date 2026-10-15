@@ -33,7 +33,7 @@ export default function Page() {
         </div>
 
         {vars.showList ? (<>
-          <div className="nd-toolbar">
+          <div className="news-bar">
             <div className="adm-filters">
               {vars.filters.map((f) => (
                 <button key={f.key} type="button" className={f.cls} onClick={f.pick}>{f.label}</button>
@@ -69,15 +69,15 @@ export default function Page() {
                 </span>
               </div>
             </Fragment>))}
-            {vars.empty ? <div className="nd-empty">등록된 게시글이 없습니다.</div> : null}
+            {vars.empty ? <div className="adm-empty">등록된 게시글이 없습니다.</div> : null}
           </div>
           {vars.pager ? (
-            <div className="nd-pager">
-              <button type="button" className="nd-page" disabled={vars.prevDisabled} onClick={vars.prev} aria-label="이전 페이지">‹</button>
+            <div className="news-pager">
+              <button type="button" className="np-btn" disabled={vars.prevDisabled} onClick={vars.prev} aria-label="이전 페이지">‹</button>
               {vars.pageButtons.map((b) => (
                 <button key={b.n} type="button" className={b.cls} onClick={b.go}>{b.n}</button>
               ))}
-              <button type="button" className="nd-page" disabled={vars.nextDisabled} onClick={vars.next} aria-label="다음 페이지">›</button>
+              <button type="button" className="np-btn" disabled={vars.nextDisabled} onClick={vars.next} aria-label="다음 페이지">›</button>
             </div>
           ) : null}
         </>) : null}

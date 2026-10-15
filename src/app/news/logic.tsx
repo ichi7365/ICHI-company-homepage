@@ -397,7 +397,7 @@ export function useVars() {
   const rows = items.map((p, i) => ({
     key: p.id,
     no: p.is_notice ? '공지' : String(total - (page - 1) * PAGE_SIZE - i).padStart(2, '0'),
-    noClass: p.is_notice ? 'jb-no nd-pin' : 'jb-no',
+    noClass: p.is_notice ? 'jb-no pin' : 'jb-no',
     title: p.title,
     sub: `${CATEGORY_LABEL[p.category]} · 조회 ${p.view_count.toLocaleString()}`,
     date: kstDate(p.created_at),
@@ -466,7 +466,7 @@ export function useVars() {
     pager: pages > 1,
     pageButtons: Array.from({ length: pages }, (_, i) => ({
       n: i + 1,
-      cls: 'nd-page' + (page === i + 1 ? ' on' : ''),
+      cls: 'np-btn' + (page === i + 1 ? ' on' : ''),
       go: () => {
         setPage(i + 1);
         toTop();
