@@ -30,7 +30,6 @@ export default function Page() {
               <div className="mp-info-row"><span className="mp-info-label">연락처 · Phone</span><span className="mp-info-value" id="v-phone">—</span></div>
               <div className="mp-info-row"><span className="mp-info-label">생년월일 · Birth</span><span className="mp-info-value" id="v-birth">—</span></div>
               <div className="mp-info-row"><span className="mp-info-label">성별 · Gender</span><span className="mp-info-value" id="v-gender">—</span></div>
-              <div className="mp-info-row"><span className="mp-info-label">혈액형 · Blood</span><span className="mp-info-value" id="v-blood">—</span></div>
               <div className="mp-info-row"><span className="mp-info-label">가입일 · Joined</span><span className="mp-info-value" id="v-joined">—</span></div>
             </div>
           </div>

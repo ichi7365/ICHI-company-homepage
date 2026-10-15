@@ -2224,14 +2224,3 @@ a.mp-btn{display:inline-flex;align-items:center;text-decoration:none;}
 button,input,select,textarea{font-family:inherit;}
 .id-check-row{align-items:stretch;}
 .id-check-btn{display:inline-flex;align-items:center;justify-content:center;}
-
-
-/* --- 관리자 회원 표: 혈액형 칸 제외 (_build.mjs 가 덧붙임) --- */
-.adm-table:not(.jobs) .adm-cellbtn{
-  grid-template-columns:56px 92px 104px 104px 128px minmax(170px,1fr) 104px 84px;
-}
-.adm-table:not(.jobs) .adm-thead{
-  grid-template-columns:56px 92px 104px 104px 128px minmax(170px,1fr) 104px 84px 108px;
-}
-.adm-table:not(.jobs) .adm-thead,
-.adm-table:not(.jobs) .adm-row{min-width:1050px;}

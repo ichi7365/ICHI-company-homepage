@@ -57,6 +57,7 @@ export default function Page() {
                   <span>이름</span>
                   <span>아이디</span>
                   <span>생년월일</span>
+                  <span>혈액형</span>
                   <span>전화번호</span>
                   <span>이메일</span>
                   <span>회원가입일</span>
@@ -70,6 +71,7 @@ export default function Page() {
                       <span className="adm-name">{m.name}{m.isAdmin ? <em className="adm-role">관리자</em> : null}</span>
                       <span className="adm-mono ellipsis">{m.username}</span>
                       <span className="adm-dim">{m.birth}</span>
+                      <span className="adm-dim">{m.blood}</span>
                       <span className="adm-mono">{m.phone}</span>
                       <span className="adm-dim ellipsis">{m.email}</span>
                       <span className="adm-dim">{m.joinDate}</span>
@@ -136,7 +138,7 @@ export default function Page() {
                   글쓰기
                 </a>
               </div>
-              <div className="adm-table jobs">
+              <div className="adm-table news">
                 <div className="adm-thead">
                   <span>번호</span>
                   <span>제목</span>
@@ -172,7 +174,7 @@ export default function Page() {
               <div className="adm-bar">
                 <p className="adm-count">접수된 문의 <b>{vars.inquiryTotal}</b>건 · 새 문의 {vars.newInquiries}건</p>
               </div>
-              <div className="adm-table jobs">
+              <div className="adm-table inq">
                 <div className="adm-thead">
                   <span>번호</span>
                   <span>회사 · 담당자</span>
@@ -222,6 +224,7 @@ export default function Page() {
               <div className="mp-info-row"><span className="mp-info-label">아이디 · ID</span><span className="mp-info-value">{vars.detailUsername}</span></div>
               <div className="mp-info-row"><span className="mp-info-label">생년월일 · Birth</span><span className="mp-info-value">{vars.detailBirth}</span></div>
               <div className="mp-info-row"><span className="mp-info-label">성별 · Gender</span><span className="mp-info-value">{vars.detailGender}</span></div>
+              <div className="mp-info-row"><span className="mp-info-label">혈액형 · Blood</span><span className="mp-info-value">{vars.detailBlood}</span></div>
               <div className="mp-info-row"><span className="mp-info-label">연락처 · Phone</span><span className="mp-info-value">{vars.detailPhone}</span></div>
               <div className="mp-info-row"><span className="mp-info-label">이메일 · Email</span><span className="mp-info-value">{vars.detailEmail}</span></div>
               <div className="mp-info-row"><span className="mp-info-label">회원가입일 · Joined</span><span className="mp-info-value">{vars.detailJoin}</span></div>
