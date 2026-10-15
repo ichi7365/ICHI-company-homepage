@@ -120,6 +120,12 @@ function patchLoginMethod(route, body) {
       .replace(/\s*<div className="mp-info-row"><span className="mp-info-label">혈액형 · Blood<\/span>[\s\S]*?<\/div>/, '');
   }
 
+  /* 메인 배경은 webp 로 바꿔 내보냅니다.
+     시안이 쓰는 png 는 2.8MB 라 첫 화면 로딩이 눈에 띄게 느려집니다.
+     같은 그림을 webp(품질 86)로 두면 170KB 로 줄고 화질 차이는 보이지 않습니다.
+     원본 png 는 _design/assets 에 두고, 배포에는 webp 만 올립니다. */
+  body = body.replace(/\/assets\/(hero-[\w-]+)\.png/g, '/assets/$1.webp');
+
   if (route === 'contact') {
     /* 허니팟 — 사람에게는 보이지 않고 봇만 채우는 칸.
        값이 들어오면 Edge Function 이 스팸으로 판단합니다. */
