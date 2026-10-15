@@ -1,7 +1,10 @@
 'use client';
+import { Fragment } from 'react';
 import SiteNav from '@/components/SiteNav';
 import SiteFooter from '@/components/SiteFooter';
+import { useVars } from './logic';
 export default function Page() {
+  const vars = useVars();
   return (
     <>
       <SiteNav />
@@ -94,6 +97,48 @@ export default function Page() {
             </div>
           </div>
         </div>
+      </section>
+
+      {/* ====================== HISTORY ====================== */}
+      <section className="pad" id="history" data-screen-label="History" style={{ background: "var(--white)" }}>
+        <div className="reveal" style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: "32px" }}>
+          <div style={{ maxWidth: "760px" }}>
+            <div className="section-eye">
+              <span className="eye-mono">History</span>
+              <div className="eye-dash"></div>
+            </div>
+            <h2 className="section-h2">현장과 함께 걸어온<br /><em>연혁</em></h2>
+          </div>
+        </div>
+
+        <div style={{ marginTop: "48px", borderTop: "1px solid var(--gray-150)" }}>
+          {(vars.years ?? []).map((y, yIdx) => (<Fragment key={yIdx}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "16px 48px", padding: "32px 0", borderBottom: "1px solid var(--gray-150)" }}>
+              <div style={{ flex: "0 0 140px", fontFamily: "'DM Sans',sans-serif", fontSize: "32px", fontWeight: "300", lineHeight: "1", letterSpacing: "-.035em", color: "var(--navy)", fontVariantNumeric: "tabular-nums" }}>{y.year}</div>
+              <div style={{ flex: "1 1 320px", display: "flex", flexDirection: "column", gap: "14px" }}>
+                {(y.items ?? []).map((it, itIdx) => (<Fragment key={itIdx}>
+                  <div style={{ display: "flex", flexWrap: "wrap", alignItems: "baseline", gap: "4px 24px" }}>
+                    <span style={{ flex: "0 0 160px", fontSize: "14px", color: "var(--gray-600)", fontVariantNumeric: "tabular-nums" }}>{it.period}</span>
+                    <span style={{ flex: "1 1 260px", display: "flex", alignItems: "baseline", gap: "10px", textWrap: "pretty" }}>
+                      {it.milestone ? (<>
+                        <span style={{ fontSize: "17px", color: "var(--gray-700)" }}>{it.text}</span>
+                      </>) : null}
+                      {it.project ? (<>
+                        <span style={{ fontSize: "17px", color: "var(--gray-700)" }}>{it.text}</span>
+                      </>) : null}
+                    </span>
+                  </div>
+                </Fragment>))}
+              </div>
+            </div>
+          </Fragment>))}
+        </div>
+
+        {vars.canExpand ? (<>
+          <div style={{ display: "flex", justifyContent: "center", marginTop: "32px" }}>
+            <button onClick={vars.toggleAll} style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "14px 26px", borderRadius: "999px", border: "1px solid var(--navy)", background: "transparent", color: "var(--navy)", font: "inherit", fontSize: "15px", fontWeight: "600", cursor: "pointer" }} style-hover="background:var(--navy);color:var(--white)">{vars.toggleLabel}</button>
+          </div>
+        </>) : null}
       </section>
 
       {/* ====================== TEAM STRUCTURE ====================== */}

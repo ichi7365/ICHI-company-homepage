@@ -71,6 +71,7 @@ export default function Page() {
         </div>
       </section>
 
+
       {/* ====================== GLOBAL ====================== */}
       <section className="pad-sm global-section" id="global" data-screen-label="Global">
         <div className="reveal" style={{ maxWidth: "760px" }}>
