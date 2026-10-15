@@ -10,6 +10,8 @@ export type ProfileRow = {
   phone: string | null;
   birth: string | null;
   gender: '남성' | '여성' | null;
+  /** 혈액형 — 민감정보. 별도 동의를 받은 회원만 값이 있습니다 */
+  blood: 'A형' | 'B형' | 'O형' | 'AB형' | null;
   role: 'user' | 'admin';
   status: '정상' | '탈퇴';
   join_date: string;

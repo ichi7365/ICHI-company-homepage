@@ -196,6 +196,10 @@ export async function signUp(c: Ctx) {
   const phone = v.optText(body.phone, '연락처', 30);
   const birth = v.date(body.birth, '생년월일');
   const gender = body.gender ? v.oneOf(body.gender, ['남성', '여성'] as const, '성별을 선택해 주세요.') : null;
+  /* 혈액형 — 민감정보. 화면에서 별도 동의를 받은 뒤에만 값이 옵니다 */
+  const blood = body.blood
+    ? v.oneOf(body.blood, ['A형', 'B형', 'O형', 'AB형'] as const, '혈액형을 선택해 주세요.')
+    : null;
 
   const code = await c.env.DB.prepare(
     "SELECT verified_at, expires_at FROM email_codes WHERE email = ? AND purpose = 'signup'"
@@ -233,19 +237,19 @@ export async function signUp(c: Ctx) {
     }
     id = existing.id;
     await c.env.DB.prepare(
-      `UPDATE profiles SET username = ?, password_hash = ?, name = ?, phone = ?, birth = ?, gender = ?, updated_at = ?
+      `UPDATE profiles SET username = ?, password_hash = ?, name = ?, phone = ?, birth = ?, gender = ?, blood = ?, updated_at = ?
         WHERE id = ?`
     )
-      .bind(username, hash, name, phone, birth, gender, nowIso(), id)
+      .bind(username, hash, name, phone, birth, gender, blood, nowIso(), id)
       .run()
       .catch(conflict);
   } else {
     id = crypto.randomUUID();
     await c.env.DB.prepare(
-      `INSERT INTO profiles (id, username, name, email, phone, birth, gender, join_date, password_hash)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      `INSERT INTO profiles (id, username, name, email, phone, birth, gender, blood, join_date, password_hash)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
-      .bind(id, username, name, email, phone, birth, gender, kstToday(), hash)
+      .bind(id, username, name, email, phone, birth, gender, blood, kstToday(), hash)
       .run()
       .catch(conflict);
   }
@@ -359,6 +363,9 @@ export async function updateMe(c: Ctx) {
   if ('name' in body) put('name', v.text(body.name, '이름', 50, '이름을 입력해 주세요.'));
   if ('phone' in body) put('phone', v.optText(body.phone, '연락처', 30));
   if ('birth' in body) put('birth', v.date(body.birth, '생년월일'));
+  if ('blood' in body) {
+    put('blood', body.blood ? v.oneOf(body.blood, ['A형', 'B형', 'O형', 'AB형'] as const, '혈액형을 선택해 주세요.') : null);
+  }
   if ('gender' in body) {
     put('gender', body.gender ? v.oneOf(body.gender, ['남성', '여성'] as const, '성별을 선택해 주세요.') : null);
   }

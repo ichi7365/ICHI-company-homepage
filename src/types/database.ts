@@ -10,6 +10,9 @@ export type JobStatus = 'open' | 'closed';
 export type InquiryStatus = 'new' | 'in_progress' | 'done';
 export type Gender = '남성' | '여성';
 
+/** 혈액형 — 민감정보라 별도 동의 후에만 받습니다 */
+export type Blood = 'A형' | 'B형' | 'O형' | 'AB형';
+
 /** 관리자 페이지에서 쓰는 회원 상태 */
 export type MemberStatus = '정상' | '탈퇴';
 
@@ -22,6 +25,7 @@ export type Profile = {
   phone: string | null;
   birth: string | null;
   gender: Gender | null;
+  blood: Blood | null;
   role: Role;
   status: MemberStatus;
   join_date: string;

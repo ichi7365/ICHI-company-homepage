@@ -7,7 +7,7 @@ import * as v from '../lib/validate';
 import { nowIso } from '../lib/util';
 
 const COLUMNS =
-  'id, username, name, email, phone, birth, gender, role, status, join_date, created_at, updated_at';
+  'id, username, name, email, phone, birth, gender, blood, role, status, join_date, created_at, updated_at';
 
 /** GET /api/admin/members — 가입일이 최근인 순서 (비밀번호 해시는 내보내지 않음) */
 export async function list(c: Ctx) {
