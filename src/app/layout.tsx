@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import './theme.css';
 import './styles.css';
-import './nav-fit.css';
 import './font-fit.css';
 import { AuthProvider } from '@/lib/auth';
 import RevealProvider from '@/lib/reveal';
