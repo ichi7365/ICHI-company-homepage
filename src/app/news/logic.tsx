@@ -394,9 +394,14 @@ export function useVars() {
 
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
-  const rows = items.map((p, i) => ({
+  /* 번호는 위에서부터 1, 2, 3 … 으로 셉니다 (인재채용 게시판과 같은 방식).
+     고정 공지는 번호 대신 '공지' 로 표시하므로 셈에서 뺍니다.
+     2페이지는 11 부터 이어집니다. */
+  let seq = (page - 1) * PAGE_SIZE;
+
+  const rows = items.map((p) => ({
     key: p.id,
-    no: p.is_notice ? '공지' : String(total - (page - 1) * PAGE_SIZE - i).padStart(2, '0'),
+    no: p.is_notice ? '공지' : String(++seq).padStart(2, '0'),
     noClass: p.is_notice ? 'jb-no pin' : 'jb-no',
     title: p.title,
     sub: `${CATEGORY_LABEL[p.category]} · 조회 ${p.view_count.toLocaleString()}`,
