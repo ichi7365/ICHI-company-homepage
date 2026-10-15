@@ -19,7 +19,7 @@ export const BRAND = '이치 ICHI';
 export const SITE_DESCRIPTION =
   '주식회사 이치(ICHI, 理致)는 2010년 창립한 반도체장비 · 물류자동화 엔지니어링 전문기업입니다. 국내외 반도체 FAB 현장에서 OHT 등 반도체설비 · 자동화설비의 설치·조정·통번역을 아우르는 통합 엔지니어링 솔루션을 제공합니다.';
 
-const OG_IMAGE = { url: '/assets/og-image.png', width: 1200, height: 630 };
+const OG_IMAGE = { url: '/assets/og-image.jpg', width: 1200, height: 630 };
 
 /* 검색엔진 소유 확인 값 — 네이버 서치어드바이저 · 구글 서치 콘솔에서 받은 값을 넣습니다 (비워 두면 태그를 넣지 않음) */
 const NAVER_SITE_VERIFICATION = '8022328840a165acb3d528af9b7188fa1e9d7efa'; // 2026-10-14 서치어드바이저 · https://www.ichi.kr

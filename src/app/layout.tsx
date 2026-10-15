@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: HOME_TITLE,
     description: SITE_DESCRIPTION,
-    images: ['/assets/og-image.png'],
+    images: ['/assets/og-image.jpg'],
   },
   verification,
 };
