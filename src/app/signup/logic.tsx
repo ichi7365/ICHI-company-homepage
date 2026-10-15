@@ -10,7 +10,7 @@
 import { useEffect, useRef, useState, type FormEvent, type MouseEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
-import type { Gender } from '@/types/database';
+import type { Blood, Gender } from '@/types/database';
 import {
   sendEmailCode,
   verifyEmailCode,
@@ -22,7 +22,8 @@ import {
 import { AGREE_FIELD, TERMS, type TermsKey } from './terms-data';
 
 const FORM_ID = 'signup-form';
-const AGREES = ['agree1', 'agree2', 'agree3'] as const;
+/* agree4 = 민감정보(혈액형) 수집·이용 동의 — 개인정보 보호법 제23조에 따라 별도로 받습니다 */
+const AGREES = ['agree1', 'agree2', 'agree3', 'agree4'] as const;
 const FIELDS = ['name', 'birth', 'phone', 'email', 'userid', 'password', 'password2'] as const;
 const CODE_SECONDS = 180;
 
@@ -39,6 +40,9 @@ const val = (name: string) => {
 };
 const gender = () =>
   form()?.querySelector<HTMLInputElement>('[name="gender"]:checked')?.value || '';
+
+const blood = () =>
+  form()?.querySelector<HTMLSelectElement>('[name="blood"]')?.value || '';
 const isChecked = (name: string) =>
   !!form()?.querySelector<HTMLInputElement>(`[name="${name}"]`)?.checked;
 
@@ -109,6 +113,7 @@ export function useVars() {
       !!val('name') &&
       !!val('birth') &&
       !!gender() &&
+      !!blood() &&
       phoneOk(val('phone')) &&
       emailOk(val('email')) &&
       emailVerified.current &&
@@ -240,6 +245,7 @@ export function useVars() {
         if (m) m.className = 'id-check-msg';
       }
       if (target.name === 'gender') clearErr('gender');
+      if (target.name === 'blood') clearErr('blood');
       updateSubmitState();
     };
 
@@ -452,6 +458,13 @@ export function useVars() {
         clearErr('gender');
       }
 
+      if (!blood()) {
+        setErr('blood', '혈액형을 선택해 주세요.');
+        if (!firstBad) firstBad = f.querySelector('[name="blood"]');
+      } else {
+        clearErr('blood');
+      }
+
       if (emailOk(val('email')) && !emailVerified.current) {
         setErr('email', '이메일 인증을 완료해 주세요.');
         if (!firstBad) firstBad = f.querySelector('[name="email"]');
@@ -480,6 +493,7 @@ export function useVars() {
           phone: val('phone'),
           birth: val('birth'),
           gender: (gender() || undefined) as Gender | undefined,
+          blood: (blood() || undefined) as Blood | undefined,
         });
         await refresh();
       } catch (err) {

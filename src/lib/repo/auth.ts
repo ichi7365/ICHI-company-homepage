@@ -8,7 +8,7 @@
  * 토큰을 따로 저장하지 않습니다. */
 
 import { api } from '@/lib/api';
-import type { Gender, Profile } from '@/types/database';
+import type { Blood, Gender, Profile } from '@/types/database';
 
 /** 마이페이지에서 고칠 수 있는 항목 (id · 아이디는 변경 불가) */
 export type ProfilePatch = Partial<Omit<Profile, 'id' | 'username' | 'created_at' | 'updated_at'>>;
@@ -25,6 +25,8 @@ export type SignUpInput = {
   phone?: string;
   birth?: string;
   gender?: Gender;
+  /** 혈액형 — 민감정보. 별도 동의(agree4) 후에만 보냅니다 */
+  blood?: Blood;
 };
 
 type UserRes = { user: Profile };

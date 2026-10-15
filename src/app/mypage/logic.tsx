@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { changePassword } from '@/lib/repo/auth';
 import { fieldValue, isStrongPw, runValidation, useClearErrorOnInput } from '@/lib/form';
-import type { Gender, Profile } from '@/types/database';
+import type { Blood, Gender, Profile } from '@/types/database';
 
 const fmtDate = (s?: string | null) => {
   if (!s) return '—';
@@ -29,6 +29,7 @@ function fill(u: Profile) {
   setText('v-phone', u.phone);
   setText('v-birth', fmtDate(u.birth));
   setText('v-gender', u.gender);
+  setText('v-blood', u.blood);
   setText('v-joined', fmtDate(u.join_date));
 }
 
@@ -76,6 +77,18 @@ export function useVars() {
             `<label class="gender-opt"><input type="radio" name="mp-gender" value="여성"${g === '여성' ? ' checked' : ''}><span>여성</span></label>` +
             '</div>';
         }
+
+        const bloodCell = document.getElementById('v-blood');
+        if (bloodCell) {
+          const b = user.blood || '';
+          bloodCell.innerHTML =
+            '<select class="fi fi-select" id="e-blood">' +
+            `<option value=""${b ? '' : ' selected'}>선택 안 함</option>` +
+            ['A형', 'B형', 'O형', 'AB형']
+              .map((v) => `<option value="${v}"${b === v ? ' selected' : ''}>${v}</option>`)
+              .join('') +
+            '</select>';
+        }
         if (btn) btn.textContent = '저장';
         setEditing(true);
         return;
@@ -85,12 +98,15 @@ export function useVars() {
       const phone = (document.getElementById('e-phone') as HTMLInputElement | null)?.value || '';
       const gender = (document.querySelector<HTMLInputElement>('input[name="mp-gender"]:checked')
         ?.value || user.gender || '') as Gender | '';
+      const blood = ((document.getElementById('e-blood') as HTMLSelectElement | null)?.value
+        ?? user.blood ?? '') as Blood | '';
 
       setBusy(true);
       try {
         const updated = await updateProfile({
           phone: phone.trim() || null,
           gender: gender || null,
+          blood: blood || null,
         });
         fill(updated);
         if (btn) btn.textContent = '회원정보 수정';
