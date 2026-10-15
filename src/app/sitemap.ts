@@ -25,7 +25,8 @@ const PAGES: Entry[] = [
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const lastModified = new Date();
+  /* 날짜만(YYYY-MM-DD) — 밀리초까지 들어간 시각은 네이버 서치어드바이저가 '형식이 올바르지 않습니다'로 거부함 */
+  const lastModified = new Date().toISOString().slice(0, 10);
   return PAGES.map(({ path, changeFrequency, priority }) => ({
     url: BASE + path,
     lastModified,
