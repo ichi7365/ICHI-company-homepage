@@ -2143,8 +2143,7 @@ body.is-admin .mm-admin{
 .auth-form .fi.fi-select,select.fi.fi-select{appearance:none;-webkit-appearance:none;background-color:#fff;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none' stroke='%236b7280' stroke-width='1.6' stroke-linecap='round'%3E%3Cpolyline points='1,1.5 6,6.5 11,1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 18px center;background-size:12px 8px;padding-right:44px;cursor:pointer;}
 
 
-/* Nav: fixed full-width bar on scroll + 5-item overflow fixes */
-nav.site.solid{top:0;width:100%;border-radius:0;background:#fff;-webkit-backdrop-filter:none;backdrop-filter:none;border-color:var(--gray-150);box-shadow:0 4px 14px rgba(15,23,42,.06);}
+/* Nav: 5-item overflow fixes */
 .nav-cta,.nav-auth > *{white-space:nowrap;flex:none;}
 .nav-right{flex:none;}
 @media (max-width:1280px){.nav-center{gap:26px;}}

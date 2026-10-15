@@ -55,7 +55,7 @@ export default function Page() {
               <span className="admin-col">관리</span>
             </div>
             {vars.rows.map((row) => (<Fragment key={row.key}>
-              <div className={`jb-row ${row.rowClass}`} onClick={row.open}>
+              <div className={`jb-row reveal ${row.rowClass}`} onClick={row.open}>
                 <span className={row.noClass}>{row.no}</span>
                 <span className="jb-title">
                   <span className="t">{row.title}</span>
