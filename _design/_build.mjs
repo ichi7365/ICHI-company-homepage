@@ -235,8 +235,16 @@ function bindAuth(body) {
     );
 }
 
-/* 공통 컴포넌트 */
+/* 공통 컴포넌트 — 페이지와 같은 @manual 보호를 적용합니다.
+   예전에는 이 검사가 없어서, 손으로 넣은 메뉴 링크가 변환할 때마다
+   말없이 사라졌습니다. 빌드는 성공하고 화면도 멀쩡해 보여 알아채기 어렵습니다. */
 for (const comp of ['SiteNav', 'SiteFooter']) {
+  const compPath = path.join(SRC, 'components', comp + '.tsx');
+  if (fs.existsSync(compPath) && /^\s*(?:'use client';\s*)?\/\*\s*@manual\b/.test(fs.readFileSync(compPath, 'utf8'))) {
+    log.push(`skip  ${comp}  (@manual — 손으로 고친 컴포넌트)`);
+    continue;
+  }
+
   const body = bindAuth(fs.readFileSync(path.join(SRC, 'components', comp + '._body.jsx.txt'), 'utf8'));
   const usesVars = /\bvars\./.test(body);
   const hasLogic = fs.existsSync(path.join(SRC, 'components', comp + '.logic.tsx'));

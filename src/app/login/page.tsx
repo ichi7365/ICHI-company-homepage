@@ -61,7 +61,7 @@ export default function Page() {
                   <span className="box"><svg viewBox="0 0 12 12"><polyline points="2,6.5 5,9 10,3.5"></polyline></svg></span>
                   아이디 저장
                 </label>
-                <span className="auth-mini-link"><a href="/find-id">아이디 찾기</a> <span className="sep"></span> <a href="/password-reset">비밀번호 찾기</a></span>
+                <span className="auth-mini-link"><a href="/find-id" style={{ color: "inherit", textDecoration: "none" }} style-hover="color:var(--blue-deep)">아이디 찾기</a><span className="sep"></span><a href="/password-reset" style={{ color: "inherit", textDecoration: "none" }} style-hover="color:var(--blue-deep)">비밀번호 찾기</a></span>
               </div>
 
               <button type="submit" className="btn-submit auth-submit" style={{ marginTop: "6px" }}>

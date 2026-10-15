@@ -14,6 +14,7 @@
 <script src="./support.js"></script>
 <script src="./auth.js"></script>
 <script src="./common.js"></script>
+<script src="./news-data.js"></script>
 </head>
 <body class="subpage">
 <x-dc>
@@ -35,7 +36,7 @@
     <div class="adm-head">
       <div>
         <h1 class="mp-h1">관리자 페이지</h1>
-        <p class="mp-sub">직원 계정과 채용공고를 관리하실 수 있습니다.</p>
+        <p class="mp-sub">회원 · 채용공고 · 회사소식 · 문의 내역을 관리하실 수 있습니다.</p>
       </div>
       <button type="button" class="adm-logout nav-logout">로그아웃</button>
     </div>
@@ -43,6 +44,8 @@
     <div class="adm-tabs" role="tablist">
       <button type="button" class="adm-tab {{ tabMembers }}" onClick="{{ showMembers }}">직원관리</button>
       <button type="button" class="adm-tab {{ tabJobs }}" onClick="{{ showJobs }}">채용공고 관리</button>
+      <button type="button" class="adm-tab {{ tabNews }}" onClick="{{ showNews }}">회사소식 관리</button>
+      <button type="button" class="adm-tab {{ tabInq }}" onClick="{{ showInq }}">문의 내역<sc-if value="{{ hasNewInq }}" hint-placeholder-val="{{ false }}"><span class="adm-tab-badge">{{ newInq }}</span></sc-if></button>
     </div>
 
     <sc-if value="{{ onMembers }}" hint-placeholder-val="{{ true }}">
@@ -58,7 +61,7 @@
             <button type="button" class="adm-chip {{ chipOut }}" onClick="{{ filterOut }}">탈퇴</button>
           </div>
         </div>
-        <p class="adm-count">총 <b>{{ total }}</b>명 · 정상 {{ countActive }}명 · 탈퇴 {{ countOut }}명</p>
+        <p class="adm-count">총 <b>{{ total }}</b>명 · 정상 {{ countActive }}명 · 탈퇴 {{ countOut }}명 · 관리자 {{ countAdmin }}명</p>
 
         <div class="adm-table">
           <div class="adm-thead">
@@ -77,7 +80,7 @@
             <div class="adm-row {{ m.rowClass }}">
               <button type="button" class="adm-cellbtn" onClick="{{ m.open }}">
                 <span class="adm-no">{{ m.no }}</span>
-                <span class="adm-name">{{ m.name }}</span>
+                <span class="adm-name-cell"><span class="adm-name">{{ m.name }}</span><sc-if value="{{ m.isAdminRole }}" hint-placeholder-val="{{ false }}"><span class="adm-role">관리자</span></sc-if></span>
                 <span class="adm-mono">{{ m.id }}</span>
                 <span class="adm-dim">{{ m.birth }}</span>
                 <span class="adm-dim">{{ m.blood }}</span>
@@ -87,7 +90,7 @@
                 <span class="adm-badge {{ m.badgeClass }}">{{ m.status }}</span>
               </button>
               <span class="adm-act-cell">
-                <button type="button" class="jb-act del" disabled="{{ m.outAlready }}" onClick="{{ m.withdraw }}">{{ m.actLabel }}</button>
+                <button type="button" class="jb-act {{ m.actClass }}" disabled="{{ m.actDisabled }}" onClick="{{ m.withdraw }}">{{ m.actLabel }}</button>
               </span>
             </div>
           </sc-for>
@@ -137,6 +140,82 @@
         </sc-if>
       </section>
     </sc-if>
+
+    <sc-if value="{{ onNews }}" hint-placeholder-val="{{ false }}">
+      <section class="adm-panel">
+        <div class="adm-bar">
+          <p class="adm-count">등록된 게시글 <b>{{ newsTotal }}</b>건</p>
+          <a class="btn-write" href="News.dc.html?write=1">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            글쓰기
+          </a>
+        </div>
+        <div class="adm-table news">
+          <div class="adm-thead">
+            <span>번호</span>
+            <span>제목</span>
+            <span>분류</span>
+            <span>작성일</span>
+            <span>공개</span>
+            <span class="ta-r">관리</span>
+          </div>
+          <sc-for list="{{ news }}" as="n" hint-placeholder-count="5">
+            <div class="adm-row {{ n.rowClass }}">
+              <a class="adm-cellbtn" href="{{ n.href }}">
+                <span class="adm-no">{{ n.no }}</span>
+                <span class="adm-name ellipsis">{{ n.title }}</span>
+                <span class="adm-dim">{{ n.cat }}</span>
+                <span class="adm-dim">{{ n.date }}</span>
+                <span class="adm-badge {{ n.badgeClass }}">{{ n.visLabel }}</span>
+              </a>
+              <span class="adm-act-cell">
+                <a class="jb-act" href="{{ n.editHref }}">수정</a>
+                <button type="button" class="jb-act del" onClick="{{ n.del }}">삭제</button>
+              </span>
+            </div>
+          </sc-for>
+        </div>
+        <sc-if value="{{ newsEmpty }}" hint-placeholder-val="{{ false }}">
+          <p class="adm-empty">등록된 게시글이 없습니다. 회사소식 페이지에서 글을 등록해 주세요.</p>
+        </sc-if>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ onInq }}" hint-placeholder-val="{{ false }}">
+      <section class="adm-panel">
+        <div class="adm-bar">
+          <p class="adm-count">접수된 문의 <b>{{ inqTotal }}</b>건 · 새 문의 {{ newInq }}건</p>
+        </div>
+        <div class="adm-table inq">
+          <div class="adm-thead">
+            <span>번호</span>
+            <span>회사 · 담당자</span>
+            <span>문의 유형</span>
+            <span>접수일시</span>
+            <span>상태</span>
+            <span class="ta-r">관리</span>
+          </div>
+          <sc-for list="{{ inqs }}" as="q" hint-placeholder-count="2">
+            <div class="adm-row {{ q.rowClass }}">
+              <button type="button" class="adm-cellbtn" onClick="{{ q.open }}">
+                <span class="adm-no">{{ q.no }}</span>
+                <span class="adm-name ellipsis">{{ q.who }}</span>
+                <span class="adm-dim ellipsis">{{ q.type }}</span>
+                <span class="adm-mono">{{ q.at }}</span>
+                <span class="adm-badge {{ q.badgeClass }}">{{ q.status }}</span>
+              </button>
+              <span class="adm-act-cell">
+                <button type="button" class="jb-act" onClick="{{ q.open }}">보기</button>
+                <button type="button" class="jb-act del" onClick="{{ q.del }}">삭제</button>
+              </span>
+            </div>
+          </sc-for>
+        </div>
+        <sc-if value="{{ inqEmpty }}" hint-placeholder-val="{{ false }}">
+          <p class="adm-empty">접수된 문의가 없습니다.</p>
+        </sc-if>
+      </section>
+    </sc-if>
   </div>
 </main>
 
@@ -162,11 +241,54 @@
         <div class="mp-info-row"><span class="mp-info-label">이메일 · Email</span><span class="mp-info-value">{{ detailEmail }}</span></div>
         <div class="mp-info-row"><span class="mp-info-label">회원가입일 · Joined</span><span class="mp-info-value">{{ detailJoin }}</span></div>
         <div class="mp-info-row"><span class="mp-info-label">회원 상태 · Status</span><span class="mp-info-value">{{ detailStatus }}</span></div>
+        <div class="mp-info-row"><span class="mp-info-label">권한 · Role</span><span class="mp-info-value">{{ detailRole }}</span></div>
+        <div class="mp-info-row"><span class="mp-info-label">비밀번호 · Password</span><span class="mp-info-value">{{ detailPw }}</span></div>
       </div>
       <p class="adm-note">비밀번호는 보안상 관리자에게도 표시되지 않습니다.</p>
+      <sc-if value="{{ detailSelf }}" hint-placeholder-val="{{ false }}">
+        <p class="adm-note" style="color:var(--blue-deep);font-weight:600">본인 계정의 상태 · 권한은 바꿀 수 없습니다. 다른 관리자에게 요청하세요.</p>
+      </sc-if>
       <div class="adm-sheet-foot">
         <button type="button" class="mp-btn ghost" onClick="{{ closeDetail }}">닫기</button>
-        <button type="button" class="mp-btn-danger" disabled="{{ detailOut }}" onClick="{{ detailWithdraw }}">{{ detailActLabel }}</button>
+        <button type="button" class="mp-btn" disabled="{{ detailSelf }}" onClick="{{ detailRoleToggle }}">{{ detailRoleLabel }}</button>
+        <button type="button" class="mp-btn-danger" disabled="{{ detailSelf }}" onClick="{{ detailWithdraw }}">{{ detailActLabel }}</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ hasInq }}" hint-placeholder-val="{{ false }}">
+  <div class="adm-overlay" onClick="{{ closeInq }}">
+    <div class="adm-sheet" role="dialog" aria-modal="true" onClick="{{ stop }}">
+      <div class="adm-sheet-head">
+        <div>
+          <span class="eye-mono">Inquiry</span>
+          <h2>{{ inq.company }}</h2>
+        </div>
+        <button type="button" class="mm-close" aria-label="닫기" onClick="{{ closeInq }}">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="3" y1="3" x2="15" y2="15"></line><line x1="15" y1="3" x2="3" y2="15"></line></svg>
+        </button>
+      </div>
+      <div class="mp-info-list">
+        <div class="mp-info-row"><span class="mp-info-label">담당자 · Contact</span><span class="mp-info-value">{{ inq.name }}</span></div>
+        <div class="mp-info-row"><span class="mp-info-label">이메일 · Email</span><span class="mp-info-value"><a href="{{ inq.mailto }}">{{ inq.email }}</a></span></div>
+        <div class="mp-info-row"><span class="mp-info-label">연락처 · Phone</span><span class="mp-info-value">{{ inq.phone }}</span></div>
+        <div class="mp-info-row"><span class="mp-info-label">문의 유형 · Type</span><span class="mp-info-value">{{ inq.type }}</span></div>
+        <div class="mp-info-row"><span class="mp-info-label">접수 · Received</span><span class="mp-info-value">{{ inq.at }}</span></div>
+      </div>
+      <div class="adm-msg">{{ inq.message }}</div>
+      <div class="adm-status-row">
+        <span class="mp-info-label">처리 상태 · Status</span>
+        <div class="adm-filters">
+          <button type="button" class="adm-chip {{ inq.chipNew }}" onClick="{{ inq.setNew }}">접수</button>
+          <button type="button" class="adm-chip {{ inq.chipProg }}" onClick="{{ inq.setProg }}">처리중</button>
+          <button type="button" class="adm-chip {{ inq.chipDone }}" onClick="{{ inq.setDone }}">완료</button>
+        </div>
+      </div>
+      <div class="adm-sheet-foot">
+        <button type="button" class="mp-btn ghost" onClick="{{ closeInq }}">닫기</button>
+        <a class="mp-btn" href="{{ inq.reply }}">메일로 답장</a>
+        <button type="button" class="mp-btn-danger" onClick="{{ inq.del }}">삭제</button>
       </div>
     </div>
   </div>
@@ -176,7 +298,12 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script>
 class Component extends DCLogic {
-  state = { tab: 'members', q: '', filter: '전체', members: [], jobs: [], detail: null };
+  state = { tab: 'members', q: '', filter: '전체', members: [], jobs: [], news: [], inqs: [], detail: null, inqId: null };
+
+  _inqSeed = [
+    { id: 'q1', company: '(주)샘플전자', name: '김담당', email: 'kim@sample-elec.co.kr', phone: '010-1234-5678', type: '반도체 엔지니어링 서비스', at: '2026.10.12 17:31', status: '접수', message: 'OHT 설치 견적을 받고 싶습니다. 현장은 평택입니다.' },
+    { id: 'q2', company: '테스트상사', name: '이과장', email: 'lee@test-corp.kr', phone: '010-9876-5432', type: '채용문의', at: '2026.10.12 17:31', status: '처리중', message: '현장 엔지니어 채용 일정이 궁금합니다.' }
+  ];
 
   componentDidMount() {
     // 관리자 권한 확인 — 일반 회원/비로그인은 접근 불가 (URL 직접 입력 포함)
@@ -199,7 +326,7 @@ class Component extends DCLogic {
     this._onStorage = function () { self.forceUpdate(); };
     window.addEventListener('storage', this._onStorage);
     var t = (new URLSearchParams(window.location.search).get('tab') || '');
-    if (t === 'jobs') this.setState({ tab: 'jobs' });
+    if (t === 'jobs' || t === 'news' || t === 'inquiries') this.setState({ tab: t });
   }
   componentWillUnmount() { clearInterval(this._guard); window.removeEventListener('storage', this._onStorage); }
 
@@ -207,7 +334,13 @@ class Component extends DCLogic {
     var auth = window.ICHIAuth;
     var jobs = [];
     try { jobs = JSON.parse(localStorage.getItem('ichi_jobs') || '[]'); } catch (e) {}
-    this.setState({ members: (auth.members ? auth.members.all() : []), jobs: Array.isArray(jobs) ? jobs : [] });
+    var inqs = null;
+    try { inqs = JSON.parse(localStorage.getItem('ichi_inquiries') || 'null'); } catch (e) {}
+    if (!Array.isArray(inqs)) { inqs = JSON.parse(JSON.stringify(this._inqSeed)); this._saveInqs(inqs); }
+    this.setState({
+      members: (auth.members ? auth.members.all() : []), jobs: Array.isArray(jobs) ? jobs : [],
+      news: window.ICHINews ? window.ICHINews.all() : [], inqs: inqs
+    });
     try { window.dispatchEvent(new StorageEvent('storage', { key: 'ichi_members' })); } catch (e) {}
   }
 
@@ -217,9 +350,79 @@ class Component extends DCLogic {
     return m ? (m[1] + '.' + m[2] + '.' + m[3]) : s;
   }
 
+  _saveInqs(a) { try { localStorage.setItem('ichi_inquiries', JSON.stringify(a)); } catch (e) {} return a; }
+  _roleOf(m) { return m && (m.role || (m.id === 'admin' ? 'admin' : 'user')); }
+  _isSelf(m) { var me = (window.ICHIAuth && window.ICHIAuth.getUser()) || {}; return !!m && me.id === m.id; }
+
+  _restore(mem) {
+    var auth = window.ICHIAuth; if (!auth) return;
+    var self = this;
+    auth.confirm({
+      title: '회원 복구',
+      body: '해당 회원을 복구하시겠습니까?\n복구된 회원은 다시 로그인할 수 있습니다.',
+      confirmText: '복구',
+      onConfirm: function () {
+        auth.members.setStatus(mem.id, '정상');
+        self.setState({ detail: null });
+        self._load();
+        auth.toast(mem.name + ' 회원이 복구되었습니다.');
+      }
+    });
+  }
+
+  _toggleRole(mem) {
+    var auth = window.ICHIAuth; if (!auth || this._isSelf(mem)) return;
+    var self = this;
+    var isAdm = this._roleOf(mem) === 'admin';
+    auth.confirm({
+      title: isAdm ? '관리자 해제' : '관리자 지정',
+      body: isAdm ? '해당 회원의 관리자 권한을 해제하시겠습니까?' : '해당 회원을 관리자로 지정하시겠습니까?\n관리자는 회원 · 게시글 · 문의 내역을 관리할 수 있습니다.',
+      confirmText: isAdm ? '해제' : '지정',
+      onConfirm: function () {
+        var rec = auth.members.update(mem.id, { role: isAdm ? 'user' : 'admin' });
+        self.setState({ detail: rec });
+        self._load();
+        auth.toast(mem.name + (isAdm ? ' 회원의 관리자 권한이 해제되었습니다.' : ' 회원이 관리자로 지정되었습니다.'));
+      }
+    });
+  }
+
+  _delNews(post) {
+    var auth = window.ICHIAuth;
+    var self = this;
+    var run = function () {
+      var arr = (self.state.news || []).filter(function (x) { return x.id !== post.id; });
+      if (window.ICHINews) window.ICHINews.save(arr);
+      self.setState({ news: arr });
+      if (auth) auth.toast('게시글이 삭제되었습니다.');
+    };
+    if (auth) auth.confirm({ title: '게시글 삭제', body: '해당 게시글을 삭제하시겠습니까?', confirmText: '삭제', danger: true, onConfirm: run });
+    else run();
+  }
+
+  _setInqStatus(id, status) {
+    var arr = (this.state.inqs || []).map(function (x) { return x.id === id ? Object.assign({}, x, { status: status }) : x; });
+    this._saveInqs(arr);
+    this.setState({ inqs: arr });
+  }
+
+  _delInq(q) {
+    var auth = window.ICHIAuth;
+    var self = this;
+    var run = function () {
+      var arr = (self.state.inqs || []).filter(function (x) { return x.id !== q.id; });
+      self._saveInqs(arr);
+      self.setState({ inqs: arr, inqId: null });
+      if (auth) auth.toast('문의 내역이 삭제되었습니다.');
+    };
+    if (auth) auth.confirm({ title: '문의 삭제', body: '해당 문의 내역을 삭제하시겠습니까?\n삭제된 문의는 복구할 수 없습니다.', confirmText: '삭제', danger: true, onConfirm: run });
+    else run();
+  }
+
   _withdraw(mem) {
     var auth = window.ICHIAuth; if (!auth) return;
     var self = this;
+    if ((mem.status || '정상') === '탈퇴') { this._restore(mem); return; }
     auth.confirm({
       title: '회원 탈퇴 처리',
       body: '해당 회원을 탈퇴 처리하시겠습니까?\n탈퇴 처리된 회원은 로그인할 수 없습니다.',
@@ -275,8 +478,10 @@ class Component extends DCLogic {
         status: out ? '탈퇴' : '정상',
         badgeClass: out ? 'out' : 'ok',
         rowClass: out ? 'out' : '',
-        outAlready: out,
-        actLabel: out ? '탈퇴됨' : '탈퇴',
+        isAdminRole: self._roleOf(m) === 'admin',
+        actDisabled: self._isSelf(m),
+        actClass: out ? '' : 'del',
+        actLabel: out ? '복구' : '탈퇴',
         open: function () { self.setState({ detail: m }); },
         withdraw: function (e) { e.stopPropagation(); self._withdraw(m); }
       };
@@ -297,12 +502,68 @@ class Component extends DCLogic {
       };
     });
 
+    var news = (this.state.news || []).slice()
+      .sort(function (a, b) { return (b.no || 0) - (a.no || 0); })
+      .map(function (p) {
+        var pub = p.vis !== 'private';
+        return {
+          no: p.no, title: p.title || '—', cat: p.cat === 'notice' ? '공지사항' : '회사소식', date: p.date || '—',
+          visLabel: pub ? '공개' : '비공개', badgeClass: pub ? 'ok' : 'out', rowClass: pub ? '' : 'out',
+          href: 'News.dc.html?post=' + encodeURIComponent(p.id),
+          editHref: 'News.dc.html?edit=' + encodeURIComponent(p.id),
+          del: function (e) { e.preventDefault(); self._delNews(p); }
+        };
+      });
+
+    var inqAll = this.state.inqs || [];
+    var newInq = inqAll.filter(function (x) { return x.status === '접수'; }).length;
+    var inqs = inqAll.map(function (x, i) {
+      return {
+        no: String(inqAll.length - i).padStart(2, '0'),
+        who: x.company + ' · ' + x.name, type: x.type, at: x.at, status: x.status,
+        badgeClass: x.status === '접수' ? 'ok' : (x.status === '처리중' ? 'prog' : 'out'),
+        rowClass: x.status === '완료' ? 'out' : '',
+        open: function (e) { if (e) e.stopPropagation(); self.setState({ inqId: x.id }); },
+        del: function (e) { if (e) e.stopPropagation(); self._delInq(x); }
+      };
+    });
+    var qi = inqAll.find(function (x) { return x.id === self.state.inqId; });
+    var inq = null;
+    if (qi) {
+      var setS = function (st) { return function () { self._setInqStatus(qi.id, st); }; };
+      inq = Object.assign({}, qi, {
+        mailto: 'mailto:' + qi.email,
+        reply: 'mailto:' + qi.email + '?subject=' + encodeURIComponent('[㈜이치] 문의 답변드립니다'),
+        chipNew: qi.status === '접수' ? 'on' : '', chipProg: qi.status === '처리중' ? 'on' : '', chipDone: qi.status === '완료' ? 'on' : '',
+        setNew: setS('접수'), setProg: setS('처리중'), setDone: setS('완료'),
+        del: function () { self._delInq(qi); }
+      });
+    }
+
     var d = this.state.detail;
     var dOut = !!d && (d.status || '정상') === '탈퇴';
+    var dAdm = !!d && this._roleOf(d) === 'admin';
 
     return {
       tabMembers: this.state.tab === 'members' ? 'on' : '',
       tabJobs: this.state.tab === 'jobs' ? 'on' : '',
+      tabNews: this.state.tab === 'news' ? 'on' : '',
+      tabInq: this.state.tab === 'inquiries' ? 'on' : '',
+      onNews: this.state.tab === 'news',
+      onInq: this.state.tab === 'inquiries',
+      showNews: function () { self.setState({ tab: 'news' }); },
+      showInq: function () { self.setState({ tab: 'inquiries' }); },
+      countAdmin: all.filter(function (m) { return self._roleOf(m) === 'admin'; }).length,
+      news: news, newsTotal: news.length, newsEmpty: news.length === 0,
+      inqs: inqs, inqTotal: inqs.length, inqEmpty: inqs.length === 0,
+      newInq: newInq, hasNewInq: newInq > 0,
+      inq: inq, hasInq: !!inq,
+      closeInq: function () { self.setState({ inqId: null }); },
+      detailRole: d ? (dAdm ? '관리자' : '일반 회원') : '',
+      detailPw: d ? ((d.password || d.hasPassword !== false) ? '설정됨' : '미설정') : '',
+      detailSelf: this._isSelf(d),
+      detailRoleLabel: dAdm ? '관리자 해제' : '관리자 지정',
+      detailRoleToggle: function () { if (d) self._toggleRole(d); },
       onMembers: this.state.tab === 'members',
       onJobs: this.state.tab === 'jobs',
       showMembers: function () { self.setState({ tab: 'members' }); },
@@ -333,7 +594,7 @@ class Component extends DCLogic {
       detailJoin: d ? this._fmt(d.joinDate) : '',
       detailStatus: d ? (dOut ? '탈퇴' : '정상') : '',
       detailOut: dOut,
-      detailActLabel: dOut ? '탈퇴 처리됨' : '탈퇴 처리',
+      detailActLabel: dOut ? '복구' : '탈퇴 처리',
       detailWithdraw: function () { if (d) self._withdraw(d); },
       closeDetail: function () { self.setState({ detail: null }); },
       stop: function (e) { e.stopPropagation(); }

@@ -38,6 +38,18 @@ export default function Page() {
                 </div>
               </div>
 
+              <div className="fg" data-field="blood">
+                <label className="fl">Blood Type <span className="ko">· 혈액형</span></label>
+                <select className="fi fi-select" name="blood">
+                  <option value="">혈액형을 선택해 주세요</option>
+                  <option value="A형">A형</option>
+                  <option value="B형">B형</option>
+                  <option value="O형">O형</option>
+                  <option value="AB형">AB형</option>
+                </select>
+                <div className="fg-alert"></div>
+              </div>
+
               <div className="fg" data-field="gender">
                 <label className="fl">Gender <span className="ko">· 성별</span></label>
                 <div className="gender-opts">
@@ -130,6 +142,14 @@ export default function Page() {
                     <span><span className="req">(필수)</span> 개인정보 제3자 제공 동의</span>
                   </label>
                   <button type="button" className="terms-view" data-term="thirdparty" onClick={vars.openTerms}>전문보기</button>
+                </div>
+                <div className="terms-item">
+                  <label className="auth-check terms">
+                    <input type="checkbox" name="agree4" />
+                    <span className="box"><svg viewBox="0 0 12 12"><polyline points="2,6.5 5,9 10,3.5"></polyline></svg></span>
+                    <span><span className="req">(필수)</span> 민감정보(혈액형) 수집·이용 동의</span>
+                  </label>
+                  <button type="button" className="terms-view" data-term="sensitive" onClick={vars.openTerms}>전문보기</button>
                 </div>
               </div>
               <div className="terms-alert" id="agree-alert">필수 약관에 모두 동의해 주세요.</div>

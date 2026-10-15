@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>회사소식 | ICHI</title>
+<meta name="description" content="㈜이치의 공지사항과 회사 소식을 확인하세요.">
+<link rel="canonical" href="https://www.ichi.kr/News.dc.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="㈜이치 ICHI">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:title" content="회사소식 | ICHI">
+<meta property="og:description" content="㈜이치의 공지사항과 회사 소식을 확인하세요.">
+<meta property="og:url" content="https://www.ichi.kr/News.dc.html">
+<meta property="og:image" content="https://www.ichi.kr/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="회사소식 | ICHI">
+<meta name="twitter:description" content="㈜이치의 공지사항과 회사 소식을 확인하세요.">
+<meta name="twitter:image" content="https://www.ichi.kr/assets/og-image.png">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="crossorigin">
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="styles.css">
+<script src="./news-data.js"></script>
+<script src="./support.js"></script>
+<script src="./auth.js"></script>
+<script src="./common.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="crossorigin">
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="styles.css">
+<script src="./auth.js"></script>
+<script src="./common.js"></script>
+<script src="./news-data.js"></script>
+</helmet>
+<dc-import name="SiteNav" hint-size="100%,72px"></dc-import>
+<div class="nav-spacer"></div>
+
+<section class="pad" id="news" data-screen-label="News">
+  <div class="reveal" style="max-width:760px">
+    <div class="section-eye">
+      <span class="eye-mono">News</span>
+      <div class="eye-dash"></div>
+    </div>
+    <h2 class="section-h2">이치의 <em>새로운 소식</em>을<br>전해드립니다</h2>
+    <p class="section-p">공지사항과 회사 소식을 이곳에서 확인하실 수 있습니다.</p>
+  </div>
+
+  <sc-if value="{{ showList }}" hint-placeholder-val="{{ true }}">
+    <div class="news-bar">
+      <div class="adm-filters">
+        <button type="button" class="adm-chip {{ chipAll }}" onClick="{{ catAll }}">전체</button>
+        <button type="button" class="adm-chip {{ chipNotice }}" onClick="{{ catNotice }}">공지사항</button>
+        <button type="button" class="adm-chip {{ chipNews }}" onClick="{{ catNews }}">회사소식</button>
+      </div>
+      <button type="button" class="btn-write" onClick="{{ create }}">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="7" y1="2" x2="7" y2="12"></line><line x1="2" y1="7" x2="12" y2="7"></line></svg>
+        글쓰기
+      </button>
+    </div>
+    <div class="job-board">
+      <div class="jb-head">
+        <span>번호</span>
+        <span>제목</span>
+        <span>작성일</span>
+        <span>구분</span>
+        <span class="admin-col">관리</span>
+      </div>
+      <sc-for list="{{ posts }}" as="p" hint-placeholder-count="7">
+        <div class="jb-row {{ p.stateClass }}" onClick="{{ p.open }}">
+          <span class="jb-no {{ p.noClass }}">{{ p.noLabel }}</span>
+          <span class="jb-title">
+            <span class="t">{{ p.title }}</span>
+            <span class="field">{{ p.meta }}</span>
+          </span>
+          <span class="jb-date">{{ p.date }}</span>
+          <span class="job-status {{ p.badgeClass }}">{{ p.badgeLabel }}</span>
+          <span class="jb-admin">
+            <button type="button" class="jb-act" onClick="{{ p.edit }}">수정</button>
+            <button type="button" class="jb-act del" onClick="{{ p.del }}">삭제</button>
+          </span>
+        </div>
+      </sc-for>
+    </div>
+    <sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}">
+      <p class="adm-empty">등록된 게시글이 없습니다.</p>
+    </sc-if>
+    <div class="news-pager">
+      <button type="button" class="np-btn" aria-label="이전 페이지" disabled="{{ prevOff }}" onClick="{{ prev }}">‹</button>
+      <sc-for list="{{ pages }}" as="pg" hint-placeholder-count="3">
+        <button type="button" class="np-btn {{ pg.on }}" onClick="{{ pg.go }}">{{ pg.n }}</button>
+      </sc-for>
+      <button type="button" class="np-btn" aria-label="다음 페이지" disabled="{{ nextOff }}" onClick="{{ next }}">›</button>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ showDetail }}" hint-placeholder-val="{{ false }}">
+    <div class="job-detail">
+      <button type="button" class="job-back" onClick="{{ back }}">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="8,2 3,7 8,12"></polyline><line x1="3" y1="7" x2="12" y2="7"></line></svg>
+        목록으로
+      </button>
+      <div class="jd-adminbar">
+        <button type="button" class="jb-act" onClick="{{ detailEdit }}">수정</button>
+        <button type="button" class="jb-act del" onClick="{{ detailDel }}">삭제</button>
+      </div>
+      <div class="jd-head">
+        <span class="jd-code">{{ post.date }} · 조회 {{ post.viewsFmt }}</span>
+        <span class="job-status {{ post.badgeClass }}">{{ post.badgeLabel }}</span>
+        <h3 class="jd-title">{{ post.title }}</h3>
+      </div>
+      <div class="nd-body" ref="{{ bodyRef }}"></div>
+      <sc-if value="{{ hasFiles }}" hint-placeholder-val="{{ false }}">
+        <div class="jd-sec">
+          <h4>첨부파일</h4>
+          <div class="nd-files">
+            <sc-for list="{{ post.files }}" as="file" hint-placeholder-count="1">
+              <a class="nd-file" href="#" onClick="{{ noop }}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><polyline points="14,3 14,8 19,8"></polyline></svg>
+                <span class="nm">{{ file.name }}</span>
+                <span class="sz">{{ file.size }}</span>
+              </a>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ showEdit }}" hint-placeholder-val="{{ false }}">
+    <div class="job-form">
+      <button type="button" class="job-back" onClick="{{ back }}">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="8,2 3,7 8,12"></polyline><line x1="3" y1="7" x2="12" y2="7"></line></svg>
+        목록으로
+      </button>
+      <h3 class="jf-title">{{ formTitle }}</h3>
+
+      <div class="jf-grid">
+        <div class="jf-field">
+          <label>분류</label>
+          <select class="jf-select" value="{{ f.draft.cat }}" onChange="{{ f.setCat }}">
+            <option value="notice">공지사항</option>
+            <option value="news">회사소식</option>
+          </select>
+        </div>
+        <div class="jf-field">
+          <label>공개 여부</label>
+          <select class="jf-select" value="{{ f.draft.vis }}" onChange="{{ f.setVis }}">
+            <option value="public">공개</option>
+            <option value="private">비공개 (관리자만 보기)</option>
+          </select>
+        </div>
+        <div class="jf-field full">
+          <label>제목</label>
+          <input type="text" class="jf-input" placeholder="제목을 입력하세요" value="{{ f.draft.title }}" onInput="{{ f.setTitle }}">
+        </div>
+      </div>
+      <div class="jf-pin">
+        <label class="auth-check">
+          <input type="checkbox" checked="{{ f.draft.pinned }}" onChange="{{ f.setPinned }}">
+          <span class="box"><svg viewBox="0 0 12 12"><polyline points="2,6.5 5,9 10,3.5"></polyline></svg></span>
+          목록 맨 위에 고정
+        </label>
+      </div>
+
+      <div class="jf-sec">
+        <h4>내용</h4>
+        <div class="ne-editor">
+          <div class="ne-tools">
+            <button type="button" class="ne-tool" onMouseDown="{{ keepSel }}" onClick="{{ f.bold }}"><b>굵게</b></button>
+            <button type="button" class="ne-tool" onMouseDown="{{ keepSel }}" onClick="{{ f.heading }}">소제목</button>
+            <button type="button" class="ne-tool" onMouseDown="{{ keepSel }}" onClick="{{ f.para }}">본문</button>
+            <button type="button" class="ne-tool" onMouseDown="{{ keepSel }}" onClick="{{ f.list }}">• 목록</button>
+            <button type="button" class="ne-tool" onMouseDown="{{ keepSel }}" onClick="{{ f.pickImage }}">이미지 넣기</button>
+          </div>
+          <div class="ne-area" contentEditable="true" data-placeholder="내용을 입력하세요" ref="{{ editorRef }}" onInput="{{ f.onEditorInput }}"></div>
+        </div>
+        <p class="jf-hint">이미지는 jpg · png · gif · webp, 한 장에 5MB까지 넣을 수 있습니다.</p>
+        <input type="file" accept="image/jpeg,image/png,image/gif,image/webp" style="display:none" ref="{{ imgInputRef }}" onChange="{{ f.onImage }}">
+      </div>
+
+      <div class="jf-sec">
+        <h4>첨부파일</h4>
+        <div class="jf-rows">
+          <sc-for list="{{ f.files }}" as="file" hint-placeholder-count="1">
+            <div class="jf-row">
+              <div class="nd-file">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><polyline points="14,3 14,8 19,8"></polyline></svg>
+                <span class="nm">{{ file.name }}</span>
+                <span class="sz">{{ file.size }}</span>
+              </div>
+              <button type="button" class="jf-del" onClick="{{ file.onDel }}" aria-label="삭제">
+                <svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="3" y1="3" x2="11" y2="11"></line><line x1="11" y1="3" x2="3" y2="11"></line></svg>
+              </button>
+            </div>
+          </sc-for>
+        </div>
+        <button type="button" class="jf-add" onClick="{{ f.pickFile }}">+ 파일 추가</button>
+        <p class="jf-hint">pdf · hwp · hwpx · docx · xlsx · pptx · zip · 이미지, 한 개에 20MB까지 올릴 수 있습니다.</p>
+        <input type="file" multiple="multiple" accept=".pdf,.hwp,.hwpx,.docx,.xlsx,.pptx,.zip,image/*" style="display:none" ref="{{ fileInputRef }}" onChange="{{ f.onFiles }}">
+      </div>
+
+      <div class="jf-actions">
+        <button type="button" class="jf-cancel" onClick="{{ back }}">취소</button>
+        <button type="button" class="jf-save" onClick="{{ save }}">{{ saveLabel }}</button>
+      </div>
+    </div>
+  </sc-if>
+</section>
+
+<dc-import name="SiteFooter" hint-size="100%,320px"></dc-import>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { view: 'list', selId: null, editingId: null, draft: null, isAdmin: false, posts: null, cat: 'all', page: 1 };
+
+  componentDidMount() {
+    this._load();
+    var self = this;
+    var qp = new URLSearchParams(window.location.search);
+    this._pending = (qp.get('write') || qp.get('edit') || qp.get('post'))
+      ? { write: qp.get('write'), edit: qp.get('edit'), post: qp.get('post') } : null;
+    var checkAdmin = function () {
+      var a = self._admin();
+      if (a !== self.state.isAdmin) self.setState({ isAdmin: a });
+      return a;
+    };
+    // 타이머 setState는 즉시 커밋되지 않으므로 storage 이벤트로 리렌더를 유도 (Careers 와 동일)
+    this._onStorage = function () { checkAdmin(); };
+    window.addEventListener('storage', this._onStorage);
+    var tries = 0;
+    this._iv = setInterval(function () {
+      var ready = !!(window.ICHIAuth && window.ICHIAuth.isAdmin);
+      if (ready && self._admin() !== self.state.isAdmin) {
+        window.dispatchEvent(new StorageEvent('storage', { key: 'ichi_auth' }));
+      }
+      if (ready && self._pending) {
+        var pd = self._pending; self._pending = null;
+        if (pd.edit) self.startEdit(pd.edit);
+        else if (pd.write) self.create();
+        else if (pd.post) self.setState({ view: 'detail', selId: pd.post });
+        window.dispatchEvent(new StorageEvent('storage', { key: 'ichi_news' }));
+      }
+      if ((ready && tries > 2) || tries > 25) clearInterval(self._iv);
+      tries++;
+    }, 100);
+  }
+  componentWillUnmount() { clearInterval(this._iv); window.removeEventListener('storage', this._onStorage); }
+
+  _admin() { return !!(window.ICHIAuth && window.ICHIAuth.isAdmin && window.ICHIAuth.isAdmin()); }
+  _toast(msg) { if (window.ICHIAuth && window.ICHIAuth.toast) window.ICHIAuth.toast(msg); else window.alert(msg); }
+  _deny() { this._toast('관리자 계정만 이용 가능한 기능입니다.'); }
+  _load() { this.setState({ posts: window.ICHINews ? window.ICHINews.all() : [] }); }
+  _persist(arr) { if (window.ICHINews) window.ICHINews.save(arr); this.setState({ posts: arr }); }
+  _num(n) { return Number(n || 0).toLocaleString('ko-KR'); }
+  _size(b) { return b >= 1048576 ? (b / 1048576).toFixed(1) + 'MB' : Math.max(1, Math.round(b / 1024)) + 'KB'; }
+  _view(p) {
+    var catLabel = p.cat === 'notice' ? '공지사항' : '회사소식';
+    var priv = p.vis === 'private';
+    return Object.assign({}, p, {
+      catLabel: catLabel,
+      viewsFmt: this._num(p.views),
+      meta: catLabel + ' · 조회 ' + this._num(p.views),
+      noLabel: p.pinned ? '공지' : String(p.no),
+      noClass: p.pinned ? 'pin' : '',
+      badgeLabel: priv ? '비공개' : catLabel,
+      badgeClass: priv || p.cat !== 'notice' ? 'status-closed' : 'status-open',
+      stateClass: priv ? 'closed' : '',
+      files: p.files || [],
+    });
+  }
+  _visible() {
+    var admin = this._admin();
+    return (this.state.posts || []).filter(function (p) { return admin || p.vis !== 'private'; });
+  }
+
+  create() {
+    if (!this._admin()) { this._deny(); return; }
+    var max = (this.state.posts || []).reduce(function (m, p) { return Math.max(m, p.no || 0); }, 0);
+    this._seeded = null;
+    this.setState({ view: 'edit', editingId: null, draft: {
+      id: 'post-' + Date.now(), no: max + 1, cat: 'notice', vis: 'public', pinned: false, title: '', body: '', files: [], views: 0,
+      date: new Date().toISOString().slice(0, 10).replace(/-/g, '.'),
+    } });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  startEdit(id) {
+    if (!this._admin()) { this._deny(); return; }
+    var p = (this.state.posts || []).find(function (x) { return x.id === id; });
+    if (!p) return;
+    this._seeded = null;
+    this.setState({ view: 'edit', editingId: id, draft: JSON.parse(JSON.stringify(p)) });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  removePost(id) {
+    if (!this._admin()) { this._deny(); return; }
+    var self = this;
+    var run = function () {
+      self._persist((self.state.posts || []).filter(function (x) { return x.id !== id; }));
+      self._toast('게시글이 삭제되었습니다.');
+      self.setState({ view: 'list', selId: null });
+    };
+    if (window.ICHIAuth && window.ICHIAuth.confirm) {
+      window.ICHIAuth.confirm({ title: '게시글 삭제', body: '이 게시글을 삭제하시겠습니까?\n삭제된 글은 복구할 수 없습니다.', confirmText: '삭제', danger: true, onConfirm: run });
+    } else if (window.confirm('이 게시글을 삭제하시겠습니까?')) { run(); }
+  }
+  _dset(k, v) { this.setState({ draft: Object.assign({}, this.state.draft, { [k]: v }) }); }
+  _saveRange() {
+    var sel = window.getSelection();
+    if (sel && sel.rangeCount && this._editorEl && this._editorEl.contains(sel.anchorNode)) this._range = sel.getRangeAt(0).cloneRange();
+  }
+  _restoreRange() {
+    if (!this._editorEl) return;
+    this._editorEl.focus();
+    var sel = window.getSelection();
+    if (this._range && sel) { sel.removeAllRanges(); sel.addRange(this._range); }
+  }
+  _exec(cmd, val) { this._restoreRange(); document.execCommand(cmd, false, val); this._saveRange(); }
+  save() {
+    if (!this._admin()) { this._deny(); return; }
+    var d = this.state.draft; if (!d) return;
+    if (!(d.title || '').trim()) { this._toast('제목을 입력해 주세요.'); return; }
+    var html = this._editorEl ? this._editorEl.innerHTML : (d.body || '');
+    var rec = Object.assign({}, d, { title: d.title.trim(), body: html });
+    var arr = (this.state.posts || []).slice();
+    var i = arr.findIndex(function (x) { return x.id === rec.id; });
+    if (i >= 0) arr[i] = rec; else arr.unshift(rec);
+    this._persist(arr);
+    this._toast(this.state.editingId ? '게시글이 수정되었습니다.' : '게시글이 등록되었습니다.');
+    this.setState({ view: 'list', selId: null, editingId: null, draft: null });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  renderVals() {
+    var self = this;
+    var PER = 10;
+    var cat = this.state.cat;
+    var list = this._visible()
+      .filter(function (p) { return cat === 'all' || p.cat === cat; })
+      .sort(function (a, b) { return (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || (b.no || 0) - (a.no || 0); });
+    var pageCount = Math.max(1, Math.ceil(list.length / PER));
+    var page = Math.min(this.state.page, pageCount);
+    var posts = list.slice((page - 1) * PER, page * PER).map(function (p) {
+      var v = self._view(p);
+      v.open = function () { self.setState({ view: 'detail', selId: p.id }); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+      v.edit = function (e) { e.stopPropagation(); self.startEdit(p.id); };
+      v.del = function (e) { e.stopPropagation(); self.removePost(p.id); };
+      return v;
+    });
+    var pages = [];
+    for (var n = 1; n <= pageCount; n++) (function (n) {
+      pages.push({ n: n, on: n === page ? 'on' : '', go: function () { self.setState({ page: n }); } });
+    })(n);
+
+    var sel = this._visible().find(function (x) { return x.id === self.state.selId; });
+    var post = sel ? this._view(sel) : null;
+    var html = sel ? (sel.body || '') : '';
+
+    var d = this.state.draft;
+    var f = null;
+    if (d) {
+      f = {
+        draft: d,
+        setCat: function (e) { self._dset('cat', e.target.value); },
+        setVis: function (e) { self._dset('vis', e.target.value); },
+        setTitle: function (e) { self._dset('title', e.target.value); },
+        setPinned: function (e) { self._dset('pinned', e.target.checked); },
+        onEditorInput: function () { self._saveRange(); },
+        bold: function () { self._exec('bold'); },
+        heading: function () { self._exec('formatBlock', 'h4'); },
+        para: function () { self._exec('formatBlock', 'p'); },
+        list: function () { self._exec('insertUnorderedList'); },
+        pickImage: function () { if (self._imgInput) self._imgInput.click(); },
+        onImage: function (e) {
+          var file = e.target.files && e.target.files[0]; e.target.value = '';
+          if (!file) return;
+          if (!/^image\/(jpeg|png|gif|webp)$/.test(file.type)) { self._toast('jpg · png · gif · webp 이미지만 넣을 수 있습니다.'); return; }
+          if (file.size > 5 * 1048576) { self._toast('이미지는 한 장에 5MB까지 넣을 수 있습니다.'); return; }
+          var r = new FileReader();
+          r.onload = function () { self._exec('insertImage', r.result); };
+          r.readAsDataURL(file);
+        },
+        files: (d.files || []).map(function (file, i) {
+          return { name: file.name, size: file.size, onDel: function () {
+            var a = (self.state.draft.files || []).slice(); a.splice(i, 1); self._dset('files', a);
+          } };
+        }),
+        pickFile: function () { if (self._fileInput) self._fileInput.click(); },
+        onFiles: function (e) {
+          var picked = Array.prototype.slice.call(e.target.files || []); e.target.value = '';
+          var ok = /\.(pdf|hwp|hwpx|docx|xlsx|pptx|zip|jpe?g|png|gif|webp|bmp|svg)$/i;
+          var add = [];
+          picked.forEach(function (file) {
+            if (!ok.test(file.name)) { self._toast(file.name + ' — 올릴 수 없는 파일 형식입니다.'); return; }
+            if (file.size > 20 * 1048576) { self._toast(file.name + ' — 한 개에 20MB까지 올릴 수 있습니다.'); return; }
+            add.push({ name: file.name, size: self._size(file.size) });
+          });
+          if (add.length) self._dset('files', (self.state.draft.files || []).concat(add));
+        },
+      };
+    }
+    var setCat = function (c) { return function () { self.setState({ cat: c, page: 1 }); }; };
+
+    return {
+      posts: posts,
+      empty: posts.length === 0,
+      pages: pages,
+      prevOff: page <= 1,
+      nextOff: page >= pageCount,
+      prev: function () { self.setState({ page: Math.max(1, page - 1) }); },
+      next: function () { self.setState({ page: Math.min(pageCount, page + 1) }); },
+      chipAll: cat === 'all' ? 'on' : '',
+      chipNotice: cat === 'notice' ? 'on' : '',
+      chipNews: cat === 'news' ? 'on' : '',
+      catAll: setCat('all'), catNotice: setCat('notice'), catNews: setCat('news'),
+      post: post,
+      hasFiles: !!post && post.files.length > 0,
+      bodyRef: function (el) { if (el && el.innerHTML !== html) el.innerHTML = html; },
+      noop: function (e) { e.preventDefault(); },
+      f: f,
+      editorRef: function (el) {
+        self._editorEl = el;
+        if (el && d && self._seeded !== d.id) { el.innerHTML = d.body || ''; self._seeded = d.id; self._range = null; }
+      },
+      imgInputRef: function (el) { self._imgInput = el; },
+      fileInputRef: function (el) { self._fileInput = el; },
+      keepSel: function (e) { e.preventDefault(); self._saveRange(); },
+      showList: this.state.view === 'list',
+      showDetail: this.state.view === 'detail' && !!post,
+      showEdit: this.state.view === 'edit' && !!f,
+      formTitle: this.state.editingId ? '게시글 수정' : '게시글 작성',
+      saveLabel: this.state.editingId ? '수정 완료' : '등록하기',
+      create: function () { self.create(); },
+      save: function () { self.save(); },
+      detailEdit: function () { if (self.state.selId) self.startEdit(self.state.selId); },
+      detailDel: function () { if (self.state.selId) self.removePost(self.state.selId); },
+      back: function () { self.setState({ view: 'list', selId: null, editingId: null, draft: null }); window.scrollTo({ top: 0, behavior: 'smooth' }); },
+    };
+  }
+}
+</script>
+</body>
+</html>

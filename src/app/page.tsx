@@ -86,7 +86,7 @@ export default function Page() {
           <div className="mh-eyebrow">Smart Automation Solutions</div>
           <h1 className="mh-h1">반도체 물류자동화<br />엔지니어링,<br /><em>㈜이치</em>가 책임집니다.</h1>
           <p className="mh-lead">2010년부터 국내외 반도체 FAB 현장에서 OHT 설치 · 조정 · 통번역을 함께합니다.</p>
-          <div className="mh-hero-art"><img src="/assets/hero-bg.webp" alt="OHT 자동반송설비" /></div>
+          <div className="mh-hero-art"><img src="/assets/hero-oht-v6.png" alt="OHT 자동반송설비" /></div>
           <div className="mh-cta">
             <a href="/contact" className="mh-btn-primary">문의하기<span className="arrow"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><line x1="2" y1="6" x2="10" y2="6"></line><polyline points="6,2 10,6 6,10"></polyline></svg></span></a>
             <a href="/about" className="mh-btn-secondary">회사소개 보기</a>
