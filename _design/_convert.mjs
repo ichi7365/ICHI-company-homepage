@@ -27,7 +27,17 @@ const ROUTES = {
   'Privacy.dc.html': 'privacy',
   'Admin.dc.html': 'admin',
 };
-const HREF = Object.fromEntries(Object.entries(ROUTES).map(([f, r]) => [f, '/' + r]));
+/* 시안은 있지만 변환하지 않는 페이지 — 링크 주소만 바꿔 줍니다.
+   화면은 손으로 만들어 둔 것(src/app/news 등)을 그대로 씁니다.
+   ROUTES 에 넣으면 _build.mjs 가 그 화면을 덮어쓰므로 여기에 따로 둡니다. */
+const LINK_ONLY = {
+  'News.dc.html': 'news',
+  'find-id.dc.html': 'find-id',
+  'password-reset.dc.html': 'password-reset',
+};
+const HREF = Object.fromEntries(
+  Object.entries({ ...ROUTES, ...LINK_ONLY }).map(([f, r]) => [f, '/' + r])
+);
 
 const ATTR = {
   class: 'className', for: 'htmlFor', tabindex: 'tabIndex', readonly: 'readOnly',
