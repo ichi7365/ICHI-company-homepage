@@ -4,7 +4,7 @@ import './styles.css';
 import './font-fit.css';
 import { AuthProvider } from '@/lib/auth';
 import RevealProvider from '@/lib/reveal';
-import { BRAND, ORGANIZATION_JSONLD, SITE_DESCRIPTION, SITE_URL, openGraph, verification } from '@/lib/seo';
+import { BRAND, ORGANIZATION_JSONLD, SITE_DESCRIPTION, SITE_KEYWORDS, SITE_URL, openGraph, verification } from '@/lib/seo';
 
 /* 홈(/) 화면 metadata — 다른 화면은 각 폴더의 layout.tsx 가 pageMeta() 로 덮어씁니다 (lib/seo.ts) */
 const HOME_TITLE = `${BRAND} | 반도체 물류자동화 엔지니어링 전문기업`;
@@ -16,6 +16,7 @@ export const metadata: Metadata = {
     template: '%s',
   },
   description: SITE_DESCRIPTION,
+  keywords: SITE_KEYWORDS,
   applicationName: BRAND,
   alternates: { canonical: '/' },
   icons: {

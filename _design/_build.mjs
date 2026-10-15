@@ -6,6 +6,28 @@ const DESIGN = path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za
 const ROOT = path.resolve(DESIGN, '..');
 const SRC = path.join(ROOT, 'src');
 
+/* 검색 설명문 표를 src/lib/seo.ts 에서 읽어옵니다.
+   .ts 라 import 할 수 없어 글자로 읽고 필요한 부분만 꺼냅니다.
+   설명문을 두 곳에 두면 한쪽만 고쳐져 어긋나므로 seo.ts 를 유일한 기준으로 둡니다. */
+function readPageDescriptions() {
+  const file = path.join(SRC, 'lib', 'seo.ts');
+  if (!fs.existsSync(file)) return {};
+  const body = (fs.readFileSync(file, 'utf8').match(
+    /PAGE_DESCRIPTIONS[^=]*=\s*\{([\s\S]*?)\n\};/
+  ) || [])[1];
+  if (!body) return {};
+  const out = {};
+  /* '경로': '설명'  — 설명은 여러 줄로 이어 붙여 쓸 수 있습니다 */
+  for (const m of body.matchAll(/'(\/[^']*)':\s*((?:'(?:[^'\\]|\\.)*'\s*\+?\s*)+)/g)) {
+    out[m[1]] = [...m[2].matchAll(/'((?:[^'\\]|\\.)*)'/g)]
+      .map((q) => q[1].replace(/\\'/g, "'"))
+      .join('');
+  }
+  return out;
+}
+
+const PAGE_DESCRIPTIONS = readPageDescriptions();
+
 const ROUTES = {
   'ICHI Site.dc.html': '',
   'About.dc.html': 'about',
@@ -159,7 +181,14 @@ for (const [file, route] of Object.entries(ROUTES)) {
   const src = fs.readFileSync(path.join(DESIGN, file), 'utf8');
 
   const title = (src.match(/<title>([^<]*)<\/title>/) || [])[1] || 'ICHI';
-  const desc = (src.match(/<meta name="description" content="([^"]*)"/) || [])[1] || '';
+
+  /* 검색 설명문은 src/lib/seo.ts 의 PAGE_DESCRIPTIONS 를 우선 씁니다.
+     시안 설명을 그대로 쓰면 검색용으로 손본 문구가 변환할 때마다 사라집니다.
+     표에 없는 경로는 지금까지처럼 시안 설명을 씁니다. */
+  const desc =
+    PAGE_DESCRIPTIONS['/' + route] ||
+    (src.match(/<meta name="description" content="([^"]*)"/) || [])[1] ||
+    '';
 
   const usesVars = /\bvars\./.test(body);
   const hasLogic = fs.existsSync(path.join(dir, 'logic.tsx'));
