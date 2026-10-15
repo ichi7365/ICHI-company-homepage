@@ -281,7 +281,12 @@ for (const comp of ['SiteNav', 'SiteFooter']) {
 for (const css of ['styles.css', 'theme.css']) {
   const from = path.join(DESIGN, css);
   if (!fs.existsSync(from)) continue;
-  const fixed = fs.readFileSync(from, 'utf8').replace(/url\((["']?)assets\//g, 'url($1/assets/');
+  /* 시안이 배경으로 쓰는 hero png 도 webp 로 바꿉니다.
+     마크업뿐 아니라 CSS 안에도 url('/assets/hero-....png') 가 있어서,
+     한쪽만 바꾸면 데스크톱 배경이 404 로 사라집니다. */
+  const fixed = fs.readFileSync(from, 'utf8')
+    .replace(/url\((["']?)assets\//g, 'url($1/assets/')
+    .replace(/(\/assets\/hero-[\w-]+)\.png/g, '$1.webp');
   fs.writeFileSync(path.join(SRC, 'app', css), fixed, 'utf8');
   log.push(`css   ${css}`);
 }

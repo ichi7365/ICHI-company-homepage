@@ -1836,7 +1836,7 @@ body.is-admin .jd-adminbar{display:flex;}
 .home-desktop .hero::after{
   content:'';position:absolute;top:88px;right:2.5%;bottom:auto;
   width:min(940px,52%);aspect-ratio:1589/990;z-index:1;pointer-events:none;
-  background:url('/assets/hero-oht-v6.png') no-repeat center center;
+  background:url('/assets/hero-oht-v6.webp') no-repeat center center;
   background-size:cover;
   /* image background is pre-graded to the hero navy (#030c17); masks feather every edge */
   -webkit-mask-image:
