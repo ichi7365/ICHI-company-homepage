@@ -25,7 +25,9 @@ const FORM_ID = 'signup-form';
 /* agree4 = 민감정보(혈액형) 수집·이용 동의 — 개인정보 보호법 제23조에 따라 별도로 받습니다 */
 const AGREES = ['agree1', 'agree2', 'agree3', 'agree4'] as const;
 const FIELDS = ['name', 'birth', 'phone', 'email', 'userid', 'password', 'password2'] as const;
-const CODE_SECONDS = 180;
+/* 서버의 인증번호 유효시간(10분)과 맞춥니다. 예전 3분은 서버보다 짧아,
+   메일이 조금 늦게 오면 멀쩡한 번호를 못 쓰게 됐습니다. */
+const CODE_SECONDS = 600;
 
 const form = () => document.getElementById(FORM_ID) as HTMLFormElement | null;
 const byId = (id: string) => document.getElementById(id);

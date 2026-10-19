@@ -160,7 +160,23 @@ const readCode = (value: unknown) => {
 /** POST /api/auth/email-code — 회원가입 인증번호 발송 */
 export async function sendSignupCode(c: Ctx) {
   const body = await readJson(c.req);
-  await issueCode(c, v.email(body.email), 'signup');
+  const email = v.email(body.email);
+
+  /* 이미 가입된 이메일이면 여기서 막습니다.
+     예전에는 인증 · 정보 입력을 다 마친 뒤 마지막에야 거부되어,
+     '인증까지 됐는데 왜 안 되지' 싶게 만들었습니다.
+     탈퇴한 계정은 같은 이메일로 다시 가입할 수 있습니다. */
+  const existing = await c.env.DB.prepare(
+    'SELECT password_hash, status FROM profiles WHERE email = ?'
+  )
+    .bind(email)
+    .first<Pick<ProfileRow, 'password_hash' | 'status'>>();
+
+  if (existing?.password_hash && existing.status === '정상') {
+    throw new HttpError(409, '이미 가입된 이메일입니다. 로그인해 주세요.');
+  }
+
+  await issueCode(c, email, 'signup');
   return json({ ok: true });
 }
 
@@ -228,16 +244,15 @@ export async function signUp(c: Ctx) {
     throw e;
   };
 
-  if (existing?.password_hash) {
+  if (existing?.password_hash && existing.status === '정상') {
     throw new HttpError(409, '이미 가입된 이메일입니다. 로그인해 주세요.');
   } else if (existing) {
     /* Supabase 에서 옮겨온 회원 — 권한 · 가입일은 그대로 두고 아이디 · 비밀번호와 입력한 정보만 채웁니다 */
-    if (existing.status !== '정상') {
-      throw new HttpError(403, '탈퇴 처리된 계정입니다. 관리자에게 문의해 주세요.');
-    }
+    /* 탈퇴한 계정도 같은 이메일로 다시 가입할 수 있습니다.
+       기존 행을 재사용하고 상태를 '정상' 으로 되돌립니다. */
     id = existing.id;
     await c.env.DB.prepare(
-      `UPDATE profiles SET username = ?, password_hash = ?, name = ?, phone = ?, birth = ?, gender = ?, blood = ?, updated_at = ?
+      `UPDATE profiles SET username = ?, password_hash = ?, name = ?, phone = ?, birth = ?, gender = ?, blood = ?, status = '정상', updated_at = ?
         WHERE id = ?`
     )
       .bind(username, hash, name, phone, birth, gender, blood, nowIso(), id)
