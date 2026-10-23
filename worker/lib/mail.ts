@@ -191,13 +191,18 @@ async function deliver(env: Env, mail: Mail, progress: Progress) {
   }
 }
 
-/** 메일 발송 — 20초 안에 끝나지 않으면 실패로 처리합니다 */
-export async function sendMail(env: Env, mail: Mail): Promise<void> {
-  if (env.MAIL_DEV_LOG === '1') {
-    console.log(`[mail] (개발용 — 실제로 보내지 않음) to=${mail.to} subject=${mail.subject}\n${mail.text}`);
-    return;
-  }
+/* 한동안 메일을 보내지 않다가 처음 보낼 때, 하이웍스가 인사말(220)을 주지 않고
+   연결을 끊는 일이 잦습니다. 바로 이어서 다시 보내면 4초 안에 정상 처리됩니다.
+   (2026-10-19 측정: 1회 실패 20.9초 → 2회 성공 4.2초 → 3회 성공 3.8초)
 
+   이용자는 대부분 '한참 만의 첫 요청' 이라 거의 매번 첫 시도에서 실패했습니다.
+   그래서 기다리는 시간을 줄이고 한 번 더 시도합니다.
+   근본 원인은 하이웍스 쪽 확인이 필요합니다 (docs/하이웍스-SMTP-문의.md). */
+const TIMEOUT_MS = 8_000;
+const TRIES = 2;
+
+/** 한 번 보내기 — 정해진 시간 안에 끝나지 않으면 실패 */
+async function sendOnce(env: Env, mail: Mail): Promise<void> {
   const progress: Progress = { step: '접속', steps: [] };
   let timer: ReturnType<typeof setTimeout> | undefined;
   try {
@@ -205,18 +210,47 @@ export async function sendMail(env: Env, mail: Mail): Promise<void> {
       deliver(env, mail, progress),
       new Promise<never>((_, reject) => {
         timer = setTimeout(
-          () => reject(new Error(`SMTP 발송 시간 초과 (20초) — '${progress.step}' 단계에서 응답 없음`)),
-          20_000
+          () =>
+            reject(
+              new Error(
+                `SMTP 발송 시간 초과 (${TIMEOUT_MS / 1000}초) — '${progress.step}' 단계에서 응답 없음`
+              )
+            ),
+          TIMEOUT_MS
         );
       }),
     ]);
   } catch (e) {
-    /* 어느 단계가 얼마나 걸렸는지 — 하이웍스 응답 지연 · 차단 진단용 (비밀번호는 남지 않음) */
+    /* 어느 단계가 얼마나 걸렸는지 — 하이웍스 응답 지연 · 차단 진단용 (비밀번호는 남기지 않습니다) */
     console.error(`[mail] 실패 단계 기록: ${progress.steps.join(' → ') || '(접속 전)'}`);
     throw e;
   } finally {
     if (timer) clearTimeout(timer);
   }
+}
+
+/** 메일 발송 — 실패하면 한 번 더 시도합니다 */
+export async function sendMail(env: Env, mail: Mail): Promise<void> {
+  if (env.MAIL_DEV_LOG === '1') {
+    console.log(`[mail] (개발용 — 실제로 보내지 않음) to=${mail.to} subject=${mail.subject}
+${mail.text}`);
+    return;
+  }
+
+  let last: unknown;
+  for (let i = 1; i <= TRIES; i++) {
+    try {
+      await sendOnce(env, mail);
+      if (i > 1) console.log(`[mail] ${i}번째 시도에서 발송 성공`);
+      return;
+    } catch (e) {
+      last = e;
+      console.error(`[mail] ${i}/${TRIES} 시도 실패:`, (e as Error)?.message ?? e);
+      /* 끊긴 연결이 정리될 틈을 잠깐 줍니다 */
+      if (i < TRIES) await new Promise((r) => setTimeout(r, 1_000));
+    }
+  }
+  throw last;
 }
 
 /** 메일 본문 공통 틀 */
